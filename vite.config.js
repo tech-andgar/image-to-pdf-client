@@ -16,7 +16,7 @@ export default defineConfig({
 			devOptions: {
 				enabled: false,
 			},
-			includeAssets: ["icon.svg", "icon-192.svg"],
+			includeAssets: ["icon.svg"],
 			manifest: {
 				name: "Conversor de Imágenes a PDF",
 				short_name: "ImgToPDF",
@@ -46,12 +46,6 @@ export default defineConfig({
 					{
 						src: "/icon-96.svg",
 						sizes: "96x96",
-						type: "image/svg+xml",
-						purpose: "any maskable",
-					},
-					{
-						src: "/icon-192.svg",
-						sizes: "192x192",
 						type: "image/svg+xml",
 						purpose: "any maskable",
 					},
