@@ -4,8 +4,11 @@
 
 - [x] **Fase 1: Configuración del proyecto y selección de bibliotecas.**
   - Inicializar el repositorio y herramientas de control de versiones
-  - Seleccionar y configurar el framework frontend (React con Vite)
-  - Seleccionar y configurar bibliotecas clave (pdf-lib, drag and drop)
+  - Seleccionar y configurar el framework frontend (React con Vite y TypeScript)
+  - Configurar diseño responsivo con shadcn/ui y Tailwind CSS
+  - Implementar soporte PWA para instalación y funcionamiento offline
+  - Configurar herramientas de calidad de código (Biome para linting)
+  - Seleccionar y configurar bibliotecas clave (pdf-lib para PDF)
   - Configurar estructura básica del proyecto
   - Instalar dependencias iniciales
 
