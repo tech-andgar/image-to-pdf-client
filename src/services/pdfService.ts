@@ -3,6 +3,120 @@ import type { PDFImage } from "pdf-lib";
 import type { ImageFile } from "../types/image";
 
 /**
+ * Represents the share capabilities of the current browser
+ */
+interface ShareCapabilities {
+	canShare: boolean;
+	canShareFile: boolean;
+	supportsWebShare: boolean;
+}
+
+/**
+ * Checks Web Share API availability and capabilities
+ */
+function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
+	if (!navigator.share) {
+		return { canShare: false, canShareFile: false, supportsWebShare: false };
+	}
+
+	const supportsWebShare = true;
+
+	// Check if we can share files directly (Web Share Level 2)
+	let canShareFile = false;
+	try {
+		canShareFile =
+			"canShare" in navigator.share &&
+			(navigator.share as any).canShare &&
+			(navigator.share as any).canShare({
+				files: [new File([pdfBlob], "temp.pdf", { type: "application/pdf" })],
+			});
+	} catch (_e) {
+		canShareFile = false;
+	}
+
+	// Check basic sharing capability
+	let canShare = canShareFile;
+	try {
+		if ("canShare" in navigator.share && (navigator.share as any).canShare) {
+			canShare =
+				canShare ||
+				(navigator.share as any).canShare({ url: window.location.href });
+		} else {
+			canShare = true; // Assume basic sharing is available if navigator.share exists
+		}
+	} catch (_e) {
+		canShare = true;
+	}
+
+	return { canShare, canShareFile, supportsWebShare };
+}
+
+/**
+ * Shares PDF using Web Share API or fallback to clipboard/copy instructions
+ */
+export async function sharePDF(
+	pdfBytes: Uint8Array,
+	filename: string = "images.pdf",
+): Promise<{ success: boolean; method: string; error?: string }> {
+	try {
+		// Convert Uint8Array to ensure compatibility with Blob
+		const pdfBlob = new Blob([new Uint8Array(pdfBytes)], {
+			type: "application/pdf",
+		});
+		const capabilities = getShareCapabilities(pdfBlob);
+
+		if (!capabilities.canShare) {
+			// Fallback: Copy URL to clipboard as it's the most basic sharing method
+			try {
+				const url = window.location.href;
+				await navigator.clipboard.writeText(url);
+				return {
+					success: true,
+					method: "clipboard-url",
+					error:
+						"El navegador no soporta compartir archivos directamente. Se copió la URL de la aplicación al portapapeles.",
+				};
+			} catch (_clipboardError) {
+				return {
+					success: false,
+					method: "none",
+					error:
+						"Este navegador no soporta compartir archivos. Use la descarga directa en su lugar.",
+				};
+			}
+		}
+
+		// Try to share with file if supported
+		if (capabilities.canShareFile) {
+			await navigator.share({
+				files: [new File([pdfBlob], filename, { type: "application/pdf" })],
+				title: filename,
+				text: "PDF generado con imágenes convertidas",
+			});
+			return { success: true, method: "file" };
+		}
+
+		// Fallback to URL sharing
+		await navigator.share({
+			title: filename,
+			text: "PDF generado con imágenes convertidas",
+			url: window.location.href,
+		});
+		return { success: true, method: "url" };
+	} catch (error) {
+		console.error("Error sharing PDF:", error);
+		return {
+			success: false,
+			method: "none",
+			error:
+				error instanceof Error
+					? error.message
+					: "Error desconocido al compartir",
+		};
+	}
+}
+
+/**
  * Converts a File to a Uint8Array for pdf-lib
  */
 async function fileToUint8Array(file: File): Promise<Uint8Array> {

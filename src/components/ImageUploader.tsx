@@ -1,4 +1,4 @@
-import { Upload, FileDown, AlertCircle } from "lucide-react";
+import { Upload, FileDown, AlertCircle, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useImageUpload } from "../hooks/useImageUpload";
@@ -29,9 +29,13 @@ export function ImageUploader() {
 
 	const {
 		isGenerating,
+		isSharing,
 		exportError,
 		exportToPDF,
 		clearExportError,
+		shareResult,
+		shareToPDF,
+		clearShareResult,
 		filename,
 		setFilename,
 		previewFilename,
@@ -137,23 +141,73 @@ export function ImageUploader() {
 								</div>
 							)}
 
-							{/* Export button */}
-							<Button
-								onClick={() => exportToPDF(uploadedImages)}
-								disabled={isGenerating || uploadedImages.length === 0}
-								className="w-full"
-								size="lg"
-							>
-								{isGenerating ? (
-									<>Generando PDF...</>
-								) : (
-									<>
-										<FileDown className="h-4 w-4 mr-2" />
-										Descargar PDF ({uploadedImages.length} página
-										{uploadedImages.length !== 1 ? "s" : ""})
-									</>
-								)}
-							</Button>
+							{/* Export buttons */}
+							<div className="grid grid-cols-2 gap-3">
+								<Button
+									onClick={() => exportToPDF(uploadedImages)}
+									disabled={isGenerating || uploadedImages.length === 0}
+									size="lg"
+								>
+									{isGenerating ? (
+										<>Generando...</>
+									) : (
+										<>
+											<FileDown className="h-4 w-4 mr-2" />
+											Descargar
+										</>
+									)}
+								</Button>
+
+								<Button
+									onClick={() => shareToPDF(uploadedImages)}
+									disabled={isSharing || uploadedImages.length === 0}
+									variant="outline"
+									size="lg"
+								>
+									{isSharing ? (
+										<>Compartiendo...</>
+									) : (
+										<>
+											<Share2 className="h-4 w-4 mr-2" />
+											Compartir
+										</>
+									)}
+								</Button>
+							</div>
+
+							{/* Share result message */}
+							{shareResult && (
+								<div
+									className={`mt-3 p-2 rounded flex items-center gap-2 text-sm ${
+										shareResult.success
+											? "bg-green-50 border border-green-200 text-green-700"
+											: "bg-yellow-50 border border-yellow-200 text-yellow-700"
+									}`}
+								>
+									<AlertCircle
+										className={`h-4 w-4 flex-shrink-0 ${
+											shareResult.success ? "text-green-600" : "text-yellow-600"
+										}`}
+									/>
+									<span className="flex-1">
+										{shareResult.success
+											? `Compartido exitosamente ${shareResult.method === "file" ? "(archivo)" : shareResult.method === "url" ? "(enlace)" : ""}`
+											: shareResult.error}
+									</span>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={clearShareResult}
+										className={`ml-auto h-6 px-2 ${
+											shareResult.success
+												? "text-green-600 hover:text-green-800 hover:bg-green-100"
+												: "text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100"
+										}`}
+									>
+										✕
+									</Button>
+								</div>
+							)}
 
 							<div className="mt-2 text-xs text-muted-foreground">
 								Las imágenes serán exportadas en el orden actual
