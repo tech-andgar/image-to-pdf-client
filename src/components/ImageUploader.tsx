@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useImageUpload } from "../hooks/useImageUpload";
 import { usePdfExport } from "../hooks/usePdfExport";
+import { useImageCompression } from "../hooks/useImageCompression";
 import { UploadArea } from "./UploadArea";
 import { ImagePreviewGrid } from "./ImagePreviewGrid";
 import { ImagePreviewModal } from "./ImagePreviewModal";
+import { CompressionControls } from "./CompressionControls";
 
 export function ImageUploader() {
 	const {
@@ -26,6 +28,20 @@ export function ImageUploader() {
 
 	const { isGenerating, exportError, exportToPDF, clearExportError } =
 		usePdfExport();
+
+	const {
+		isCompressing,
+		compressionError,
+		currentPreset,
+		compressionProgress,
+		compressionStats,
+		formattedStats,
+		hasSignificantSavings,
+		presets,
+		compressImages,
+		changePreset,
+		clearError: clearCompressionError,
+	} = useImageCompression();
 
 	return (
 		<div className="w-full max-w-2xl mx-auto">
@@ -78,6 +94,24 @@ export function ImageUploader() {
 						onReorderImages={reorderImages}
 						onPreviewImage={openPreviewModal}
 					/>
+
+					{/* Compression Controls */}
+					{uploadedImages.length > 0 && (
+						<div className="mt-6">
+							<CompressionControls
+								isCompressing={isCompressing}
+								compressionError={compressionError}
+								currentPreset={currentPreset}
+								compressionProgress={compressionProgress}
+								formattedStats={formattedStats}
+								hasSignificantSavings={hasSignificantSavings}
+								presets={presets}
+								onCompress={() => compressImages(uploadedImages)}
+								onPresetChange={changePreset}
+								onClearError={clearCompressionError}
+							/>
+						</div>
+					)}
 
 					{/* Export to PDF Section */}
 					{uploadedImages.length > 0 && (
