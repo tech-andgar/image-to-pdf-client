@@ -5,21 +5,21 @@
 
 // Add Google Analytics types
 declare global {
-  interface Window {
-    gtag?: (
-      command: 'config' | 'event' | 'js',
-      targetId: string | Date,
-      config?: Record<string, any>
-    ) => void;
-    dataLayer?: any[];
-  }
+	interface Window {
+		gtag?: (
+			command: "config" | "event" | "js",
+			targetId: string | Date,
+			config?: Record<string, any>,
+		) => void;
+		dataLayer?: any[];
+	}
 }
 
 export interface UserMetric {
 	timestamp: string;
 	action: string;
 	value?: number;
-	category: 'upload' | 'interaction' | 'export' | 'error' | 'performance';
+	category: "upload" | "interaction" | "export" | "error" | "performance";
 	sessionId: string;
 	userAgent: string;
 }
@@ -34,11 +34,11 @@ class UserMetricsService {
 		this.loadMetricsFromStorage();
 
 		// Track page visits
-		this.trackMetric('page_visit', 'interaction');
+		this.trackMetric("page_visit", "interaction");
 
 		// Track unload to estimate session duration
-		window.addEventListener('beforeunload', () => {
-			this.trackMetric('page_exit', 'interaction', Date.now());
+		window.addEventListener("beforeunload", () => {
+			this.trackMetric("page_exit", "interaction", Date.now());
 		});
 	}
 
@@ -48,24 +48,28 @@ class UserMetricsService {
 
 	private loadMetricsFromStorage() {
 		try {
-			const storedMetrics = localStorage.getItem('user_metrics');
+			const storedMetrics = localStorage.getItem("user_metrics");
 			if (storedMetrics) {
 				this.metrics = JSON.parse(storedMetrics);
 			}
 		} catch (error) {
-			console.warn('Failed to load metrics from storage:', error);
+			console.warn("Failed to load metrics from storage:", error);
 		}
 	}
 
 	private saveMetricsToStorage() {
 		try {
-			localStorage.setItem('user_metrics', JSON.stringify(this.metrics));
+			localStorage.setItem("user_metrics", JSON.stringify(this.metrics));
 		} catch (error) {
-			console.warn('Failed to save metrics to storage:', error);
+			console.warn("Failed to save metrics to storage:", error);
 		}
 	}
 
-	trackMetric(action: string, category: UserMetric['category'], value?: number) {
+	trackMetric(
+		action: string,
+		category: UserMetric["category"],
+		value?: number,
+	) {
 		const metric: UserMetric = {
 			timestamp: new Date().toISOString(),
 			action,
@@ -87,52 +91,60 @@ class UserMetricsService {
 
 		// Optional: Send to analytics service
 		if (window.gtag) {
-			window.gtag('event', action, {
+			window.gtag("event", action, {
 				event_category: category,
 				event_label: this.sessionId,
 				value: value,
 			});
 		}
 
-		console.log(`[METRICS] ${category}:${action}`, value || '');
+		console.log(`[METRICS] ${category}:${action}`, value || "");
 	}
 
 	// Upload metrics
 	trackFileUploaded(count: number, totalSize: number) {
-		this.trackMetric('files_uploaded', 'upload', count);
-		this.trackMetric('upload_size_mb', 'upload', totalSize / (1024 * 1024));
+		this.trackMetric("files_uploaded", "upload", count);
+		this.trackMetric("upload_size_mb", "upload", totalSize / (1024 * 1024));
 	}
 
 	trackCompressionUsed(preset: string, sizeReductionPercent: number) {
-		this.trackMetric('compression_used', 'interaction');
-		this.trackMetric(`compression_preset_${preset}`, 'interaction');
-		this.trackMetric('size_reduction_percent', 'performance', sizeReductionPercent);
+		this.trackMetric("compression_used", "interaction");
+		this.trackMetric(`compression_preset_${preset}`, "interaction");
+		this.trackMetric(
+			"size_reduction_percent",
+			"performance",
+			sizeReductionPercent,
+		);
 	}
 
 	// Interaction metrics
 	trackImageReordered() {
-		this.trackMetric('image_reordered', 'interaction');
+		this.trackMetric("image_reordered", "interaction");
 	}
 
 	trackImagePreviewed() {
-		this.trackMetric('image_previewed', 'interaction');
+		this.trackMetric("image_previewed", "interaction");
 	}
 
 	trackImageRemoved() {
-		this.trackMetric('image_removed', 'interaction');
+		this.trackMetric("image_removed", "interaction");
 	}
 
 	// Export metrics
-	trackPdfExported(pageCount: number, fileSize: number, generationTime: number) {
-		this.trackMetric('pdf_exported', 'export', pageCount);
-		this.trackMetric('pdf_file_size_mb', 'export', fileSize / (1024 * 1024));
-		this.trackMetric('pdf_generation_time_ms', 'performance', generationTime);
+	trackPdfExported(
+		pageCount: number,
+		fileSize: number,
+		generationTime: number,
+	) {
+		this.trackMetric("pdf_exported", "export", pageCount);
+		this.trackMetric("pdf_file_size_mb", "export", fileSize / (1024 * 1024));
+		this.trackMetric("pdf_generation_time_ms", "performance", generationTime);
 	}
 
 	// Error metrics
 	trackError(errorType: string, details?: string) {
-		this.trackMetric('error_occurred', 'error');
-		this.trackMetric(`error_${errorType}`, 'error');
+		this.trackMetric("error_occurred", "error");
+		this.trackMetric(`error_${errorType}`, "error");
 		console.error(`[USER ERROR] ${errorType}:`, details);
 	}
 
@@ -150,7 +162,7 @@ class UserMetricsService {
 	clearMetrics() {
 		this.metrics = [];
 		this.saveMetricsToStorage();
-		console.log('[METRICS] All metrics cleared');
+		console.log("[METRICS] All metrics cleared");
 	}
 }
 

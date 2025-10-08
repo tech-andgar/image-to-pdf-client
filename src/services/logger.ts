@@ -4,9 +4,9 @@
  */
 
 export enum LogLevel {
-	INFO = 'info',
-	WARN = 'warn',
-	ERROR = 'error',
+	INFO = "info",
+	WARN = "warn",
+	ERROR = "error",
 }
 
 export interface LogEntry {
@@ -29,22 +29,22 @@ class LoggerService {
 		this.loadLogsFromStorage();
 
 		// Log application start
-		this.info('Application started', {
+		this.info("Application started", {
 			userAgent: navigator.userAgent,
 			url: window.location.href,
 			timestamp: new Date().toISOString(),
 		});
 
 		// Setup global error handler
-		window.addEventListener('unhandledrejection', (event) => {
-			this.error('Unhandled promise rejection', {
+		window.addEventListener("unhandledrejection", (event) => {
+			this.error("Unhandled promise rejection", {
 				reason: event.reason,
 				promise: event.promise,
 			});
 		});
 
-		window.addEventListener('error', (event) => {
-			this.error('Global JavaScript error', {
+		window.addEventListener("error", (event) => {
+			this.error("Global JavaScript error", {
 				message: event.message,
 				source: event.filename,
 				line: event.lineno,
@@ -60,24 +60,28 @@ class LoggerService {
 
 	private loadLogsFromStorage() {
 		try {
-			const storedLogs = localStorage.getItem('app_logs');
+			const storedLogs = localStorage.getItem("app_logs");
 			if (storedLogs) {
 				this.logs = JSON.parse(storedLogs);
 			}
 		} catch (error) {
-			console.warn('Failed to load logs from storage:', error);
+			console.warn("Failed to load logs from storage:", error);
 		}
 	}
 
 	private saveLogsToStorage() {
 		try {
-			localStorage.setItem('app_logs', JSON.stringify(this.logs));
+			localStorage.setItem("app_logs", JSON.stringify(this.logs));
 		} catch (error) {
-			console.warn('Failed to save logs to storage:', error);
+			console.warn("Failed to save logs to storage:", error);
 		}
 	}
 
-	private createLogEntry(level: LogLevel, message: string, data?: any): LogEntry {
+	private createLogEntry(
+		level: LogLevel,
+		message: string,
+		data?: any,
+	): LogEntry {
 		return {
 			timestamp: new Date().toISOString(),
 			level,
@@ -104,10 +108,14 @@ class LoggerService {
 		this.saveLogsToStorage();
 
 		// Console output
-		const logMethod = level === LogLevel.ERROR ? 'error' :
-						 level === LogLevel.WARN ? 'warn' : 'log';
+		const logMethod =
+			level === LogLevel.ERROR
+				? "error"
+				: level === LogLevel.WARN
+					? "warn"
+					: "log";
 
-		console[logMethod](`[${level.toUpperCase()}] ${message}`, data || '');
+		console[logMethod](`[${level.toUpperCase()}] ${message}`, data || "");
 	}
 
 	info(message: string, data?: any) {
@@ -146,21 +154,25 @@ class LoggerService {
 	}
 
 	// PDF generation tracking
-	trackPdfGeneration(imageCount: number, compressionUsed: boolean, presetsUsed?: string[]) {
-		this.info('PDF generation started', {
+	trackPdfGeneration(
+		imageCount: number,
+		compressionUsed: boolean,
+		presetsUsed?: string[],
+	) {
+		this.info("PDF generation started", {
 			imageCount,
 			compressionUsed,
 			presetsUsed,
 		});
 
 		// Track PDF generation performance
-		this.time('pdf-generation');
+		this.time("pdf-generation");
 	}
 
 	trackPdfGenerated(success: boolean, fileSize?: number) {
-		this.timeEnd('pdf-generation');
+		this.timeEnd("pdf-generation");
 
-		this.info('PDF generation completed', {
+		this.info("PDF generation completed", {
 			success,
 			fileSize,
 			fileSizeMB: fileSize ? fileSize / (1024 * 1024) : undefined,
@@ -176,7 +188,7 @@ class LoggerService {
 	clearLogs() {
 		this.logs = [];
 		this.saveLogsToStorage();
-		this.info('Logs cleared');
+		this.info("Logs cleared");
 	}
 
 	// Export logs as JSON (useful for bug reports)

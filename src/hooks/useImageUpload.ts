@@ -29,7 +29,7 @@ export function useImageUpload() {
 	 * Processes files and updates state
 	 */
 	const processUploadedFiles = useCallback((fileList: FileList) => {
-		logger.trackFileOperation('upload started', fileList.length, 0);
+		logger.trackFileOperation("upload started", fileList.length, 0);
 
 		const processedFiles = processFiles(fileList);
 
@@ -42,7 +42,10 @@ export function useImageUpload() {
 					preview: result.preview,
 				};
 			} else {
-				logger.warn('File processing error', { fileName: result.file.name, error: "error" in result ? result.error : 'Unknown error' });
+				logger.warn("File processing error", {
+					fileName: result.file.name,
+					error: "error" in result ? result.error : "Unknown error",
+				});
 				return {
 					id: generateImageId(),
 					file: result.file,
@@ -54,10 +57,14 @@ export function useImageUpload() {
 
 		setUploadedImages((prev) => [...prev, ...newImages]);
 
-		const successCount = newImages.filter(img => !img.error).length;
-		const errorCount = newImages.filter(img => img.error).length;
+		const successCount = newImages.filter((img) => !img.error).length;
+		const errorCount = newImages.filter((img) => img.error).length;
 
-		logger.trackFileOperation('upload completed', successCount, newImages.reduce((total, img) => total + img.file.size, 0));
+		logger.trackFileOperation(
+			"upload completed",
+			successCount,
+			newImages.reduce((total, img) => total + img.file.size, 0),
+		);
 
 		if (errorCount > 0) {
 			logger.warn(`${errorCount} files failed to process`);
@@ -136,7 +143,7 @@ export function useImageUpload() {
 		};
 
 		setUploadedImages((prev) => arrayMove(prev, oldIndex, newIndex));
-		logger.trackUserAction('image reordered', { from: oldIndex, to: newIndex });
+		logger.trackUserAction("image reordered", { from: oldIndex, to: newIndex });
 	}, []);
 
 	/**
