@@ -12,8 +12,11 @@
     *   **Icons:** Lucide React v0.545 para iconografía consistente
     *   **Build Tool:** Vite v7.1.14 con TypeScript y PWA support
     *   **Linting/Formateo:** Biome v1.9.4 para calidad de código automatizada
-    *   **Generación de PDF:** Investigar y seleccionar la biblioteca más adecuada para la creación de PDF del lado del cliente. `pdf-lib` es una opción potente a considerar por no tener dependencias nativas y funcionar en cualquier entorno de JavaScript.
-    *   **Interacción de Arrastrar y Soltar:** Evaluar e implementar una biblioteca para el reordenamiento de elementos (por ejemplo, `SortableJS` o utilizando la API nativa de Drag and Drop de HTML5).
+    *   **Generación de PDF:** `pdf-lib` v1.17.1 seleccionado - biblioteca sin dependencias nativas para creación de PDF cliente-side
+    *   **Interacción de Arrastrar y Soltar:** `@dnd-kit` v6.17.0 implementado - capa ligera sobre HTML5 Drag and Drop API con soporte completo mobile touch y pointer events
+    *   **Image Processing:** API de FileReader + Canvas para validación y preview de imágenes
+    *   **State Management:** React hooks nativos con custom hooks para驶 lógica reutilizable
+    *   **PWA:** Vite PWA plugin v0.21.1 con service workers para caching offline
 *   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y un framework de UI moderno como shadcn/ui con Tailwind CSS.
 *   **Progressive Web App (PWA):** La aplicación debe ser instalable y funcionar de manera offline cuando sea posible, aprovechando service workers y caching inteligente de recursos y bibliotecas provided by Vite PWA plugin.
 

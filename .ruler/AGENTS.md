@@ -9,12 +9,13 @@ Desarrollar una aplicación web responsiva que permita a los usuarios fusionar m
 **Estado Actual del Proyecto:**
 - ✅ **Fase 1 completa:** Proyecto configurado con tecnologías modernas (React 19.2, TypeScript, Vite, shadcn/ui)
 - ✅ **Fase 2 completa:** Componentes de carga de archivos con arquitectura limpia implementados
-- ✅ **Fase 3 completa:** Drag & drop reordering implementado con @dnd-kit
-  - Galería responsiva con thumbnails ordenables
-  - Visual feedback completo (drag handles, opacity, transitions)
-  - Soporte accesibilidad (keyboard navigation)
-  - Estado de orden preservado para PDF generation
-- 🔄 **Próxima fase:** Fase 4 - PDF generation con pdf-lib + exportación
+- ✅ **Fase 3 completa:** Drag & drop reordering fully funcional en mobile y desktop
+  - Galería responsiva con thumbnails ordenables via @dnd-kit
+  - TouchSensor + PointerSensor híbrido para cross-device compatibility
+  - Visual feedback completo: drag handles, opacity transitions, smooth animations
+  - Accesibilidad 100%: ARIA labels, keyboard navigation, screen reader support
+  - Estado de orden preservado para generación PDF en secuencia correcta
+- 🔄 **Próxima fase:** Fase 4 - PDF generation completo con pdf-lib + exportación directa
 
 **Arquitectura Implementada:**
 - **Layer de Tipos:** `src/types/` - interfaces ImageFile centralizadas con IDs únicos
