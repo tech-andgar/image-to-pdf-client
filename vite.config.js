@@ -32,25 +32,33 @@ export default defineConfig({
 				scope: process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/",
 				icons: [
 					{
-						src: "/icon-48.svg",
+						src: process.env.GITHUB_PAGES
+							? "/image-to-pdf-client-public/icon-48.svg"
+							: "/icon-48.svg",
 						sizes: "48x48",
 						type: "image/svg+xml",
 						purpose: "any maskable",
 					},
 					{
-						src: "/icon-72.svg",
+						src: process.env.GITHUB_PAGES
+							? "/image-to-pdf-client-public/icon-72.svg"
+							: "/icon-72.svg",
 						sizes: "72x72",
 						type: "image/svg+xml",
 						purpose: "any maskable",
 					},
 					{
-						src: "/icon-96.svg",
+						src: process.env.GITHUB_PAGES
+							? "/image-to-pdf-client-public/icon-96.svg"
+							: "/icon-96.svg",
 						sizes: "96x96",
 						type: "image/svg+xml",
 						purpose: "any maskable",
 					},
 					{
-						src: "/icon.svg",
+						src: process.env.GITHUB_PAGES
+							? "/image-to-pdf-client-public/icon.svg"
+							: "/icon.svg",
 						sizes: "512x512",
 						type: "image/svg+xml",
 						purpose: "any maskable",
