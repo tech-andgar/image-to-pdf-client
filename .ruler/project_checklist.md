@@ -3,11 +3,12 @@
 ## Work Breakdown Structure (WBS)
 
 - [x] **Fase 1: Configuración del proyecto y selección de bibliotecas.**
-  - Inicializar el repositorio y herramientas de control de versiones
+  - Inicializar el repositorio y herramientas de control de versiones con ganchos pre-commit
   - Seleccionar y configurar el framework frontend (React con Vite y TypeScript)
   - Configurar diseño responsivo con shadcn/ui y Tailwind CSS
   - Implementar soporte PWA para instalación y funcionamiento offline
-  - Configurar herramientas de calidad de código (Biome para linting)
+  - Configurar herramientas de calidad de código (Biome para linting y formateo)
+  - Implementar ganchos pre-commit con Husky para linting automático
   - Seleccionar y configurar bibliotecas clave (pdf-lib para PDF)
   - Configurar estructura básica del proyecto
   - Instalar dependencias iniciales
