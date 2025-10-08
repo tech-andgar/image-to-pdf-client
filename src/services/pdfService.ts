@@ -1,6 +1,7 @@
 import { PDFDocument } from "pdf-lib";
 import type { PDFImage } from "pdf-lib";
 import type { ImageFile } from "../types/image";
+import { logger } from "./logger";
 
 /**
  * Represents the share capabilities of the current browser
@@ -34,7 +35,9 @@ function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
 			shareApi.canShare({
 				files: [new File([pdfBlob], "temp.pdf", { type: "application/pdf" })],
 			});
-	} catch (_e) {
+	} catch (fileShareError) {
+		// Log the file sharing check error for debugging
+		logger.warn("Failed to check file sharing capabilities", fileShareError);
 		canShareFile = false;
 	}
 
@@ -49,7 +52,9 @@ function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
 		} else {
 			canShare = true; // Assume basic sharing is available if navigator.share exists
 		}
-	} catch (_e) {
+	} catch (shareError) {
+		// Log the share capability check error for debugging
+		logger.warn("Failed to check share capabilities", shareError);
 		canShare = true;
 	}
 
@@ -64,8 +69,12 @@ export async function sharePDF(
 	filename: string = "images.pdf",
 ): Promise<{ success: boolean; method: string; error?: string }> {
 	try {
-		// Convert Uint8Array to ensure compatibility with Blob
-		const pdfBlob = new Blob([new Uint8Array(pdfBytes)], {
+		// Create a new ArrayBuffer from the Uint8Array bytes to ensure compatibility
+		const pdfArrayBuffer = new ArrayBuffer(pdfBytes.length);
+		const view = new Uint8Array(pdfArrayBuffer);
+		view.set(pdfBytes);
+
+		const pdfBlob = new Blob([pdfArrayBuffer], {
 			type: "application/pdf",
 		});
 		const capabilities = getShareCapabilities(pdfBlob);
@@ -79,14 +88,16 @@ export async function sharePDF(
 					success: true,
 					method: "clipboard-url",
 					error:
-						"El navegador no soporta compartir archivos directamente. Se copió la URL de la aplicación al portapapeles.",
+						"Tu navegador no soporta compartir archivos. Se copió la URL de esta aplicación al portapapeles para que puedas compartirla manualmente.",
 				};
-			} catch (_clipboardError) {
+			} catch (clipboardError) {
+				// Log the clipboard error for debugging
+				logger.warn("Failed to copy to clipboard", clipboardError);
 				return {
 					success: false,
 					method: "none",
 					error:
-						"Este navegador no soporta compartir archivos. Use la descarga directa en su lugar.",
+						"No se puede compartir desde este navegador. Te recomendamos usar las opciones de descarga para guardar el PDF localmente.",
 				};
 			}
 		}
@@ -109,7 +120,7 @@ export async function sharePDF(
 		});
 		return { success: true, method: "url" };
 	} catch (error) {
-		console.error("Error sharing PDF:", error);
+		logger.error("Error sharing PDF", error);
 		return {
 			success: false,
 			method: "none",
@@ -153,7 +164,7 @@ export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
 
 		for (const image of images) {
 			if (image.error) {
-				console.warn(`Skipping invalid image: ${image.error}`);
+				logger.warn("Skipping invalid image", { error: image.error });
 				continue;
 			}
 
@@ -167,7 +178,9 @@ export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
 				embeddedImage = await pdfDoc.embedPng(imageBytes);
 			} else {
 				// For other formats (BMP, GIF), we'll skip for now as pdf-lib doesn't support them directly
-				console.warn(`Unsupported image type for PDF: ${image.file.type}`);
+				logger.warn("Unsupported image type for PDF", {
+					imageType: image.file.type,
+				});
 				continue;
 			}
 
@@ -212,7 +225,7 @@ export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
 
 		return await pdfDoc.save();
 	} catch (error) {
-		console.error("Error generating PDF:", error);
+		logger.error("Error generating PDF", error);
 		throw new Error(
 			error instanceof Error ? error.message : "Failed to generate PDF",
 		);
@@ -227,7 +240,12 @@ export function downloadPDF(
 	filename: string = "images.pdf",
 ): void {
 	try {
-		const blob = new Blob([new Uint8Array(pdfBytes)], {
+		// Create a new ArrayBuffer from the Uint8Array bytes to ensure compatibility
+		const pdfArrayBuffer = new ArrayBuffer(pdfBytes.length);
+		const view = new Uint8Array(pdfArrayBuffer);
+		view.set(pdfBytes);
+
+		const blob = new Blob([pdfArrayBuffer], {
 			type: "application/pdf",
 		});
 		const url = URL.createObjectURL(blob);
@@ -242,7 +260,7 @@ export function downloadPDF(
 		// Clean up the blob URL
 		setTimeout(() => URL.revokeObjectURL(url), 100);
 	} catch (error) {
-		console.error("Error downloading PDF:", error);
+		logger.error("Error downloading PDF", error);
 		throw new Error("Failed to download PDF");
 	}
 }
