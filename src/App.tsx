@@ -1,34 +1,33 @@
-import { useState } from "react";
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
-import "./App.css";
+import { ImageUploader } from "./components/ImageUploader";
 
 function App() {
-	const [count, setCount] = useState(0);
-
 	return (
-		<>
-			<div>
-				<a href="https://vite.dev" target="_blank" rel="noopener">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank" rel="noopener">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
+		<div className="min-h-screen bg-background">
+			<div className="container mx-auto py-8">
+				{/* Header */}
+				<header className="text-center mb-8">
+					<h1 className="text-4xl font-bold text-foreground mb-2">
+						Conversor de Imágenes a PDF
+					</h1>
+					<p className="text-xl text-muted-foreground">
+						Carga tus imágenes y conviértelas en un documento PDF
+					</p>
+				</header>
+
+				{/* Main Content */}
+				<main>
+					<ImageUploader />
+				</main>
+
+				{/* Footer */}
+				<footer className="text-center mt-16 text-sm text-muted-foreground">
+					<p>
+						Una aplicación web segura que procesa todo en tu navegador sin
+						enviar archivos a servidores externos.
+					</p>
+				</footer>
 			</div>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<button type="button" onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">
-				Click on the Vite and React logos to learn more
-			</p>
-		</>
+		</div>
 	);
 }
 
