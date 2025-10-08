@@ -1,6 +1,8 @@
-import { Upload } from "lucide-react";
+import { Upload, FileDown, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useImageUpload } from "../hooks/useImageUpload";
+import { usePdfExport } from "../hooks/usePdfExport";
 import { UploadArea } from "./UploadArea";
 import { ImagePreviewGrid } from "./ImagePreviewGrid";
 import { ImagePreviewModal } from "./ImagePreviewModal";
@@ -21,6 +23,9 @@ export function ImageUploader() {
 		closePreviewModal,
 		setPreviewImage,
 	} = useImageUpload();
+
+	const { isGenerating, exportError, exportToPDF, clearExportError } =
+		usePdfExport();
 
 	return (
 		<div className="w-full max-w-2xl mx-auto">
@@ -73,6 +78,54 @@ export function ImageUploader() {
 						onReorderImages={reorderImages}
 						onPreviewImage={openPreviewModal}
 					/>
+
+					{/* Export to PDF Section */}
+					{uploadedImages.length > 0 && (
+						<div className="mt-6 p-4 border rounded-lg bg-muted/30">
+							<h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+								<FileDown className="h-4 w-4" />
+								Exportar a PDF
+							</h3>
+
+							{/* Error message */}
+							{exportError && (
+								<div className="mb-3 p-2 bg-red-50 border border-red-200 rounded flex items-center gap-2 text-red-700 text-sm">
+									<AlertCircle className="h-4 w-4 flex-shrink-0" />
+									<span>{exportError}</span>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={clearExportError}
+										className="ml-auto h-6 px-2 text-red-600 hover:text-red-800"
+									>
+										✕
+									</Button>
+								</div>
+							)}
+
+							{/* Export button */}
+							<Button
+								onClick={() => exportToPDF(uploadedImages)}
+								disabled={isGenerating || uploadedImages.length === 0}
+								className="w-full"
+								size="lg"
+							>
+								{isGenerating ? (
+									<>Generando PDF...</>
+								) : (
+									<>
+										<FileDown className="h-4 w-4 mr-2" />
+										Descargar PDF ({uploadedImages.length} página
+										{uploadedImages.length !== 1 ? "s" : ""})
+									</>
+								)}
+							</Button>
+
+							<div className="mt-2 text-xs text-muted-foreground">
+								Las imágenes serán exportadas en el orden actual
+							</div>
+						</div>
+					)}
 
 					{/* Instructions */}
 					<div className="text-sm text-muted-foreground mt-4">

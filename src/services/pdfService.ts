@@ -1,0 +1,128 @@
+import { PDFDocument } from "pdf-lib";
+import type { ImageFile } from "../types/image";
+
+/**
+ * Converts a File to a Uint8Array for pdf-lib
+ */
+async function fileToUint8Array(file: File): Promise<Uint8Array> {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => {
+			if (reader.result instanceof ArrayBuffer) {
+				resolve(new Uint8Array(reader.result));
+			} else {
+				reject(new Error("Failed to read file"));
+			}
+		};
+		reader.onerror = () =>
+			reject(new Error(reader.error?.message || "Failed to read file"));
+		reader.readAsArrayBuffer(file);
+	});
+}
+
+/**
+ * Generates a PDF from an array of ImageFiles in the specified order
+ */
+export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
+	if (images.length === 0) {
+		throw new Error("No images provided for PDF generation");
+	}
+
+	try {
+		const pdfDoc = await PDFDocument.create();
+
+		for (const image of images) {
+			if (image.error) {
+				console.warn(`Skipping invalid image: ${image.error}`);
+				continue;
+			}
+
+			const imageBytes = await fileToUint8Array(image.file);
+			let embeddedImage: any; // pdf-lib embed functions return generic image types
+
+			// Embed image based on type
+			if (image.file.type === "image/jpeg" || image.file.type === "image/jpg") {
+				embeddedImage = await pdfDoc.embedJpg(imageBytes);
+			} else if (image.file.type === "image/png") {
+				embeddedImage = await pdfDoc.embedPng(imageBytes);
+			} else {
+				// For other formats (BMP, GIF), we'll skip for now as pdf-lib doesn't support them directly
+				console.warn(`Unsupported image type for PDF: ${image.file.type}`);
+				continue;
+			}
+
+			// Calculate page size to maintain aspect ratio
+			const { width: imgWidth, height: imgHeight } = embeddedImage;
+			const aspectRatio = imgWidth / imgHeight;
+
+			// Standard A4 page size (8.27 x 11.69 inches at 72 DPI = 595 x 842 points)
+			const pageWidth = 595;
+			const pageHeight = 842;
+
+			let finalWidth: number;
+			let finalHeight: number;
+
+			// Scale to fit page while maintaining aspect ratio
+			if (aspectRatio > pageWidth / pageHeight) {
+				// Image is wider than page aspect ratio
+				finalHeight = pageWidth / aspectRatio;
+				finalWidth = pageWidth;
+			} else {
+				// Image is taller than page aspect ratio
+				finalWidth = pageHeight * aspectRatio;
+				finalHeight = pageHeight;
+			}
+
+			// Create page and add image centered
+			const page = pdfDoc.addPage([pageWidth, pageHeight]);
+			const x = (pageWidth - finalWidth) / 2;
+			const y = (pageHeight - finalHeight) / 2;
+
+			page.drawImage(embeddedImage, {
+				x,
+				y,
+				width: finalWidth,
+				height: finalHeight,
+			});
+		}
+
+		if (pdfDoc.getPageCount() === 0) {
+			throw new Error("No valid images to include in PDF");
+		}
+
+		return await pdfDoc.save();
+	} catch (error) {
+		console.error("Error generating PDF:", error);
+		throw new Error(
+			error instanceof Error ? error.message : "Failed to generate PDF",
+		);
+	}
+}
+
+/**
+ * Downloads the PDF with the given filename
+ */
+export function downloadPDF(
+	pdfBytes: Uint8Array,
+	filename: string = "images.pdf",
+): void {
+	try {
+		const blob = new Blob([new Uint8Array(pdfBytes)], {
+			type: "application/pdf",
+		});
+		const url = URL.createObjectURL(blob);
+
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+
+		// Clean up the blob URL
+		setTimeout(() => URL.revokeObjectURL(url), 100);
+	} catch (error) {
+		console.error("Error downloading PDF:", error);
+		throw new Error("Failed to download PDF");
+	}
+}
