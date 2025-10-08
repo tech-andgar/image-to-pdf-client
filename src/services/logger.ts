@@ -13,7 +13,7 @@ export interface LogEntry {
 	timestamp: string;
 	level: LogLevel;
 	message: string;
-	data?: any;
+	data?: unknown;
 	userAgent?: string;
 	url?: string;
 	sessionId?: string;
@@ -80,7 +80,7 @@ class LoggerService {
 	private createLogEntry(
 		level: LogLevel,
 		message: string,
-		data?: any,
+		data?: unknown,
 	): LogEntry {
 		return {
 			timestamp: new Date().toISOString(),
@@ -93,7 +93,7 @@ class LoggerService {
 		};
 	}
 
-	private log(level: LogLevel, message: string, data?: any) {
+	private log(level: LogLevel, message: string, data?: unknown) {
 		const entry = this.createLogEntry(level, message, data);
 
 		// Add to logs array
@@ -118,15 +118,15 @@ class LoggerService {
 		console[logMethod](`[${level.toUpperCase()}] ${message}`, data || "");
 	}
 
-	info(message: string, data?: any) {
+	info(message: string, data?: unknown) {
 		this.log(LogLevel.INFO, message, data);
 	}
 
-	warn(message: string, data?: any) {
+	warn(message: string, data?: unknown) {
 		this.log(LogLevel.WARN, message, data);
 	}
 
-	error(message: string, data?: any) {
+	error(message: string, data?: unknown) {
 		this.log(LogLevel.ERROR, message, data);
 	}
 
@@ -140,7 +140,7 @@ class LoggerService {
 	}
 
 	// User interaction tracking
-	trackUserAction(action: string, data?: any) {
+	trackUserAction(action: string, data?: unknown) {
 		this.info(`User action: ${action}`, data);
 	}
 

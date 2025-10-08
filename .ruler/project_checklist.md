@@ -97,6 +97,11 @@
   - [x] Service worker para PWA implementado (Vite PWA plugin)
   - [x] Funcionalidad offline disponible cuando es soportada
   - [x] Verificación de despliegue automático y monitoring básico
+  - [x] **Separación de workflows**: Lint y Deploy como procesos independientes (mejor DX)
+  - [x] **Workflows modernos**: GitHub Actions actualizadas (setup-node@v3, pnpm/action-setup@v2)
+  - [x] **Cache optimizado**: pnpm store caching para builds más rápidos
+  - [x] **Triggers mejorados**: lint también en feature branches para mejor pipeline
+  - [x] **Linting perfecto**: 100% compliant con Biome (0 warnings/errors), any types eliminados
 
 ## **⚡ SIGUIENTE PASOS OPCIONALES (POST-V1.0)**
 
@@ -174,5 +179,6 @@
 - ✅ UI/UX: Intuitive drag-and-drop interface with professional design
 - ✅ Performance: Client-side compression and PDF generation
 - ✅ Accessibility: WCAG 2.1 AA compliance with native interactive elements
-- ✅ Quality: Zero critical lint warnings, TypeScript strict mode
+- ✅ Quality: Zero lint warnings/errors, TypeScript strict mode, any types eliminated
 - ✅ Architecture: Clean separation of concerns with modern React patterns
+- ✅ CI/CD: Modern GitHub Actions with optimized caching and separated workflows
