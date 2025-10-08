@@ -200,46 +200,56 @@ This application is **production-ready** with enterprise-grade quality standards
 
 ---
 
-## 📊 **Google Analytics Integration**
+## 📊 **Google Analytics Integration with Partytown**
 
-### **Setup Instructions**
+### **Performance-Optimized Analytics Setup**
 
-1. **Get your GA4 Measurement ID** from Google Analytics
-2. **Replace `GA_MEASUREMENT_ID`** in `public/index.html`:
-
-```javascript
-// Replace this line:
-gtag('config', 'GA_MEASUREMENT_ID', {
-
-// With your actual GA4 ID:
-gtag('config', 'G-XXXXXXXXXX', {
-```
-
-3. **Optional: Customize Privacy Settings** in the config object:
+This application uses **@qwik.dev/partytown** to run Google Analytics in a web worker, ensuring GA tracking doesn't impact your app's performance, loading speed, or Core Web Vitals.
 
 ```javascript
+// GA runs in web worker - zero main thread blocking
+// Scripts loaded with type="text/partytown"
 gtag('config', 'G-XXXXXXXXXX', {
   anonymize_ip: true,              // IP anonymization
   allow_google_signals: false,     // No cross-site tracking
   allow_ad_personalization_signals: false,  // No ad personalization
-  allow_ad_features: false         // No advertising features
 });
 ```
 
-### **What Gets Tracked**
+### **What Gets Tracked (Zero Performance Impact)**
 
 - **User interactions**: File uploads, image reordering, modal views
 - **Performance metrics**: PDF generation time, file sizes, compression ratios
 - **Error tracking**: Application errors with context
 - **Usage patterns**: Feature adoption and user flows
 
-### **Privacy-First Approach**
+### **Privacy-First & Performance-First Approach**
 
 - ✅ **IP Anonymization** enabled by default
 - ✅ **No Advertising** features enabled
+- ✅ **Zero Performance Impact** - GA runs in web worker
 - ✅ **Client-side only** - no server data collection
-- ✅ **Local metrics** collection in localStorage
 - ✅ **Opt-in only** - requires manual GA4 setup
+- ✅ **Partytown Integration** - Web worker isolation for third-party scripts
+
+### **Technical Implementation**
+
+```html
+<!-- Partytown web worker loader -->
+<script src="/~partytown/partytown.js"></script>
+
+<!-- GA runs in web worker, not main thread -->
+<script type="text/partytown">
+  // GA initialization runs in web worker
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" type="text/partytown"></script>
+```
+
+**Benefits:**
+- 📈 **Performance**: Zero main thread blocking
+- 🚀 **Core Web Vitals**: Improved Lighthouse scores
+- 🛡️ **Privacy**: Enhanced isolation of third-party scripts
+- ⚡ **Speed**: Faster page loads and interactions
 
 ---
 

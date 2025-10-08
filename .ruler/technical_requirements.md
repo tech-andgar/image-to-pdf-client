@@ -17,6 +17,7 @@
     *   **Image Processing:** API de FileReader + Canvas para validación y preview de imágenes
     *   **State Management:** React hooks nativos con custom hooks para驶 lógica reutilizable
     *   **PWA:** Vite PWA plugin v0.21.1 con service workers para caching offline
+    *   **Performance Optimization:** @qwik.dev/partytown@^0.11.2 para aislamiento de third-party scripts en web workers - zero main thread blocking para Google Analytics
 *   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y un framework de UI moderno como shadcn/ui con Tailwind CSS.
 *   **Progressive Web App (PWA):** La aplicación debe ser instalable y funcionar de manera offline cuando sea posible, aprovechando service workers y caching inteligente de recursos y bibliotecas provided by Vite PWA plugin.
 
