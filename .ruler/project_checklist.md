@@ -31,11 +31,18 @@
   - [x] Arquitectura modular y mantenible siguiendo principios SOLID y SRP
   - [x] Código 100% limpio: 0 errores, 0 warnings de linting, formateo automático
 
-- [ ] **Fase 3: Implementación de la galería de previsualización y la lógica de reordenamiento.**
-  - Crear galería de miniaturas para imágenes cargadas
-  - Implementar funcionalidad de arrastrar y soltar para reordenar páginas
-  - Actualizar la interfaz en tiempo real
-  - Optimizar rendimiento con muchas imágenes
+- [x] **Fase 3: Implementación de la galería de previsualización con drag & drop reordering.**
+  - [x] Galería de miniaturas responsiva implementada (grid 2x2 → 3x3 → 4x4 por viewport)
+  - [x] @dnd-kit integrado para drag & drop con soporte pointer + keyboard
+  - [x] Función reordenamiento `reorderImages()` implementada en useImageUpload hook
+  - [x] Componentes SortableImageItem con drag handles visibles (GripVertical icon)
+  - [x] Estados visuales durante drag: opacity, transform, hover effects
+  - [x] Estado de orden preservado para futuras fases PDF generation
+  - [x] Soporte accesibilidad: keyboard navigation, screen reader friendly
+  - [x] Performance optimizado: solo re-render necesario, memory management intact
+  - [x] Drag threshold de 8px para prevenir drags accidentales
+  - [x] Visual feedback durante drag: opacity 0.5, smooth transitions
+  - [x] Error handling para invalid drag operations
 
 - [ ] **Fase 4: Integración de la biblioteca de generación de PDF y la función de exportación.**
   - Integrar pdf-lib para conversión de imágenes a PDF

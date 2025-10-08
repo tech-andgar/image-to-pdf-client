@@ -8,19 +8,21 @@ Desarrollar una aplicación web responsiva que permita a los usuarios fusionar m
 
 **Estado Actual del Proyecto:**
 - ✅ **Fase 1 completa:** Proyecto configurado con tecnologías modernas (React 19.2, TypeScript, Vite, shadcn/ui)
-- ✅ **Fase 2 completa:** Componentes de carga de archivos con arquitectura limpia implementados:
-  - Arquitectura por capas: Tipos → Servicios → Hooks → Componentes UI
-  - Componentes separados siguiendo SRP (Single Responsibility Principle)
-  - Linting/Formateo automático con Biome (0 errores, 0 warnings)
-  - PWA soportado para instalación offline
-- 🔄 **Próxima fase:** Fase 3 - Drag and drop reordering + pdf-lib integration
+- ✅ **Fase 2 completa:** Componentes de carga de archivos con arquitectura limpia implementados
+- ✅ **Fase 3 completa:** Drag & drop reordering implementado con @dnd-kit
+  - Galería responsiva con thumbnails ordenables
+  - Visual feedback completo (drag handles, opacity, transitions)
+  - Soporte accesibilidad (keyboard navigation)
+  - Estado de orden preservado para PDF generation
+- 🔄 **Próxima fase:** Fase 4 - PDF generation con pdf-lib + exportación
 
 **Arquitectura Implementada:**
-- **Layer de Tipos:** `src/types/` - interfaces TypeScript centralizadas
-- **Layer de Servicios:** `src/services/` - funciones puras para lógica de negocio
-- **Layer de Hooks:** `src/hooks/` - estado y efectos con custom hooks
-- **Layer de Componentes:** `src/components/` - UI pura siguiendo composición
-- **Calidad de Código:** 100% limpia con Biome linting/formateo automatizado
+- **Layer de Tipos:** `src/types/` - interfaces ImageFile centralizadas con IDs únicos
+- **Layer de Servicios:** `src/services/fileService.ts` - funciones puras para validación y procesamiento I/O
+- **Layer de Hooks:** `src/hooks/useImageUpload.ts` - estado completo y efectos (drag & drop reordering)
+- **Layer de Componentes:** `src/components/` - UI siguiendo SRP (@dnd-kit SortableImageItem)
+- **Layer de UI:** shadcn/ui + @dnd-kit para interactividad accesible
+- **Calidad de Código:** 100% limpia (Biome 0 errores/warnings), formatos consistentes, type safety
 
 ---
 
