@@ -1,11 +1,6 @@
 import { AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-export interface ImageFile {
-	file: File;
-	preview: string;
-	error?: string;
-}
+import { ImageFile } from "../types/image";
 
 interface ImagePreviewGridProps {
 	uploadedImages: ImageFile[];
