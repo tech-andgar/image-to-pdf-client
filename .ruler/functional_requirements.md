@@ -12,3 +12,9 @@
 *   **Fusión a PDF del Lado del Cliente:** Utilizar una biblioteca de JavaScript para convertir y fusionar las imágenes cargadas en un único documento PDF directamente en el navegador del usuario.
 *   **Optimización del Tamaño del Archivo:** El PDF generado debe estar optimizado para reducir su tamaño sin una pérdida significativa de calidad de imagen. Se deben investigar e implementar técnicas de compresión de imágenes dentro del proceso de generación del PDF.
 *   **Descarga Directa:** Al finalizar la exportación, el usuario debe poder descargar el archivo PDF generado directamente en su dispositivo.
+*   **Función Compartir PDF:** Implementar funcionalidad de compartir PDFs usando Web Share API cuando esté disponible, con fallbacks para navegadores que no lo soportan (clipboard URL, descarga manual). Incluir soporte completo en PWA instaladas.
+
+**4. Funciones Avanzadas de UX:**
+*   **Iconos Semánticos:** Utilizar iconos intuitivos que comuniquen claramente las acciones (Trash2 para eliminar, RotateCcw para limpiar campos, Share2 para compartir).
+*   **Accesibilidad WCAG AA:** Asegurar contraste adecuado en colores y feedback visual para usuarios con discapacidades visuales (ratios de contraste ≥4.5:1).
+*   **Progressive Web App (PWA):** Iconos SVG personalizados optimizados para diferentes tamaños de pantalla, con tema moderno que representa la conversión de imágenes a PDF.
