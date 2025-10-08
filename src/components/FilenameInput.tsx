@@ -52,7 +52,7 @@ export function FilenameInput({
 						variant="ghost"
 						size="sm"
 						onClick={() => setFilename("")}
-						className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted"
+						className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted text-red-500 hover:text-red-600"
 						aria-label="Limpiar nombre del archivo"
 					>
 						<X className="h-4 w-4" />

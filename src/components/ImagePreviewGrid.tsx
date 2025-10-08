@@ -1,4 +1,4 @@
-import { AlertCircle, GripVertical, X } from "lucide-react";
+import { AlertCircle, Grip, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DndContext,
@@ -56,16 +56,15 @@ function SortableImageItem({
 			} ${isDragging ? "opacity-50 scale-95 z-50" : ""}`}
 			{...attributes}
 		>
-			{/* Drag handle - dedicated grip area (larger for mobile) */}
+			{/* Drag handle - always visible on mobile, more visible on desktop */}
 			<div
-				className={`absolute top-2 left-2 z-10 bg-black/50 rounded p-1 md:p-1.5 transition-opacity touch-manipulation ${
-					isDragging
-						? "opacity-100"
-						: "opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
+				className={`absolute top-2 left-2 z-10 bg-black/70 hover:bg-black/90 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation ${
+					isDragging ? "bg-black/90 scale-110" : ""
 				}`}
+				title="Arrastrar para reordenar"
 				{...listeners}
 			>
-				<GripVertical className="h-4 w-4 md:h-3 md:w-3 text-white" />
+				<Grip className="h-4 w-4 md:h-3 md:w-3 text-white" />
 			</div>
 
 			{/* Remove button - always visible on mobile, hover on desktop */}
@@ -82,7 +81,7 @@ function SortableImageItem({
 						onRemoveImage(image.id);
 					}}
 				>
-					<X className="h-4 w-4 md:h-3 md:w-3" />
+					<Trash2 className="h-4 w-4 md:h-3 md:w-3" />
 				</Button>
 			</div>
 

@@ -36,7 +36,7 @@ export function UploadArea({
 				}
 			}}
 		>
-			<Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+			<Upload className="h-12 w-12 mx-auto mb-4 text-green-600" />
 			<h3 className="text-lg font-medium mb-2">Arrastra las imágenes aquí</h3>
 			<p className="text-sm text-muted-foreground mb-4">
 				o haz clic para seleccionar archivos
