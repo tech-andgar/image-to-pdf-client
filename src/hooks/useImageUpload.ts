@@ -1,6 +1,12 @@
-import { useCallback, useState } from "react";
-import type { ImageFile } from "../types/image";
-import { processFiles, revokeImagePreview } from "../services/fileService";
+import { useCallback, useState, useEffect } from "react";
+import type { ImageFile, FileSignature } from "../types/image";
+import {
+	processFilesWithDuplicateCheck,
+	getFileSignaturesFromImages,
+	revokeImagePreview,
+	createImagePreview,
+} from "../services/fileService";
+import { areFilesIdentical, createFileSignature } from "../types/image";
 import { logger } from "../services/logger";
 
 /**
@@ -11,12 +17,13 @@ function generateImageId(): string {
 }
 
 /**
- * Custom hook for image upload functionality
+ * Custom hook for image upload functionality with duplicate checking
  * Separates business logic from UI components
  */
 export function useImageUpload() {
 	const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
 	const [isDragOver, setIsDragOver] = useState(false);
+	const [allowDuplicates, setAllowDuplicates] = useState(false);
 	const [previewModal, setPreviewModal] = useState<{
 		isOpen: boolean;
 		currentIndex: number | null;
@@ -26,50 +33,62 @@ export function useImageUpload() {
 	});
 
 	/**
-	 * Processes files and updates state
+	 * Processes files and updates state with duplicate checking
 	 */
 	const processUploadedFiles = useCallback((fileList: FileList) => {
-		logger.trackFileOperation("upload started", fileList.length, 0);
+		setUploadedImages((currentImages) => {
+			logger.trackFileOperation("upload started", fileList.length, 0);
 
-		const processedFiles = processFiles(fileList);
+			// Get signatures of existing images for duplicate checking
+			const existingSignatures = getFileSignaturesFromImages(currentImages);
 
-		// Convert to ImageFile format with unique IDs
-		const newImages: ImageFile[] = processedFiles.map((result) => {
-			if ("preview" in result && result.preview) {
-				return {
-					id: generateImageId(),
-					file: result.file,
-					preview: result.preview,
-				};
-			} else {
-				logger.warn("File processing error", {
-					fileName: result.file.name,
-					error: "error" in result ? result.error : "Unknown error",
-				});
-				return {
-					id: generateImageId(),
-					file: result.file,
-					preview: "",
-					error: "error" in result ? result.error : undefined,
-				};
+			// Process files with duplicate checking
+			const processedFiles = processFilesWithDuplicateCheck(
+				fileList,
+				existingSignatures,
+				allowDuplicates,
+			);
+
+			// Convert to ImageFile format with unique IDs
+			const newImages: ImageFile[] = processedFiles.map((result) => {
+				if ("preview" in result && result.preview) {
+					return {
+						id: generateImageId(),
+						file: result.file,
+						preview: result.preview,
+					} satisfies ImageFile;
+				} else {
+					logger.warn("File processing error", {
+						fileName: result.file.name,
+						error: "error" in result ? result.error : "Unknown error",
+					});
+					return {
+						id: generateImageId(),
+						file: result.file,
+						preview: "",
+						error: "error" in result ? result.error : undefined,
+					} satisfies ImageFile;
+				}
+			});
+
+			const updatedImages = [...currentImages, ...newImages];
+
+			const successCount = newImages.filter((img) => !img.error).length;
+			const errorCount = newImages.filter((img) => img.error).length;
+
+			logger.trackFileOperation(
+				"upload completed",
+				successCount,
+				newImages.reduce((total, img) => total + img.file.size, 0),
+			);
+
+			if (errorCount > 0) {
+				logger.warn(`${errorCount} files failed to process`);
 			}
+
+			return updatedImages;
 		});
-
-		setUploadedImages((prev) => [...prev, ...newImages]);
-
-		const successCount = newImages.filter((img) => !img.error).length;
-		const errorCount = newImages.filter((img) => img.error).length;
-
-		logger.trackFileOperation(
-			"upload completed",
-			successCount,
-			newImages.reduce((total, img) => total + img.file.size, 0),
-		);
-
-		if (errorCount > 0) {
-			logger.warn(`${errorCount} files failed to process`);
-		}
-	}, []);
+	}, [allowDuplicates]);
 
 	/**
 	 * Removes an image by ID and cleans up its preview URL
@@ -196,9 +215,60 @@ export function useImageUpload() {
 		closePreviewModal(); // Close modal when clearing images
 	}, [closePreviewModal]);
 
+	/**
+	 * Reevaluates existing images when allowDuplicates setting changes
+	 * Converts duplicate images between preview and error states as needed
+	 */
+	useEffect(() => {
+		setUploadedImages((currentImages) => {
+			if (currentImages.length === 0) return currentImages;
+
+			// Create a map to track which file signatures have been seen
+			const seenSignatures = new Map<string, number>();
+			const updatedImages = currentImages.map((image) => {
+				const signature = createFileSignature(image.file);
+
+				// Check if this file signature has been seen before (is duplicate)
+				const isDuplicate = seenSignatures.has(signature.name + signature.size + signature.lastModified);
+
+				if (isDuplicate && !allowDuplicates) {
+					// Convert to error state: remove preview and set error
+					if (image.preview) {
+						revokeImagePreview(image.preview);
+					}
+					return {
+						...image,
+						preview: "",
+						error: "Esta imagen ya se ha cargado anteriormente. Marca la opción 'Permitir imágenes duplicadas' para cargar múltiples copias.",
+					} satisfies ImageFile;
+				} else if (!isDuplicate || allowDuplicates) {
+					// Convert to normal state: create preview and remove error
+					if (!image.preview && image.error?.includes("ya se ha cargado")) {
+						return {
+							...image,
+							preview: createImagePreview(image.file),
+							error: undefined,
+						} satisfies ImageFile;
+					}
+				}
+
+				// Mark this signature as seen (only for the first occurrence)
+				if (!isDuplicate) {
+					seenSignatures.set(signature.name + signature.size + signature.lastModified, 1);
+				}
+
+				return image;
+			});
+
+			return updatedImages;
+		});
+	}, [allowDuplicates]);
+
 	return {
 		uploadedImages,
 		isDragOver,
+		allowDuplicates,
+		setAllowDuplicates,
 		processFiles: processUploadedFiles,
 		removeImage,
 		reorderImages,

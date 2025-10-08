@@ -15,6 +15,8 @@ export function ImageUploader() {
 	const {
 		uploadedImages,
 		isDragOver,
+		allowDuplicates,
+		setAllowDuplicates,
 		removeImage,
 		reorderImages,
 		handleDragOver,
@@ -91,6 +93,19 @@ export function ImageUploader() {
 							handleFileSelect(files);
 						}}
 					/>
+
+					{/* Duplicate Files Toggle */}
+					<div className="mb-4 flex items-center justify-center space-x-2">
+						<label className="flex items-center space-x-2 text-sm text-muted-foreground cursor-pointer">
+							<input
+								type="checkbox"
+								checked={allowDuplicates}
+								onChange={(e) => setAllowDuplicates(e.target.checked)}
+								className="rounded border-border focus:ring-2 focus:ring-ring focus:ring-offset-2"
+							/>
+							<span>Permitir imágenes duplicadas</span>
+						</label>
+					</div>
 
 					{/* Compression Controls */}
 					{uploadedImages.length > 0 && (

@@ -49,6 +49,40 @@ export interface CompressionStats {
 }
 
 /**
+ * File uniqueness identifier based on key properties
+ */
+export interface FileSignature {
+	name: string;
+	size: number;
+	lastModified: number;
+	type: string;
+}
+
+/**
+ * Creates a unique signature for file comparison
+ */
+export function createFileSignature(file: File): FileSignature {
+	return {
+		name: file.name,
+		size: file.size,
+		lastModified: file.lastModified,
+		type: file.type,
+	};
+}
+
+/**
+ * Checks if two file signatures represent the same file
+ */
+export function areFilesIdentical(sig1: FileSignature, sig2: FileSignature): boolean {
+	return (
+		sig1.name === sig2.name &&
+		sig1.size === sig2.size &&
+		sig1.lastModified === sig2.lastModified &&
+		sig1.type === sig2.type
+	);
+}
+
+/**
  * Predefined compression presets
  */
 export const COMPRESSION_PRESETS = {
