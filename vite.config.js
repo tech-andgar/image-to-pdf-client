@@ -137,11 +137,26 @@ export default defineConfig({
 					if (id.includes("@dnd-kit")) {
 						return "dnd";
 					}
-					// React vendor
-					if (id.includes("react") || id.includes("react-dom")) {
-						return "vendor";
+					// React core
+					if (id.includes("react")) {
+						return "react";
 					}
-					// Node modules chunk
+					// Radix UI components (used by shadcn/ui)
+					if (id.includes("@radix-ui")) {
+						return "radix";
+					}
+					// Lucide icons
+					if (id.includes("lucide-react")) {
+						return "icons";
+					}
+					// Tailwind utilities
+					if (
+						id.includes("tailwind-merge") ||
+						id.includes("class-variance-authority")
+					) {
+						return "tailwind-utils";
+					}
+					// Other node modules
 					if (id.includes("node_modules")) {
 						return "vendor-libs";
 					}
