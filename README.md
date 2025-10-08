@@ -284,4 +284,14 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
+## 👨‍💻 **Author**
+
+**Andrés García Márquez**
+
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-3B82F6?style=flat-square&logo=firefox)](https://tech-andgar.me/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat-square&logo=linkedin)](https://link.tech-andgar.me/linkedin)
+[![Email](https://img.shields.io/badge/Email-Contact-EA4335?style=flat-square&logo=gmail)](mailto:dev@tech-andgar.me)
+
+---
+
 **Built with ❤️ using modern web technologies for privacy-conscious users**
