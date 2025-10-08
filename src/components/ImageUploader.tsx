@@ -135,10 +135,7 @@ export function ImageUploader() {
 					{uploadedImages.length > 0 && (
 						<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 							{uploadedImages.map((image, index) => (
-								<div
-									key={`${image.file.name}-${image.file.size}-${index}`}
-									className="relative group"
-								>
+								<div key={`${image.file.name}-${image.file.size}-${index}`} className="relative group">
 									{image.preview ? (
 										<div className="aspect-square rounded-lg overflow-hidden bg-muted">
 											<img
