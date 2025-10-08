@@ -40,22 +40,8 @@ function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
 		canShareFile = false;
 	}
 
-	// Check basic sharing capability
-	let canShare = canShareFile;
-	try {
-		const shareApi = navigator.share as {
-			canShare?: (data: unknown) => boolean;
-		};
-		if ("canShare" in shareApi && typeof shareApi.canShare === "function") {
-			canShare = canShare || shareApi.canShare({ url: window.location.href });
-		} else {
-			canShare = true; // Assume basic sharing is available if navigator.share exists
-		}
-	} catch (shareError) {
-		// Log the share capability check error for debugging
-		logger.warn("Failed to check share capabilities", shareError);
-		canShare = true;
-	}
+	// Check basic sharing capability - assume available if navigator.share exists
+	let canShare = true; // navigator.share is already checked above
 
 	return { canShare, canShareFile, supportsWebShare };
 }
@@ -79,26 +65,12 @@ export async function sharePDF(
 		const capabilities = getShareCapabilities(pdfBlob);
 
 		if (!capabilities.canShare) {
-			// Fallback: Copy URL to clipboard as it's the most basic sharing method
-			try {
-				const url = window.location.href;
-				await navigator.clipboard.writeText(url);
-				return {
-					success: true,
-					method: "clipboard-url",
-					error:
-						"Tu navegador no soporta compartir archivos. Se copió la URL de esta aplicación al portapapeles para que puedas compartirla manualmente.",
-				};
-			} catch (clipboardError) {
-				// Log the clipboard error for debugging
-				logger.warn("Failed to copy to clipboard", clipboardError);
-				return {
-					success: false,
-					method: "none",
-					error:
-						"No se puede compartir desde este navegador. Te recomendamos usar las opciones de descarga para guardar el PDF localmente.",
-				};
-			}
+			return {
+				success: false,
+				method: "none",
+				error:
+					"Tu navegador no soporta compartir archivos. Usa las opciones de descarga para guardar el PDF localmente.",
+			};
 		}
 
 		// Try to share with file if supported
