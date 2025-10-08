@@ -8,6 +8,7 @@ import { UploadArea } from "./UploadArea";
 import { ImagePreviewGrid } from "./ImagePreviewGrid";
 import { ImagePreviewModal } from "./ImagePreviewModal";
 import { CompressionControls } from "./CompressionControls";
+import { FilenameInput } from "./FilenameInput";
 
 export function ImageUploader() {
 	const {
@@ -26,8 +27,15 @@ export function ImageUploader() {
 		setPreviewImage,
 	} = useImageUpload();
 
-	const { isGenerating, exportError, exportToPDF, clearExportError } =
-		usePdfExport();
+	const {
+		isGenerating,
+		exportError,
+		exportToPDF,
+		clearExportError,
+		filename,
+		setFilename,
+		previewFilename,
+	} = usePdfExport();
 
 	const {
 		isCompressing,
@@ -105,6 +113,13 @@ export function ImageUploader() {
 								<FileDown className="h-4 w-4" />
 								Exportar a PDF
 							</h3>
+
+							{/* Filename Input Component - Single Responsibility */}
+							<FilenameInput
+								filename={filename}
+								setFilename={setFilename}
+								previewFilename={previewFilename}
+							/>
 
 							{/* Error message */}
 							{exportError && (
