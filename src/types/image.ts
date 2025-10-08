@@ -73,7 +73,10 @@ export function createFileSignature(file: File): FileSignature {
 /**
  * Checks if two file signatures represent the same file
  */
-export function areFilesIdentical(sig1: FileSignature, sig2: FileSignature): boolean {
+export function areFilesIdentical(
+	sig1: FileSignature,
+	sig2: FileSignature,
+): boolean {
 	return (
 		sig1.name === sig2.name &&
 		sig1.size === sig2.size &&

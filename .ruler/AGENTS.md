@@ -61,6 +61,12 @@ Desarrollar una aplicación web responsiva que permita a los usuarios fusionar m
   - Colores semánticos intuitivos (verde=positivo, azul=acciones)
   - Navegación por teclado completa mantenida
   - Bordes de colores en items de grid para mejor distinción
+- ✅ **Control Inteligente de Duplicados**
+  - Verificación automática de duplicados por signature de archivo (nombre + tamaño + fecha)
+  - Checkbox "Permitir imágenes duplicadas" para control flexible
+  - Conversión dinámica de estado: preview ↔ error según setting
+  - Mensajes de error inteligentes con sugerencia de activar opción
+  - Memory cleanup automático al convertir previews a errores
 - ✅ **TypeScript Avanzado: Definiciones Ambientales**
   - Archivo `env.d.ts` con tipos completos para import.meta.env (Vite)
   - Auto-completado inteligente en IDE para DEV, PROD, NODE_ENV

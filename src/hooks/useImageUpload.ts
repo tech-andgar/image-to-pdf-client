@@ -1,12 +1,12 @@
 import { useCallback, useState, useEffect } from "react";
-import type { ImageFile, FileSignature } from "../types/image";
+import type { ImageFile } from "../types/image";
 import {
 	processFilesWithDuplicateCheck,
 	getFileSignaturesFromImages,
 	revokeImagePreview,
 	createImagePreview,
 } from "../services/fileService";
-import { areFilesIdentical, createFileSignature } from "../types/image";
+import { createFileSignature } from "../types/image";
 import { logger } from "../services/logger";
 
 /**
@@ -35,60 +35,63 @@ export function useImageUpload() {
 	/**
 	 * Processes files and updates state with duplicate checking
 	 */
-	const processUploadedFiles = useCallback((fileList: FileList) => {
-		setUploadedImages((currentImages) => {
-			logger.trackFileOperation("upload started", fileList.length, 0);
+	const processUploadedFiles = useCallback(
+		(fileList: FileList) => {
+			setUploadedImages((currentImages) => {
+				logger.trackFileOperation("upload started", fileList.length, 0);
 
-			// Get signatures of existing images for duplicate checking
-			const existingSignatures = getFileSignaturesFromImages(currentImages);
+				// Get signatures of existing images for duplicate checking
+				const existingSignatures = getFileSignaturesFromImages(currentImages);
 
-			// Process files with duplicate checking
-			const processedFiles = processFilesWithDuplicateCheck(
-				fileList,
-				existingSignatures,
-				allowDuplicates,
-			);
+				// Process files with duplicate checking
+				const processedFiles = processFilesWithDuplicateCheck(
+					fileList,
+					existingSignatures,
+					allowDuplicates,
+				);
 
-			// Convert to ImageFile format with unique IDs
-			const newImages: ImageFile[] = processedFiles.map((result) => {
-				if ("preview" in result && result.preview) {
-					return {
-						id: generateImageId(),
-						file: result.file,
-						preview: result.preview,
-					} satisfies ImageFile;
-				} else {
-					logger.warn("File processing error", {
-						fileName: result.file.name,
-						error: "error" in result ? result.error : "Unknown error",
-					});
-					return {
-						id: generateImageId(),
-						file: result.file,
-						preview: "",
-						error: "error" in result ? result.error : undefined,
-					} satisfies ImageFile;
+				// Convert to ImageFile format with unique IDs
+				const newImages: ImageFile[] = processedFiles.map((result) => {
+					if ("preview" in result && result.preview) {
+						return {
+							id: generateImageId(),
+							file: result.file,
+							preview: result.preview,
+						} satisfies ImageFile;
+					} else {
+						logger.warn("File processing error", {
+							fileName: result.file.name,
+							error: "error" in result ? result.error : "Unknown error",
+						});
+						return {
+							id: generateImageId(),
+							file: result.file,
+							preview: "",
+							error: "error" in result ? result.error : undefined,
+						} satisfies ImageFile;
+					}
+				});
+
+				const updatedImages = [...currentImages, ...newImages];
+
+				const successCount = newImages.filter((img) => !img.error).length;
+				const errorCount = newImages.filter((img) => img.error).length;
+
+				logger.trackFileOperation(
+					"upload completed",
+					successCount,
+					newImages.reduce((total, img) => total + img.file.size, 0),
+				);
+
+				if (errorCount > 0) {
+					logger.warn(`${errorCount} files failed to process`);
 				}
+
+				return updatedImages;
 			});
-
-			const updatedImages = [...currentImages, ...newImages];
-
-			const successCount = newImages.filter((img) => !img.error).length;
-			const errorCount = newImages.filter((img) => img.error).length;
-
-			logger.trackFileOperation(
-				"upload completed",
-				successCount,
-				newImages.reduce((total, img) => total + img.file.size, 0),
-			);
-
-			if (errorCount > 0) {
-				logger.warn(`${errorCount} files failed to process`);
-			}
-
-			return updatedImages;
-		});
-	}, [allowDuplicates]);
+		},
+		[allowDuplicates],
+	);
 
 	/**
 	 * Removes an image by ID and cleans up its preview URL
@@ -229,7 +232,9 @@ export function useImageUpload() {
 				const signature = createFileSignature(image.file);
 
 				// Check if this file signature has been seen before (is duplicate)
-				const isDuplicate = seenSignatures.has(signature.name + signature.size + signature.lastModified);
+				const isDuplicate = seenSignatures.has(
+					signature.name + signature.size + signature.lastModified,
+				);
 
 				if (isDuplicate && !allowDuplicates) {
 					// Convert to error state: remove preview and set error
@@ -239,7 +244,8 @@ export function useImageUpload() {
 					return {
 						...image,
 						preview: "",
-						error: "Esta imagen ya se ha cargado anteriormente. Marca la opción 'Permitir imágenes duplicadas' para cargar múltiples copias.",
+						error:
+							"Esta imagen ya se ha cargado anteriormente. Marca la opción 'Permitir imágenes duplicadas' para cargar múltiples copias.",
 					} satisfies ImageFile;
 				} else if (!isDuplicate || allowDuplicates) {
 					// Convert to normal state: create preview and remove error
@@ -254,7 +260,10 @@ export function useImageUpload() {
 
 				// Mark this signature as seen (only for the first occurrence)
 				if (!isDuplicate) {
-					seenSignatures.set(signature.name + signature.size + signature.lastModified, 1);
+					seenSignatures.set(
+						signature.name + signature.size + signature.lastModified,
+						1,
+					);
 				}
 
 				return image;

@@ -13,6 +13,7 @@
 *   **Optimización del Tamaño del Archivo:** El PDF generado debe estar optimizado para reducir su tamaño sin una pérdida significativa de calidad de imagen. Se deben investigar e implementar técnicas de compresión de imágenes dentro del proceso de generación del PDF.
 *   **Descarga Directa:** Al finalizar la exportación, el usuario debe poder descargar el archivo PDF generado directamente en su dispositivo.
 *   **Función Compartir PDF:** Implementar funcionalidad de compartir PDFs usando Web Share API cuando esté disponible, con fallbacks para navegadores que no lo soportan (clipboard URL, descarga manual). Incluir soporte completo en PWA instaladas.
+*   **Control Inteligente de Duplicados:** Sistema que previene por defecto la carga de imágenes duplicadas, pero permite al usuario activar una opción para cargar múltiples copias cuando sea necesario. Las imágenes existentes se convierten dinámicamente entre estados de error y preview según el setting.
 *   **Debug Info Condicional:** Información de debug visible únicamente en desarrollo con icono <Activity />, oculto en producción para mantener clean UI.
 
 **4. Funciones Avanzadas de UX:**

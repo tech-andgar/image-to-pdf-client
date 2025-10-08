@@ -69,6 +69,8 @@
 ### Phase 8: Universal Theme System & Enhanced UX
 - ✅ **light-dark() CSS Theme**: Native browser theme detection without JavaScript
 - ✅ **25+ CSS Variables**: All shadcn/ui colors with automatic theme switching
+- ✅ **Intelligent Duplicate Management**: Smart file deduplication with user override
+- ✅ **Dynamic State Conversion**: Checkbox toggles convert existing images dynamically
 - ✅ **TypeScript Ambient Declarations**: `env.d.ts` with proper Vite types
 - ✅ **Development Debug Info**: <Activity /> icon-only debug in development mode
 - ✅ **Grid Item Borders**: Colored borders for better visual separation

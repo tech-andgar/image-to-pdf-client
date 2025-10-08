@@ -133,6 +133,8 @@ export function processFilesWithDuplicateCheck(
 /**
  * Extracts file signatures from existing ImageFile array
  */
-export function getFileSignaturesFromImages(images: Array<{ file: File }>): FileSignature[] {
+export function getFileSignaturesFromImages(
+	images: Array<{ file: File }>,
+): FileSignature[] {
 	return images.map((img) => createFileSignature(img.file));
 }
