@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ImageFile } from "../types/image";
+import type { ImageFile } from "../types/image";
 import { processFiles, revokeImagePreview } from "../services/fileService";
 
 /**

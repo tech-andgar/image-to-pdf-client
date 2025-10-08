@@ -1,8 +1,8 @@
 import {
 	ALLOWED_IMAGE_TYPES,
 	MAX_FILE_SIZE,
-	FileValidationResult,
-	AllowedImageTypes,
+	type FileValidationResult,
+	type AllowedImageTypes,
 } from "../types/image";
 
 /**
@@ -64,7 +64,11 @@ export function processFiles(
 			const preview = createImagePreview(file);
 			results.push({ file, preview });
 		} else {
-			results.push({ file, preview: "", error: validation.errorMessage! });
+			results.push({
+				file,
+				preview: "",
+				error: validation.errorMessage ?? "Archivo inválido",
+			});
 		}
 	});
 

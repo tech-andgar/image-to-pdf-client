@@ -1,7 +1,6 @@
 import { Upload } from "lucide-react";
 import { type ChangeEvent, type DragEvent, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ALLOWED_IMAGE_TYPES, ALLOWED_EXTENSIONS } from "../types/image";
 
 interface UploadAreaProps {
 	isDragOver: boolean;

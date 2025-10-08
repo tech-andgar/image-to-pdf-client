@@ -9,7 +9,6 @@ export function ImageUploader() {
 		uploadedImages,
 		isDragOver,
 		removeImage,
-		clearAllImages,
 		handleDragOver,
 		handleDragLeave,
 		handleDrop,
@@ -29,8 +28,8 @@ export function ImageUploader() {
 					{/* Upload Area */}
 					<UploadArea
 						isDragOver={isDragOver}
-						onDragOver={(e) => handleDragOver()}
-						onDragLeave={(e) => handleDragLeave()}
+						onDragOver={(_e) => handleDragOver()}
+						onDragLeave={(_e) => handleDragLeave()}
 						onDrop={(e) => {
 							const files = e.dataTransfer.files;
 							if (files) handleDrop(files);
