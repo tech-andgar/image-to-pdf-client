@@ -3,6 +3,18 @@
  * Collects usage analytics and user behavior patterns
  */
 
+// Add Google Analytics types
+declare global {
+  interface Window {
+    gtag?: (
+      command: 'config' | 'event' | 'js',
+      targetId: string | Date,
+      config?: Record<string, any>
+    ) => void;
+    dataLayer?: any[];
+  }
+}
+
 export interface UserMetric {
 	timestamp: string;
 	action: string;
@@ -74,8 +86,8 @@ class UserMetricsService {
 		this.saveMetricsToStorage();
 
 		// Optional: Send to analytics service
-		if (typeof (window as any).gtag !== 'undefined') {
-			(window as any).gtag('event', action, {
+		if (window.gtag) {
+			window.gtag('event', action, {
 				event_category: category,
 				event_label: this.sessionId,
 				value: value,
@@ -93,7 +105,7 @@ class UserMetricsService {
 
 	trackCompressionUsed(preset: string, sizeReductionPercent: number) {
 		this.trackMetric('compression_used', 'interaction');
-		this.trackMetric('compression_preset_' + preset, 'interaction');
+		this.trackMetric(`compression_preset_${preset}`, 'interaction');
 		this.trackMetric('size_reduction_percent', 'performance', sizeReductionPercent);
 	}
 

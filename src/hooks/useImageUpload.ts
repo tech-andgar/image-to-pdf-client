@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import type { ImageFile } from "../types/image";
 import { processFiles, revokeImagePreview } from "../services/fileService";
+import { logger } from "../services/logger";
 
 /**
  * Generates a unique ID for an image
@@ -28,6 +29,8 @@ export function useImageUpload() {
 	 * Processes files and updates state
 	 */
 	const processUploadedFiles = useCallback((fileList: FileList) => {
+		logger.trackFileOperation('upload started', fileList.length, 0);
+
 		const processedFiles = processFiles(fileList);
 
 		// Convert to ImageFile format with unique IDs
@@ -39,6 +42,7 @@ export function useImageUpload() {
 					preview: result.preview,
 				};
 			} else {
+				logger.warn('File processing error', { fileName: result.file.name, error: "error" in result ? result.error : 'Unknown error' });
 				return {
 					id: generateImageId(),
 					file: result.file,
@@ -49,6 +53,15 @@ export function useImageUpload() {
 		});
 
 		setUploadedImages((prev) => [...prev, ...newImages]);
+
+		const successCount = newImages.filter(img => !img.error).length;
+		const errorCount = newImages.filter(img => img.error).length;
+
+		logger.trackFileOperation('upload completed', successCount, newImages.reduce((total, img) => total + img.file.size, 0));
+
+		if (errorCount > 0) {
+			logger.warn(`${errorCount} files failed to process`);
+		}
 	}, []);
 
 	/**
@@ -123,7 +136,7 @@ export function useImageUpload() {
 		};
 
 		setUploadedImages((prev) => arrayMove(prev, oldIndex, newIndex));
-		console.log(`Reordered image from position ${oldIndex} to ${newIndex}`);
+		logger.trackUserAction('image reordered', { from: oldIndex, to: newIndex });
 	}, []);
 
 	/**
