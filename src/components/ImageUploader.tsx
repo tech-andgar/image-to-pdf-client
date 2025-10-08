@@ -60,7 +60,7 @@ export function ImageUploader() {
 						<button
 							type="button"
 							className="w-32 h-32 bg-red-500 cursor-pointer border-0"
-							onClick={() => console.log('TEST CLICK WORKS!')}
+							onClick={() => console.log("TEST CLICK WORKS!")}
 						>
 							Click me - test básico
 						</button>

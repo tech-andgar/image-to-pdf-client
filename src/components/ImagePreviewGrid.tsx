@@ -9,7 +9,11 @@ import {
 	useSensors,
 	rectIntersection,
 } from "@dnd-kit/core";
-import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import {
+	SortableContext,
+	rectSortingStrategy,
+	useSortable,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ImageFile } from "../types/image";
 
