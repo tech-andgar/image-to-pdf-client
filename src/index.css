@@ -42,7 +42,7 @@ body {
 		--secondary: light-dark(210 40% 96.1%, 217.2 32.6% 17.5%);
 		--secondary-foreground: light-dark(222.2 47.4% 11.2%, 210 40% 98%);
 		--muted: light-dark(210 40% 96.1%, 217.2 32.6% 17.5%);
-		--muted-foreground: light-dark(215.4 16.3% 54.9%, 215 20.2% 72.1%);
+		--muted-foreground: light-dark(215.4 16.3% 25%, 215 20.2% 85%);
 		--accent: light-dark(210 40% 96.1%, 217.2 32.6% 17.5%);
 		--accent-foreground: light-dark(222.2 47.4% 11.2%, 210 40% 98%);
 		--destructive: light-dark(0 84.2% 60.2%, 0 62.8% 30.6%);
