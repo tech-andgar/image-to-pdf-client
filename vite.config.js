@@ -25,4 +25,29 @@ export default defineConfig({
 	server: {
 		allowedHosts: true,
 	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: (id) => {
+					// Separate pdf-lib and compression libraries
+					if (id.includes("pdf-lib")) {
+						return "pdf";
+					}
+					// Dnd-kit libraries
+					if (id.includes("@dnd-kit")) {
+						return "dnd";
+					}
+					// React vendor
+					if (id.includes("react") || id.includes("react-dom")) {
+						return "vendor";
+					}
+					// Node modules chunk
+					if (id.includes("node_modules")) {
+						return "vendor-libs";
+					}
+				},
+			},
+		},
+		chunkSizeWarningLimit: 1000, // Increase warning limit to 1000KB
+	},
 });
