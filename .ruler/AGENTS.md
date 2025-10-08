@@ -9,6 +9,7 @@ Desarrollar una aplicación web responsiva que permita a los usuarios fusionar m
 ---
 
 **Archivos de Reglas Relacionadas:**
+- `project_checklist.md`: Lista de verificación de las fases del proyecto (WBS).
 - `functional_requirements.md`: Requisitos funcionales clave para la carga, previsualización y generación de PDF.
 - `technical_requirements.md`: Requisitos técnicos, metodología, calidad y entregables.
 - `coding_guidelines.md`: Directrices de codificación para JavaScript/React.
