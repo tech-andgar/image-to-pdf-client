@@ -29,6 +29,7 @@ export interface ShareResult {
 export function usePdfExport() {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isSharing, setIsSharing] = useState(false);
+	const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [shareResult, setShareResult] = useState<ShareResult | null>(null);
 	const [filenameInput, setFilenameInput] = useState("");
@@ -44,10 +45,13 @@ export function usePdfExport() {
 			}
 
 			setIsGenerating(true);
+			setIsLoadingLibrary(true);
 			setExportError(null);
 
 			try {
 				const pdfBytes = await generatePDF(images);
+				setIsLoadingLibrary(false);
+
 				// Use custom filename or generate automatic one
 				const finalFilename = filenameInput.trim() || generateAutoFilename();
 				downloadPDF(pdfBytes, finalFilename);
@@ -61,6 +65,7 @@ export function usePdfExport() {
 				);
 			} finally {
 				setIsGenerating(false);
+				setIsLoadingLibrary(false);
 			}
 		},
 		[filenameInput],
@@ -81,10 +86,13 @@ export function usePdfExport() {
 			}
 
 			setIsSharing(true);
+			setIsLoadingLibrary(true);
 			setShareResult(null);
 
 			try {
 				const pdfBytes = await generatePDF(images);
+				setIsLoadingLibrary(false);
+
 				const finalFilename = filenameInput.trim() || generateAutoFilename();
 
 				const result = await sharePDF(pdfBytes, finalFilename);
@@ -104,6 +112,7 @@ export function usePdfExport() {
 				});
 			} finally {
 				setIsSharing(false);
+				setIsLoadingLibrary(false);
 			}
 		},
 		[filenameInput],
@@ -126,6 +135,7 @@ export function usePdfExport() {
 	return {
 		isGenerating,
 		isSharing,
+		isLoadingLibrary,
 		exportError,
 		exportToPDF,
 		clearExportError,

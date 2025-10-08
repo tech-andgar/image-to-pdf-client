@@ -1,4 +1,3 @@
-import { PDFDocument } from "pdf-lib";
 import type { PDFImage } from "pdf-lib";
 import type { ImageFile } from "../types/image";
 import { logger } from "./logger";
@@ -160,6 +159,8 @@ export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
 	}
 
 	try {
+		// Lazy load pdf-lib to improve initial bundle size
+		const { PDFDocument } = await import("pdf-lib");
 		const pdfDoc = await PDFDocument.create();
 
 		for (const image of images) {
