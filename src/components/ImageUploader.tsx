@@ -135,10 +135,10 @@ export function ImageUploader() {
 					{/* Export to PDF Section */}
 					{uploadedImages.length > 0 && (
 						<div className="mt-6 p-4 border rounded-lg bg-muted/30">
-							<h3 className="text-sm font-medium mb-3 flex items-center gap-2">
+							<h2 className="text-sm font-medium mb-3 flex items-center gap-2">
 								<FileDown className="h-4 w-4" />
 								Exportar a PDF
-							</h3>
+							</h2>
 
 							{/* Filename Input Component - Single Responsibility */}
 							<FilenameInput
