@@ -47,13 +47,25 @@ Desarrollar una aplicación web responsiva que permita a los usuarios fusionar m
   - Manifest completo con metadata en español
   - Theme colors sincronizados con nuevo diseño de íconos
   - Óptima legibilidad en todos los tamaños de pantalla
+- ✅ **Tema Oscuro Completo con CSS nativo light-dark()**
+  - Sistema CSS `light-dark()` para cambio automático sin JavaScript
+  - Hook `useTheme` para detección de preferencia del navegador
+  - Todas las variables de shadcn/ui en light-dark() (25+ propiedades)
+  - Responsivo a `prefers-color-scheme: dark` del sistema operativo
+  - Full compatibility cross-browser con fallback inteligente
 - ✅ **Accesibilidad WCAG 2.1 AA completa mejorada**
-  - Reemplazo de íconos genéricos (X) por semánticos (Trash2, RotateCcw)
+  - Reemplazo de íconos genéricos (X) por semánticos (Trash2, RotateCcw, Activity)
   - Contraste mejorado en todos los colores de la paleta (≥4.5:1 ratio)
   - Tooltips informativos en elementos interactivos
   - Feedback visual consistente y estados hover mejorados
   - Colores semánticos intuitivos (verde=positivo, azul=acciones)
   - Navegación por teclado completa mantenida
+  - Bordes de colores en items de grid para mejor distinción
+- ✅ **TypeScript Avanzado: Definiciones Ambientales**
+  - Archivo `env.d.ts` con tipos completos para import.meta.env (Vite)
+  - Auto-completado inteligente en IDE para DEV, PROD, NODE_ENV
+  - Configuración tsconfig.json actualizada para incluir definiciones
+  - Debug info condicional con <Activity /> icono de desarrollo
 - ✅ **Google Analytics con Partytown:** Performance-optimizada, zero main-thread blocking
   - @qwik.dev/partytown@^0.11.2 implementado para aislamiento de third-party scripts
   - GA4 scripts ejecutan en web worker, mejorando Core Web Vitals

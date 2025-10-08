@@ -1,4 +1,4 @@
-import { Upload, FileDown, AlertCircle, Share2 } from "lucide-react";
+import { Activity, Upload, FileDown, AlertCircle, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useImageUpload } from "../hooks/useImageUpload";
@@ -66,13 +66,16 @@ export function ImageUploader() {
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
-					{/* Debug info */}
-					<div className="mb-4 p-2 bg-muted rounded">
-						<p className="text-sm">
-							Debug: {uploadedImages.length} imágenes cargadas | Tema: {theme} (
-							{isDark ? "Dark Mode" : "Light Mode"})
-						</p>
-					</div>
+					{/* Debug info - only show in development */}
+					{import.meta.env.DEV && (
+						<div className="mb-4 p-2 bg-muted rounded flex items-center gap-2">
+							<Activity className="h-4 w-4" />
+							<p className="text-sm">
+								Debug: {uploadedImages.length} imágenes cargadas | Tema: {theme}{" "}
+								({isDark ? "Dark Mode" : "Light Mode"})
+							</p>
+						</div>
+					)}
 
 					{/* Upload Area */}
 					<UploadArea

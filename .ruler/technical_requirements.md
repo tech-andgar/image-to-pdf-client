@@ -9,15 +9,18 @@
     *   **Layer de Componentes:** Componentes de presentación en `src/components/` siguiendo SRP
 *   **Bibliotecas de JavaScript Clave:**
     *   **UI Framework:** shadcn/ui v2.1.3 con Tailwind CSS 3.4 para diseño responsivo y componentes accesibles
-    *   **Icons:** Lucide React v0.545 para iconografía consistente
-    *   **Build Tool:** Vite v7.1.14 con TypeScript y PWA support
+    *   **Icons:** Lucide React v0.545 para iconografía consistente (Activity, Trash2, Share2, FileDown)
+    *   **Build Tool:** Vite v7.1.14 con TypeScript y PWA support nativo
     *   **Linting/Formateo:** Biome v1.9.4 para calidad de código automatizada
     *   **Generación de PDF:** `pdf-lib` v1.17.1 seleccionado - biblioteca sin dependencias nativas para creación de PDF cliente-side
     *   **Interacción de Arrastrar y Soltar:** `@dnd-kit` v6.17.0 implementado - capa ligera sobre HTML5 Drag and Drop API con soporte completo mobile touch y pointer events
-    *   **Image Processing:** API de FileReader + Canvas para validación y preview de imágenes
-    *   **State Management:** React hooks nativos con custom hooks para驶 lógica reutilizable
-    *   **PWA:** Vite PWA plugin v0.21.1 con service workers para caching offline
+    *   **Image Processing:** API de FileReader + Canvas para validación, preview y compresión de imágenes
+    *   **State Management:** React hooks nativos con custom hooks para lógica reutilizable
+    *   **Sharing:** Web Share API nativa del navegador para compartir PDFs directamente
+    *   **PWA:** Vite PWA plugin v0.21.1 con service workers para caching offline y 6 íconos SVG customizados
+    *   **Theme System:** CSS `light-dark()` nativo para cambio automático de temas sin JavaScript
     *   **Performance Optimization:** @qwik.dev/partytown@^0.11.2 para aislamiento de third-party scripts en web workers - zero main thread blocking para Google Analytics
+    *   **TypeScript:** `env.d.ts` con tipos ambientales para import.meta.env (Vite) con auto-completado IDE
 *   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y un framework de UI moderno como shadcn/ui con Tailwind CSS.
 *   **Progressive Web App (PWA):** La aplicación debe ser instalable y funcionar de manera offline cuando sea posible, aprovechando service workers y caching inteligente de recursos y bibliotecas provided by Vite PWA plugin.
 
