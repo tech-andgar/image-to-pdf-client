@@ -1,8 +1,10 @@
 ### **Requisitos Técnicos y de Liderazgo (Rol de Tech Lead):**
 
 **1. Arquitectura y Pila Tecnológica:**
-*   **Framework Frontend:** Seleccionar un framework de JavaScript moderno y robusto (por ejemplo, React, Vue.js o Angular) para construir una interfaz de usuario interactiva y mantenible.
+*   **Framework Frontend:** React 19.2.0 con TypeScript para type safety y mejores DX.
 *   **Bibliotecas de JavaScript Clave:**
+    *   **UI Framework:** shadcn/ui con Tailwind CSS 3.4 para diseño responsivo y componentes accesibles
+    *   **Icons:** Lucide React para iconografía consistente
     *   **Generación de PDF:** Investigar y seleccionar la biblioteca más adecuada para la creación de PDF del lado del cliente. `pdf-lib` es una opción potente a considerar por no tener dependencias nativas y funcionar en cualquier entorno de JavaScript.
     *   **Interacción de Arrastrar y Soltar:** Evaluar e implementar una biblioteca para el reordenamiento de elementos (por ejemplo, `SortableJS` o utilizando la API nativa de Drag and Drop de HTML5).
 *   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y un framework de UI moderno como shadcn/ui con Tailwind CSS.
@@ -21,6 +23,7 @@
 *   **Control de Versiones:** Utilizar Git para el control de versiones, con una estrategia de ramas clara (por ejemplo, GitFlow). Implementar ganchos pre-commit con Husky que ejecuten automáticamente linting (biome check) y formateo (biome format) para asegurar la calidad del código en cada commit.
 
 **3. Calidad y Rendimiento:**
+*   **Linting y Formateo:** Biome (Biome 1.9.4) para linting automático, formateo de código y preparación para TypeScript/JavaScript. Configurado con reglas recomendadas y compatibilidad con shadcn/ui
 *   **Pruebas Unitarias y de Integración:** Definir una estrategia de pruebas para asegurar la fiabilidad de los componentes clave, especialmente la lógica de generación de PDF y el reordenamiento.
 *   **Rendimiento del Lado del Cliente:** Perfilar la aplicación para identificar y mitigar posibles cuellos de botella, especialmente al manejar una gran cantidad de imágenes o imágenes de alta resolución. Considerar el uso de Web Workers para procesos intensivos como la generación de PDF para no bloquear el hilo principal de la interfaz de usuario.
 *   **Compatibilidad entre Navegadores:** Garantizar que la aplicación funcione de manera consistente en las últimas versiones de los principales navegadores (Chrome, Firefox, Safari, Edge).

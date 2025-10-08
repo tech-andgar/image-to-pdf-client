@@ -13,12 +13,17 @@
   - Configurar estructura básica del proyecto
   - Instalar dependencias iniciales
 
-- [ ] **Fase 2: Desarrollo del componente de carga de archivos con validación.**
-  - Implementar interfaz de carga intuitiva (diálogo de selección de archivos)
-  - Agregar funcionalidad de arrastrar y soltar
-  - Validar tipos de archivo (JPEG, PNG, BMP, GIF)
-  - Proporcionar feedback inmediato para archivos no admitidos
-  - Optimizar para dispositivos móviles y escritorio
+- [x] **Fase 2: Desarrollo del componente de carga de archivos con validación.**
+  - [x] Implementar interfaz de carga intuitiva (diálogo de selección de archivos)
+  - [x] Agregar funcionalidad de arrastrar y soltar
+  - [x] Validar tipos de archivo (JPEG, PNG, BMP, GIF) con límites de 10MB
+  - [x] Proporcionar feedback inmediato para archivos no admitidos con UI de error
+  - [x] Optimizar para dispositivos móviles y escritorio (diseño responsivo)
+  - [x] Componentes separados: UploadArea, ImagePreviewGrid, ImageUploader (Controlador)
+  - [x] TypeScript implementado con interfaces tipadas
+  - [x] Gestión de estado React con hooks (useState)
+  - [x] Previsualización de imágenes con manejo de memoria (URL.createObjectURL)
+  - [x] Arquitectura de componentes modular y mantenible
 
 - [ ] **Fase 3: Implementación de la galería de previsualización y la lógica de reordenamiento.**
   - Crear galería de miniaturas para imágenes cargadas
