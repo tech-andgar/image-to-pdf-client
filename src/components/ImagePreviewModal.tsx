@@ -1,5 +1,6 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
+
 import type { ImageFile } from "../types/image";
 import { Button } from "./ui/button";
 import {

@@ -2,12 +2,12 @@ import { AlertCircle, GripVertical, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DndContext,
-	DragEndEvent,
 	PointerSensor,
 	TouchSensor,
 	useSensor,
 	useSensors,
 	rectIntersection,
+	type DragEndEvent,
 } from "@dnd-kit/core";
 import {
 	SortableContext,

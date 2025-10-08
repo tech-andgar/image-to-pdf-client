@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import {
-	DragEndEvent,
 	PointerSensor,
 	useSensor,
 	useSensors,
 	rectIntersection,
+	type DragEndEvent,
 } from "@dnd-kit/core";
 
 export interface UseDragDropOptions {
