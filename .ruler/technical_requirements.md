@@ -26,7 +26,7 @@
     *   Fase 2: Desarrollo del componente de carga de archivos con validación.
     *   Fase 3: Implementación de la galería de previsualización y la lógica de reordenamiento.
     *   Fase 4: ✅ Integración de la biblioteca de generación de PDF y la función de exportación (COMPLETADO - pdf-lib implementation)
-    *   Fase 5: ✅ Implementación de la optimización del tamaño del PDF (COMPLETADO - compresión Canvas API)
+    *   Fase 5: ✅ Implementación de la optimización del tamaño del PDF (COMPLETADO - compresión Canvas API + UI Accordion)
     *   Fase 6: Pruebas exhaustivas y corrección de errores.
     *   Fase 7: Despliegue.
 *   **Metodología Ágil:** Adoptar un enfoque de desarrollo ágil (Scrum o Kanban) para permitir iteraciones rápidas, retroalimentación continua y una gestión de proyectos flexible.

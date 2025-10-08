@@ -71,6 +71,9 @@
   - [x] Integrar compresión en pipeline de PDF
   - [x] Soporte para reducción de dimensiones y calidad
   - [x] Estadísticas en tiempo real de compresión
+  - [x] Implementar componente Accordion para UI colapsable (inicia cerrado por defecto)
+  - [x] Mejorar experiencia de usuario con expansión opcional de compresión
+  - [x] Diseño responsive y accesible con transiciones suaves
 
 - [ ] **Fase 6: Pruebas exhaustivas y corrección de errores.**
   - Definir estrategia de pruebas unitarias e integración

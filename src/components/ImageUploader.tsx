@@ -75,17 +75,7 @@ export function ImageUploader() {
 						}}
 					/>
 
-					{/* Test Click Component */}
-					<div className="mb-4 p-4 border-2 border-blue-500 rounded">
-						<h3 className="text-sm font-bold mb-2">Test Click Component:</h3>
-						<button
-							type="button"
-							className="w-32 h-32 bg-red-500 cursor-pointer border-0"
-							onClick={() => console.log("TEST CLICK WORKS!")}
-						>
-							Click me - test básico
-						</button>
-					</div>
+
 
 					{/* Compression Controls */}
 					{uploadedImages.length > 0 && (
