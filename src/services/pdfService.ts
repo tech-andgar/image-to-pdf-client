@@ -24,10 +24,14 @@ function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
 	// Check if we can share files directly (Web Share Level 2)
 	let canShareFile = false;
 	try {
+		// Use type assertion for canShare method if available
+		const shareApi = navigator.share as {
+			canShare?: (data: unknown) => boolean;
+		};
 		canShareFile =
-			"canShare" in navigator.share &&
-			(navigator.share as any).canShare &&
-			(navigator.share as any).canShare({
+			"canShare" in shareApi &&
+			typeof shareApi.canShare === "function" &&
+			shareApi.canShare({
 				files: [new File([pdfBlob], "temp.pdf", { type: "application/pdf" })],
 			});
 	} catch (_e) {
@@ -37,10 +41,11 @@ function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
 	// Check basic sharing capability
 	let canShare = canShareFile;
 	try {
-		if ("canShare" in navigator.share && (navigator.share as any).canShare) {
-			canShare =
-				canShare ||
-				(navigator.share as any).canShare({ url: window.location.href });
+		const shareApi = navigator.share as {
+			canShare?: (data: unknown) => boolean;
+		};
+		if ("canShare" in shareApi && typeof shareApi.canShare === "function") {
+			canShare = canShare || shareApi.canShare({ url: window.location.href });
 		} else {
 			canShare = true; // Assume basic sharing is available if navigator.share exists
 		}
