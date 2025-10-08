@@ -54,17 +54,24 @@ export async function sharePDF(
 	filename: string = "images.pdf",
 ): Promise<{ success: boolean; method: string; error?: string }> {
 	try {
-		// Create a new ArrayBuffer from the Uint8Array bytes to ensure compatibility
-		const pdfArrayBuffer = new ArrayBuffer(pdfBytes.length);
-		const view = new Uint8Array(pdfArrayBuffer);
-		view.set(pdfBytes);
-
-		const pdfBlob = new Blob([pdfArrayBuffer], {
+		// Prepare the data: Create a Blob containing the PDF data
+		const pdfBlob = new Blob([new Uint8Array(pdfBytes)], {
 			type: "application/pdf",
 		});
-		const capabilities = getShareCapabilities(pdfBlob);
 
-		if (!capabilities.canShare) {
+		// Prepare the data: Create a File object for sharing
+		const fileToShare = new File([pdfBlob], filename, { type: pdfBlob.type });
+
+		// Create shareData object as per Web Share API specification
+		const shareData = {
+			files: [fileToShare],
+			title: filename,
+			text: "PDF generado con imágenes convertidas",
+			url: window.location.href, // Optional, can be omitted if not needed
+		};
+
+		// Check if Web Share API is available and if we can share this specific data
+		if (!navigator.share || !navigator.canShare) {
 			return {
 				success: false,
 				method: "none",
@@ -73,23 +80,29 @@ export async function sharePDF(
 			};
 		}
 
-		// Try to share with file if supported
-		if (capabilities.canShareFile) {
-			await navigator.share({
-				files: [new File([pdfBlob], filename, { type: "application/pdf" })],
+		// Check if we can share files with this specific shareData
+		if (!navigator.canShare(shareData)) {
+			// Fallback to URL sharing - remove files from shareData since we can't share files
+			const urlShareData = {
 				title: filename,
 				text: "PDF generado con imágenes convertidas",
-			});
-			return { success: true, method: "file" };
+				url: window.location.href,
+			};
+			if (navigator.canShare(urlShareData)) {
+				await navigator.share(urlShareData);
+				return { success: true, method: "url" };
+			} else {
+				return {
+					success: false,
+					method: "none",
+					error: "Tu navegador no puede compartir este contenido.",
+				};
+			}
 		}
 
-		// Fallback to URL sharing
-		await navigator.share({
-			title: filename,
-			text: "PDF generado con imágenes convertidas",
-			url: window.location.href,
-		});
-		return { success: true, method: "url" };
+		// Share with files attached
+		await navigator.share(shareData);
+		return { success: true, method: "file" };
 	} catch (error) {
 		logger.error("Error sharing PDF", error);
 		return {
