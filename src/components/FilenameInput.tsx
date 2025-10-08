@@ -1,3 +1,4 @@
+import { useId, useMemo } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -16,22 +17,34 @@ export function FilenameInput({
 	filename,
 	setFilename,
 	previewFilename,
-}: FilenameInputProps) {
+}: Readonly<FilenameInputProps>) {
+	const inputId = useId();
+	const previewId = useId();
+
+	const inputIdSelector = useMemo(() => `pdf-filename-${inputId}`, [inputId]);
+	const previewIdSelector = useMemo(
+		() => `pdf-filename-preview-${previewId}`,
+		[previewId],
+	);
+
 	return (
 		<div className="mb-3">
-			<label htmlFor="pdf-filename" className="block text-xs font-medium mb-1">
+			<label
+				htmlFor={inputIdSelector}
+				className="block text-xs font-medium mb-1"
+			>
 				Nombre del archivo
 			</label>
 			<div className="relative">
 				<input
-					id="pdf-filename"
+					id={inputIdSelector}
 					type="text"
 					value={filename}
 					onChange={(e) => setFilename(e.target.value)}
 					placeholder={previewFilename}
 					className="w-full px-3 py-2 pr-10 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
 					maxLength={100}
-					aria-describedby="pdf-filename-preview"
+					aria-describedby={previewIdSelector}
 				/>
 				{filename.trim() && (
 					<Button
@@ -46,7 +59,10 @@ export function FilenameInput({
 					</Button>
 				)}
 			</div>
-			<div id="pdf-filename-preview" className="mt-1 text-xs text-muted-foreground">
+			<div
+				id={previewIdSelector}
+				className="mt-1 text-xs text-muted-foreground"
+			>
 				Archivo se guardará como: <code>{previewFilename}</code>
 			</div>
 		</div>

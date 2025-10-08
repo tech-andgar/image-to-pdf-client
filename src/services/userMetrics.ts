@@ -27,7 +27,7 @@ export interface UserMetric {
 class UserMetricsService {
 	private metrics: UserMetric[] = [];
 	private readonly maxMetrics = 200; // Keep last 200 metrics
-	private sessionId: string;
+	private readonly sessionId: string;
 
 	constructor() {
 		this.sessionId = this.generateSessionId();

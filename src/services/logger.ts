@@ -22,7 +22,7 @@ export interface LogEntry {
 class LoggerService {
 	private logs: LogEntry[] = [];
 	private readonly maxLogs = 100; // Keep last 100 logs
-	private sessionId: string;
+	private readonly sessionId: string;
 
 	constructor() {
 		this.sessionId = this.generateSessionId();
@@ -107,13 +107,13 @@ class LoggerService {
 		// Save to storage
 		this.saveLogsToStorage();
 
-		// Console output
-		const logMethod =
-			level === LogLevel.ERROR
-				? "error"
-				: level === LogLevel.WARN
-					? "warn"
-					: "log";
+		// Console output - Get appropriate console method for log level
+		let logMethod: "log" | "warn" | "error" = "log";
+		if (level === LogLevel.ERROR) {
+			logMethod = "error";
+		} else if (level === LogLevel.WARN) {
+			logMethod = "warn";
+		}
 
 		console[logMethod](`[${level.toUpperCase()}] ${message}`, data || "");
 	}
