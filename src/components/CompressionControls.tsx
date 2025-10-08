@@ -143,9 +143,9 @@ export function CompressionControls({
 							{/* Compression Stats */}
 							{formattedStats && !isCompressing && (
 								<div className="p-3 bg-muted/50 rounded-lg space-y-2">
-									<h4 className="text-sm font-medium">
+									<div className="text-sm font-medium">
 										Resultados de Compresión
-									</h4>
+									</div>
 									<div className="grid grid-cols-2 gap-3 text-xs">
 										<div>
 											<span className="text-muted-foreground">Original:</span>
