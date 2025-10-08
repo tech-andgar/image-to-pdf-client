@@ -59,6 +59,53 @@ export default defineConfig({
 			},
 			workbox: {
 				globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+				// Optimize cache strategies for better performance
+				runtimeCaching: [
+					{
+						urlPattern: /\.js$/,
+						handler: "CacheFirst",
+						options: {
+							cacheName: "js-assets-cache",
+							expiration: {
+								maxEntries: 100,
+								maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+							},
+						},
+					},
+					{
+						urlPattern: /\.css$/,
+						handler: "CacheFirst",
+						options: {
+							cacheName: "css-assets-cache",
+							expiration: {
+								maxEntries: 50,
+								maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+							},
+						},
+					},
+					{
+						urlPattern: /\.(png|jpg|jpeg|svg|gif|ico|webp)$/,
+						handler: "CacheFirst",
+						options: {
+							cacheName: "image-assets-cache",
+							expiration: {
+								maxEntries: 100,
+								maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year for images
+							},
+						},
+					},
+					{
+						urlPattern: /\.(woff2?|ttf|eot)$/,
+						handler: "CacheFirst",
+						options: {
+							cacheName: "font-assets-cache",
+							expiration: {
+								maxEntries: 20,
+								maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year for fonts
+							},
+						},
+					},
+				],
 			},
 		}),
 	],
