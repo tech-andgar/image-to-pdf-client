@@ -127,6 +127,11 @@ export default defineConfig({
 	},
 	build: {
 		rollupOptions: {
+			treeshake: {
+				moduleSideEffects: false,
+				propertyReadSideEffects: false,
+				tryCatchDeoptimization: false,
+			},
 			output: {
 				manualChunks: (id) => {
 					// Separate pdf-lib and compression libraries
@@ -163,6 +168,18 @@ export default defineConfig({
 				},
 			},
 		},
-		chunkSizeWarningLimit: 1000, // Increase warning limit to 1000KB
+		minify: "terser",
+		terserOptions: {
+			compress: {
+				drop_console: true,
+				drop_debugger: true,
+				pure_funcs: ["console.log", "console.info", "console.debug"],
+			},
+			mangle: {
+				safari10: true,
+			},
+		},
+		chunkSizeWarningLimit: 1000,
+		sourcemap: false, // Disable sourcemaps for better minification
 	},
 });
