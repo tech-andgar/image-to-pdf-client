@@ -87,17 +87,9 @@ export function ImageUploader() {
 						</button>
 					</div>
 
-					{/* Image Previews */}
-					<ImagePreviewGrid
-						uploadedImages={uploadedImages}
-						onRemoveImage={removeImage}
-						onReorderImages={reorderImages}
-						onPreviewImage={openPreviewModal}
-					/>
-
 					{/* Compression Controls */}
 					{uploadedImages.length > 0 && (
-						<div className="mt-6">
+						<div className="mb-6">
 							<CompressionControls
 								isCompressing={isCompressing}
 								compressionError={compressionError}
@@ -112,6 +104,14 @@ export function ImageUploader() {
 							/>
 						</div>
 					)}
+
+					{/* Image Previews */}
+					<ImagePreviewGrid
+						uploadedImages={uploadedImages}
+						onRemoveImage={removeImage}
+						onReorderImages={reorderImages}
+						onPreviewImage={openPreviewModal}
+					/>
 
 					{/* Export to PDF Section */}
 					{uploadedImages.length > 0 && (
