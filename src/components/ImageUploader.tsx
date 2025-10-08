@@ -75,8 +75,6 @@ export function ImageUploader() {
 						}}
 					/>
 
-
-
 					{/* Compression Controls */}
 					{uploadedImages.length > 0 && (
 						<div className="mb-6">

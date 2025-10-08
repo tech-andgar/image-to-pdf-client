@@ -1,6 +1,5 @@
 import { Upload } from "lucide-react";
 import { type ChangeEvent, type DragEvent, useRef } from "react";
-import { Button } from "@/components/ui/button";
 
 interface UploadAreaProps {
 	isDragOver: boolean;
@@ -16,28 +15,35 @@ export function UploadArea({
 	onDragLeave,
 	onDrop,
 	onFileSelect,
-}: UploadAreaProps) {
+}: Readonly<UploadAreaProps>) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	return (
 		<div
-			className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+			className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
 				isDragOver
 					? "border-primary bg-primary/5"
 					: "border-muted-foreground/25"
 			}`}
+			role="button"
+			tabIndex={0}
+			aria-label="Drop zone for image files - drag images here or click to select files"
 			onDragOver={onDragOver}
 			onDragLeave={onDragLeave}
 			onDrop={onDrop}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					fileInputRef.current?.click();
+				}
+			}}
+			onClick={() => fileInputRef.current?.click()}
 		>
 			<Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
 			<h3 className="text-lg font-medium mb-2">Arrastra las imágenes aquí</h3>
 			<p className="text-sm text-muted-foreground mb-4">
 				o haz clic para seleccionar archivos
 			</p>
-			<Button onClick={() => fileInputRef.current?.click()} variant="outline">
-				Seleccionar Archivos
-			</Button>
 			<input
 				ref={fileInputRef}
 				type="file"
