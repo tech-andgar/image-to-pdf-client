@@ -21,7 +21,14 @@ Desarrollar una aplicación web responsiva que permita a los usuarios fusionar m
   - UI de exportación con progress feedback y error handling
   - Secuencia drag & drop preservada en output PDF
   - Calidad de código perfecta (Biome compliant, type safety)
-- 🔄 **Próxima fase:** Fase 5 - Optimización del tamaño del PDF
+- ✅ **Fase 5 completa:** Optimización del tamaño del PDF con compresión de imágenes
+  - Servicio de compresión Canvas API con 4 presets configurables
+  - UI completa de compresión con estadísticas detalladas
+  - Reducción significativa de tamaño manteniendo calidad visual
+  - Presets: Alta (2048px), Media (1536px), Baja (1024px), Mínima (800px)
+  - Estadísticas de compresión antes/después en tiempo real
+  - Integración completa con pipeline de PDF
+- 🔄 **Próxima fase:** Fase 6 - Pruebas exhaustivas y optimización de rendimiento
 
 **Arquitectura Implementada:**
 - **Layer de Tipos:** `src/types/` - interfaces ImageFile centralizadas con IDs únicos
