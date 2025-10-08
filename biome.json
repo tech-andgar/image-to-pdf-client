@@ -1,5 +1,20 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
+	"files": {
+		"includes": [
+			"src/**",
+			"public/**",
+			"scripts/**",
+			"astro.config.ts",
+			"package.json",
+			"tsconfig.json",
+			".vscode/**",
+			"docs/**",
+			"README.md",
+			"*.config.*",
+			"env.d.ts"
+		]
+	},
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",

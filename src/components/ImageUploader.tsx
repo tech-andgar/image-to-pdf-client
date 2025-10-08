@@ -1,21 +1,15 @@
-import { AlertCircle, Upload, X } from "lucide-react";
-import { type ChangeEvent, type DragEvent, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { type ChangeEvent, type DragEvent, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UploadArea } from "./UploadArea";
+import { ImagePreviewGrid, type ImageFile } from "./ImagePreviewGrid";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/bmp", "image/gif"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-interface ImageFile {
-	file: File;
-	preview: string;
-	error?: string;
-}
-
 export function ImageUploader() {
 	const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
 	const [isDragOver, setIsDragOver] = useState(false);
-	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const validateFile = (file: File): string | null => {
 		if (!ACCEPTED_TYPES.includes(file.type)) {
@@ -88,8 +82,8 @@ export function ImageUploader() {
 	};
 
 	return (
-		<div className="w-full max-w-2xl mx-auto space-y-6">
-			<Card>
+		<div className="w-full max-w-2xl mx-auto">
+			<Card className="mx-auto max-w-none">
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
 						<Upload className="h-5 w-5" />
@@ -98,79 +92,19 @@ export function ImageUploader() {
 				</CardHeader>
 				<CardContent>
 					{/* Upload Area */}
-					<div
-						className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-							isDragOver
-								? "border-primary bg-primary/5"
-								: "border-muted-foreground/25"
-						}`}
+					<UploadArea
+						isDragOver={isDragOver}
 						onDragOver={handleDragOver}
 						onDragLeave={handleDragLeave}
 						onDrop={handleDrop}
-					>
-						<Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-						<h3 className="text-lg font-medium mb-2">
-							Arrastra las imágenes aquí
-						</h3>
-						<p className="text-sm text-muted-foreground mb-4">
-							o haz clic para seleccionar archivos
-						</p>
-						<Button
-							onClick={() => fileInputRef.current?.click()}
-							variant="outline"
-						>
-							Seleccionar Archivos
-						</Button>
-						<input
-							ref={fileInputRef}
-							type="file"
-							multiple
-							accept="image/jpeg,image/png,image/bmp,image/gif"
-							onChange={handleFileSelect}
-							className="hidden"
-						/>
-					</div>
+						onFileSelect={handleFileSelect}
+					/>
 
 					{/* Image Previews */}
-					{uploadedImages.length > 0 && (
-						<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-							{uploadedImages.map((image, index) => (
-								<div key={`${image.file.name}-${image.file.size}-${index}`} className="relative group">
-									{image.preview ? (
-										<div className="aspect-square rounded-lg overflow-hidden bg-muted">
-											<img
-												src={image.preview}
-												alt={image.file.name}
-												className="w-full h-full object-cover"
-											/>
-											<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-												<Button
-													variant="destructive"
-													size="sm"
-													className="opacity-0 group-hover:opacity-100"
-													onClick={() => removeImage(index)}
-												>
-													<X className="h-4 w-4" />
-												</Button>
-											</div>
-										</div>
-									) : (
-										<div className="aspect-square rounded-lg bg-destructive/10 border border-destructive/20 flex items-center justify-center">
-											<div className="text-center p-2">
-												<AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
-												<p className="text-xs text-destructive font-medium">
-													{image.file.name}
-												</p>
-												<p className="text-xs text-destructive/75">
-													{image.error}
-												</p>
-											</div>
-										</div>
-									)}
-								</div>
-							))}
-						</div>
-					)}
+					<ImagePreviewGrid
+						uploadedImages={uploadedImages}
+						onRemoveImage={removeImage}
+					/>
 
 					{/* Instructions */}
 					<div className="text-sm text-muted-foreground mt-4">
@@ -186,3 +120,5 @@ export function ImageUploader() {
 		</div>
 	);
 }
+
+export type { ImageFile };
