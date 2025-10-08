@@ -5,7 +5,8 @@
 *   **Bibliotecas de JavaScript Clave:**
     *   **Generación de PDF:** Investigar y seleccionar la biblioteca más adecuada para la creación de PDF del lado del cliente. `pdf-lib` es una opción potente a considerar por no tener dependencias nativas y funcionar en cualquier entorno de JavaScript.
     *   **Interacción de Arrastrar y Soltar:** Evaluar e implementar una biblioteca para el reordenamiento de elementos (por ejemplo, `SortableJS` o utilizando la API nativa de Drag and Drop de HTML5).
-*   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y/o un framework de UI como Bootstrap o Tailwind CSS.
+*   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y un framework de UI moderno como shadcn/ui con Tailwind CSS.
+*   **Progressive Web App (PWA):** La aplicación debe ser instalable y funcionar de manera offline cuando sea posible, aprovechando service workers y caching inteligente de recursos y bibliotecas.
 
 **2. Plan de Ejecución y Metodología:**
 *   **Desglose de Tareas (WBS):** Crear un desglose detallado de las tareas del proyecto, incluyendo:
