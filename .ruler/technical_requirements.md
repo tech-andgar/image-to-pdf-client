@@ -1,14 +1,21 @@
 ### **Requisitos Técnicos y de Liderazgo (Rol de Tech Lead):**
 
 **1. Arquitectura y Pila Tecnológica:**
-*   **Framework Frontend:** React 19.2.0 con TypeScript para type safety y mejores DX.
+*   **Framework Frontend:** React 19.2.0 con TypeScript para type safety, mejores DX y desarrollo sostenible.
+*   **Arquitectura:** Patrón de separación limpia con capas arquitectónicas bien definidas:
+    *   **Layer de Tipos:** Definiciones TypeScript compartidas en `src/types/`
+    *   **Layer de Servicios:** Funciones puras en `src/services/` para lógica de negocio no-UI
+    *   **Layer de Hooks:** Hooks personalizados en `src/hooks/` para estado y efectos
+    *   **Layer de Componentes:** Componentes de presentación en `src/components/` siguiendo SRP
 *   **Bibliotecas de JavaScript Clave:**
-    *   **UI Framework:** shadcn/ui con Tailwind CSS 3.4 para diseño responsivo y componentes accesibles
-    *   **Icons:** Lucide React para iconografía consistente
+    *   **UI Framework:** shadcn/ui v2.1.3 con Tailwind CSS 3.4 para diseño responsivo y componentes accesibles
+    *   **Icons:** Lucide React v0.545 para iconografía consistente
+    *   **Build Tool:** Vite v7.1.14 con TypeScript y PWA support
+    *   **Linting/Formateo:** Biome v1.9.4 para calidad de código automatizada
     *   **Generación de PDF:** Investigar y seleccionar la biblioteca más adecuada para la creación de PDF del lado del cliente. `pdf-lib` es una opción potente a considerar por no tener dependencias nativas y funcionar en cualquier entorno de JavaScript.
     *   **Interacción de Arrastrar y Soltar:** Evaluar e implementar una biblioteca para el reordenamiento de elementos (por ejemplo, `SortableJS` o utilizando la API nativa de Drag and Drop de HTML5).
 *   **Diseño Responsivo:** Asegurar que la aplicación sea totalmente funcional y visualmente atractiva en una amplia gama de dispositivos, desde computadoras de escritorio hasta teléfonos móviles. Utilizar CSS moderno (Flexbox, Grid) y un framework de UI moderno como shadcn/ui con Tailwind CSS.
-*   **Progressive Web App (PWA):** La aplicación debe ser instalable y funcionar de manera offline cuando sea posible, aprovechando service workers y caching inteligente de recursos y bibliotecas.
+*   **Progressive Web App (PWA):** La aplicación debe ser instalable y funcionar de manera offline cuando sea posible, aprovechando service workers y caching inteligente de recursos y bibliotecas provided by Vite PWA plugin.
 
 **2. Plan de Ejecución y Metodología:**
 *   **Desglose de Tareas (WBS):** Crear un desglose detallado de las tareas del proyecto, incluyendo:
