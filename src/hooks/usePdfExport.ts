@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import type { ImageFile } from "../types/image";
 import { generatePDF, downloadPDF, sharePDF } from "../services/pdfService";
+import { sanitizeFilename } from "../services/fileSanitizer";
 
 /**
  * Generates an automatic filename with timestamp
@@ -34,7 +35,12 @@ export function usePdfExport() {
 	const [shareResult, setShareResult] = useState<ShareResult | null>(null);
 	const [filenameInput, setFilenameInput] = useState("");
 
-	// Handle filename changes
+	// Compute preview filename (sanitized filename for operations)
+	const previewFilename = filenameInput.trim()
+		? sanitizeFilename(filenameInput)
+		: generateAutoFilename();
+
+	// Handle filename changes (raw user input for UI display)
 	const setFilename = useCallback((filename: string) => {
 		setFilenameInput(filename);
 	}, []);
@@ -57,9 +63,8 @@ export function usePdfExport() {
 				const pdfBytes = await generatePDF(images);
 				setIsLoadingLibrary(false);
 
-				// Use custom filename or generate automatic one
-				const finalFilename = filenameInput.trim() || generateAutoFilename();
-				downloadPDF(pdfBytes, finalFilename);
+				// Use sanitized filename
+				downloadPDF(pdfBytes, previewFilename);
 
 				// Reset error state on success
 				setExportError(null);
@@ -73,7 +78,7 @@ export function usePdfExport() {
 				setIsLoadingLibrary(false);
 			}
 		},
-		[filenameInput],
+		[previewFilename],
 	);
 
 	/**
@@ -98,9 +103,7 @@ export function usePdfExport() {
 				const pdfBytes = await generatePDF(images);
 				setIsLoadingLibrary(false);
 
-				const finalFilename = filenameInput.trim() || generateAutoFilename();
-
-				const result = await sharePDF(pdfBytes, finalFilename);
+				const result = await sharePDF(pdfBytes, previewFilename);
 				setShareResult(result);
 
 				// Clear error state if share was successful or had a fallback
@@ -120,7 +123,7 @@ export function usePdfExport() {
 				setIsLoadingLibrary(false);
 			}
 		},
-		[filenameInput],
+		[previewFilename],
 	);
 
 	/**
@@ -150,6 +153,6 @@ export function usePdfExport() {
 		clearShareResult,
 		filename: filenameInput,
 		setFilename: setFilename,
-		previewFilename: filenameInput.trim() || generateAutoFilename(),
+		previewFilename,
 	};
 }

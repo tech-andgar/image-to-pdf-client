@@ -23,6 +23,13 @@ class PdfGenerator {
 					continue;
 				}
 
+				// Validate File before attempting to read it (handles background/foreground transitions)
+				if (!(await this.validateFile(image.file))) {
+					throw new Error(
+						`Archivo "${image.file.name}" inválido. Reinicie la aplicación y cárgue las imágenes nuevamente. Los archivos expiran cuando la aplicación pierde el foco.`,
+					);
+				}
+
 				const imageBytes = await this.fileToUint8Array(image.file);
 				let embeddedImage: PDFImage;
 
@@ -90,6 +97,21 @@ class PdfGenerator {
 		}
 	}
 
+	// Validate if a File object is still valid (handles background/foreground transitions)
+	private async validateFile(file: File): Promise<boolean> {
+		try {
+			// Simple validation: try to access file size (this will fail if file is invalidated)
+			const testSize = file.size;
+			if (testSize === undefined || testSize < 0) {
+				return false;
+			}
+			return true;
+		} catch (error) {
+			logger.warn("File validation failed", { error });
+			return false;
+		}
+	}
+
 	// Moved here to follow SRP - this class handles all image/PDF operations
 	private async fileToUint8Array(file: File): Promise<Uint8Array> {
 		return new Promise((resolve, reject) => {
@@ -146,8 +168,28 @@ class PdfSharer {
 		this.shareService = createBestShareService();
 	}
 
+	// Validate if File object is still valid (handles background/foreground transitions)
+	private async validateFile(file: File): Promise<boolean> {
+		try {
+			// Try to access file size (will fail if file is invalidated)
+			const testSize = file.size;
+			if (testSize === undefined || testSize < 0) {
+				return false;
+			}
+			return true;
+		} catch (error) {
+			logger.warn("Share file validation failed", { error });
+			return false;
+		}
+	}
+
 	async share(pdfBytes: Uint8Array, filename: string): Promise<ShareResult> {
 		try {
+			// Validate PDF bytes before attempting to share
+			if (!pdfBytes || pdfBytes.length === 0) {
+				throw new Error("No hay datos de PDF para compartir");
+			}
+
 			// Sanitize filename for cross-platform compatibility
 			const safeFilename = this.sanitizer(filename);
 			const finalFilename = safeFilename || this.fallbackGenerator();
@@ -156,6 +198,70 @@ class PdfSharer {
 			const fileToShare = new File([new Uint8Array(pdfBytes)], finalFilename, {
 				type: "application/pdf",
 			});
+
+			// CRITICAL: Validate File content is accessible BEFORE sharing
+			// Android Chrome may fail to read File content even if File object seems valid
+			const fileValid = await new Promise<boolean>((resolve) => {
+				const reader = new FileReader();
+				let resolved = false;
+				let timeoutId: number | undefined;
+
+				const cleanup = () => {
+					if (timeoutId !== undefined) {
+						clearTimeout(timeoutId);
+					}
+					resolved = true;
+				};
+
+				reader.onload = (e) => {
+					if (resolved) return;
+					cleanup();
+					const result = e.target?.result;
+					// Check if we can actually read the content
+					resolve(result instanceof ArrayBuffer && result.byteLength > 0);
+				};
+
+				reader.onerror = () => {
+					if (resolved) return;
+					cleanup();
+					logger.warn(
+						"PDF File validation read failed before sharing - file invalidated",
+					);
+					resolve(false);
+				};
+
+				// Manual timeout handling since FileReader doesn't support native timeout
+				timeoutId = window.setTimeout(() => {
+					if (resolved) return;
+					cleanup();
+					logger.warn("PDF File validation read timeout before sharing");
+					reader.abort(); // Cancel the read operation
+					resolve(false);
+				}, 3000);
+
+				try {
+					// Try to read part of the file to validate content accessibility
+					const testSlice = fileToShare.slice(
+						0,
+						Math.min(1024, pdfBytes.length),
+					);
+					reader.readAsArrayBuffer(testSlice);
+				} catch (sliceError) {
+					if (!resolved) {
+						cleanup();
+						logger.warn("File slice failed during validation", sliceError);
+						resolve(false);
+					}
+				}
+			});
+
+			if (!fileValid) {
+				throw new Error(
+					"El PDF se generó correctamente pero se invalidó antes de compartir. " +
+						"Esto ocurre cuando la aplicación deja de ser la principal (al ir a otra app). " +
+						"Reinicie la aplicación, cárgue las imágenes nuevamente y genere un nuevo PDF.",
+				);
+			}
 
 			const shareData = {
 				files: [fileToShare],

@@ -59,12 +59,15 @@ export function FilenameInput({
 					</Button>
 				)}
 			</div>
-			<div
-				id={previewIdSelector}
-				className="mt-1 text-xs text-muted-foreground"
-			>
-				Archivo se guardará como: <code>{previewFilename}</code>
-			</div>
+			{/* Show preview only when user provides custom filename (always show the sanitized version) */}
+			{filename.trim() && (
+				<div
+					id={previewIdSelector}
+					className="mt-1 text-xs text-muted-foreground"
+				>
+					Archivo se guardará como: <code>{previewFilename}</code>
+				</div>
+			)}
 		</div>
 	);
 }
