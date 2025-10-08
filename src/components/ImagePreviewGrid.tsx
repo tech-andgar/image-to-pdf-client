@@ -51,8 +51,8 @@ function SortableImageItem({
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none ${
-				image.error ? "bg-destructive/10 border border-destructive/20" : ""
+			className={`relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border ${
+				image.error ? "bg-destructive/10 border-destructive/20" : ""
 			} ${isDragging ? "opacity-50 scale-95 z-50" : ""}`}
 			{...attributes}
 		>
