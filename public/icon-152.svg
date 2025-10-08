@@ -1,0 +1,38 @@
+<svg width="152" height="152" viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg152" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="icon152" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F3F4F6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <circle cx="76" cy="76" r="76" fill="url(#bg152)" />
+
+  <g transform="translate(38, 38)">
+    <rect x="19" y="13" width="51" height="64" rx="3" ry="3" fill="url(#icon152)" />
+    <rect x="24" y="26" width="42" height="2" rx="1" fill="#E5E7EB" />
+    <rect x="24" y="35" width="35" height="2" rx="1" fill="#E5E7EB" />
+    <rect x="24" y="45" width="29" height="2" rx="1" fill="#E5E7EB" />
+    <rect x="24" y="54" width="38" height="2" rx="1" fill="#E5E7EB" />
+
+    <g transform="translate(35, 18)">
+      <rect x="3" y="10" width="13" height="8" rx="2" fill="#4F46E5" />
+      <circle cx="11" cy="6" r="2" fill="#4F46E5" />
+      <circle cx="11" cy="6" r="1" fill="#FFFFFF" />
+      <circle cx="11" cy="6" r="1" fill="#4F46E5" />
+      <path d="M 3 10 L 3 6 L 5 6" stroke="#7C3AED" stroke-width="1" fill="none" />
+      <rect x="0" y="0" width="19" height="13" rx="2" fill="none" stroke="#7C3AED" stroke-width="1" />
+      <circle cx="5" cy="5" r="1" fill="#7C3AED" />
+      <path d="M 11 3 L 14 6 L 11 9 L 9 8" fill="#7C3AED" />
+    </g>
+  </g>
+
+  <g transform="translate(102, 128)">
+    <rect x="0" y="0" width="13" height="6" rx="3" fill="rgba(255,255,255,0.9)" />
+    <text x="6" y="4" text-anchor="middle" font-size="4" font-weight="bold" fill="#4F46E5">PDF</text>
+  </g>
+</svg>

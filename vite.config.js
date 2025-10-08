@@ -12,6 +12,59 @@ export default defineConfig({
 			devOptions: {
 				enabled: false,
 			},
+			includeAssets: ["icon.svg", "icon-192.svg", "icon-512.svg"],
+			manifest: {
+				name: "Conversor de Imágenes a PDF",
+				short_name: "ImgToPDF",
+				description:
+					"Convierte tus imágenes a documentos PDF fácilmente. Procesa todo en tu navegador sin enviar archivos a servidores externos.",
+				start_url: process.env.GITHUB_PAGES
+					? "/image-to-pdf-client-public/"
+					: "/",
+				display: "standalone",
+				background_color: "#ffffff",
+				theme_color: "#4F46E5",
+				lang: "es",
+				scope: process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/",
+				icons: [
+					{
+						src: "/icon-48.svg",
+						sizes: "48x48",
+						type: "image/svg+xml",
+						purpose: "any maskable",
+					},
+					{
+						src: "/icon-72.svg",
+						sizes: "72x72",
+						type: "image/svg+xml",
+						purpose: "any maskable",
+					},
+					{
+						src: "/icon-96.svg",
+						sizes: "96x96",
+						type: "image/svg+xml",
+						purpose: "any maskable",
+					},
+					{
+						src: "/icon-152.svg",
+						sizes: "152x152",
+						type: "image/svg+xml",
+						purpose: "any maskable",
+					},
+					{
+						src: "/icon-192.svg",
+						sizes: "192x192",
+						type: "image/svg+xml",
+						purpose: "any maskable",
+					},
+					{
+						src: "/icon.svg",
+						sizes: "512x512",
+						type: "image/svg+xml",
+						purpose: "any maskable",
+					},
+				],
+			},
 			workbox: {
 				globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
 			},
