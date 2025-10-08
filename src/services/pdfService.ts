@@ -3,64 +3,38 @@ import type { ImageFile } from "../types/image";
 import { logger } from "./logger";
 
 /**
- * Represents the share capabilities of the current browser
+ * Shares PDF using Web Share API with proper Blob/File creation for Android Chrome compatibility
  */
-interface ShareCapabilities {
-	canShare: boolean;
-	canShareFile: boolean;
-	supportsWebShare: boolean;
-}
 
 /**
- * Checks Web Share API availability and capabilities
- */
-function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
-	if (!navigator.share) {
-		return { canShare: false, canShareFile: false, supportsWebShare: false };
-	}
-
-	const supportsWebShare = true;
-
-	// Check if we can share files directly (Web Share Level 2)
-	let canShareFile = false;
-	try {
-		// Use type assertion for canShare method if available
-		const shareApi = navigator.share as {
-			canShare?: (data: unknown) => boolean;
-		};
-		canShareFile =
-			"canShare" in shareApi &&
-			typeof shareApi.canShare === "function" &&
-			shareApi.canShare({
-				files: [new File([pdfBlob], "temp.pdf", { type: "application/pdf" })],
-			});
-	} catch (fileShareError) {
-		// Log the file sharing check error for debugging
-		logger.warn("Failed to check file sharing capabilities", fileShareError);
-		canShareFile = false;
-	}
-
-	// Check basic sharing capability - assume available if navigator.share exists
-	const canShare = true; // navigator.share is already checked above
-
-	return { canShare, canShareFile, supportsWebShare };
-}
-
-/**
- * Shares PDF using Web Share API or fallback to clipboard/copy instructions
+ * Shares PDF using Web Share API with proper Blob/File creation for Android Chrome compatibility
  */
 export async function sharePDF(
 	pdfBytes: Uint8Array,
 	filename: string = "images.pdf",
 ): Promise<{ success: boolean; method: string; error?: string }> {
 	try {
-		// Prepare the data: Create a Blob containing the PDF data
-		const pdfBlob = new Blob([new Uint8Array(pdfBytes)], {
+		// Sanitize filename to avoid permission issues on Android Chrome
+		// Remove accents, special chars, and replace spaces - keep only ASCII safe chars
+		const sanitizedFilename = filename
+			.normalize("NFD") // Decompose accented characters
+			.replace(/[\u0300-\u036f]/g, "") // Remove accent marks
+			.replace(/[^a-zA-Z0-9\s\-_\.]/g, "") // Remove special chars except spaces, hyphens, underscores, dots
+			.replace(/\s+/g, "-") // Replace spaces with hyphens
+			.toLowerCase() // Convert to lowercase for consistency
+			.replace(/-+/g, "-") // Replace multiple hyphens with single
+			.trim()
+			.replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+
+		const safeFilename =
+			sanitizedFilename.length > 0
+				? sanitizedFilename + ".pdf"
+				: "imagenes-a-pdf.pdf"; // Fallback if after sanitization it's empty
+
+		// Create File directly - clean implementation
+		const fileToShare = new File([new Uint8Array(pdfBytes)], safeFilename, {
 			type: "application/pdf",
 		});
-
-		// Prepare the data: Create a File object for sharing
-		const fileToShare = new File([pdfBlob], filename, { type: pdfBlob.type });
 
 		// Create shareData object as per Web Share API specification
 		const shareData = {
@@ -70,8 +44,8 @@ export async function sharePDF(
 			url: window.location.href, // Optional, can be omitted if not needed
 		};
 
-		// Check if Web Share API is available and if we can share this specific data
-		if (!navigator.share || !navigator.canShare) {
+		// Check if Web Share API is available
+		if (!navigator.share) {
 			return {
 				success: false,
 				method: "none",
@@ -80,27 +54,7 @@ export async function sharePDF(
 			};
 		}
 
-		// Check if we can share files with this specific shareData
-		if (!navigator.canShare(shareData)) {
-			// Fallback to URL sharing - remove files from shareData since we can't share files
-			const urlShareData = {
-				title: filename,
-				text: "PDF generado con imágenes convertidas",
-				url: window.location.href,
-			};
-			if (navigator.canShare(urlShareData)) {
-				await navigator.share(urlShareData);
-				return { success: true, method: "url" };
-			} else {
-				return {
-					success: false,
-					method: "none",
-					error: "Tu navegador no puede compartir este contenido.",
-				};
-			}
-		}
-
-		// Share with files attached
+		// Try to share with files attached
 		await navigator.share(shareData);
 		return { success: true, method: "file" };
 	} catch (error) {

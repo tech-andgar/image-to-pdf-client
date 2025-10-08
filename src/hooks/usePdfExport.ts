@@ -34,6 +34,11 @@ export function usePdfExport() {
 	const [shareResult, setShareResult] = useState<ShareResult | null>(null);
 	const [filenameInput, setFilenameInput] = useState("");
 
+	// Handle filename changes
+	const setFilename = useCallback((filename: string) => {
+		setFilenameInput(filename);
+	}, []);
+
 	/**
 	 * Generates and downloads a PDF from the provided ImageFiles array
 	 */
@@ -144,7 +149,7 @@ export function usePdfExport() {
 		shareToPDF,
 		clearShareResult,
 		filename: filenameInput,
-		setFilename: setFilenameInput,
+		setFilename: setFilename,
 		previewFilename: filenameInput.trim() || generateAutoFilename(),
 	};
 }
