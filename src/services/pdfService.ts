@@ -41,7 +41,7 @@ function getShareCapabilities(pdfBlob: Blob): ShareCapabilities {
 	}
 
 	// Check basic sharing capability - assume available if navigator.share exists
-	let canShare = true; // navigator.share is already checked above
+	const canShare = true; // navigator.share is already checked above
 
 	return { canShare, canShareFile, supportsWebShare };
 }
