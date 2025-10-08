@@ -57,8 +57,12 @@ dist-ssr
 /.roo/mcp.json.bak
 /.trae/rules/project_rules.md
 /.trae/rules/project_rules.md.bak
-/.windsurf/rules/ruler_windsurf_instructions.md
-/.windsurf/rules/ruler_windsurf_instructions.md.bak
+/.windsurf/rules/ruler_windsurf_instructions_00.md
+/.windsurf/rules/ruler_windsurf_instructions_00.md.bak
+/.windsurf/rules/ruler_windsurf_instructions_01.md
+/.windsurf/rules/ruler_windsurf_instructions_01.md.bak
+/.windsurf/rules/ruler_windsurf_instructions_02.md
+/.windsurf/rules/ruler_windsurf_instructions_02.md.bak
 /AGENTS.md
 /AGENTS.md.bak
 /CLAUDE.md
