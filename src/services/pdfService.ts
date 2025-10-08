@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import type { PDFImage } from "pdf-lib";
 import type { ImageFile } from "../types/image";
 
 /**
@@ -38,7 +39,7 @@ export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
 			}
 
 			const imageBytes = await fileToUint8Array(image.file);
-			let embeddedImage: any; // pdf-lib embed functions return generic image types
+			let embeddedImage: PDFImage;
 
 			// Embed image based on type
 			if (image.file.type === "image/jpeg" || image.file.type === "image/jpg") {
