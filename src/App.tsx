@@ -1,11 +1,15 @@
+import { Head } from "./components/Head";
 import { MainLayout } from "./components/MainLayout";
 import { ImageUploader } from "./components/ImageUploader";
 
 function App() {
 	return (
-		<MainLayout>
-			<ImageUploader />
-		</MainLayout>
+		<>
+			<Head />
+			<MainLayout>
+				<ImageUploader />
+			</MainLayout>
+		</>
 	);
 }
 

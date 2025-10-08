@@ -50,12 +50,6 @@ export default defineConfig({
 						purpose: "any maskable",
 					},
 					{
-						src: "/icon-152.svg",
-						sizes: "152x152",
-						type: "image/svg+xml",
-						purpose: "any maskable",
-					},
-					{
 						src: "/icon-192.svg",
 						sizes: "192x192",
 						type: "image/svg+xml",
