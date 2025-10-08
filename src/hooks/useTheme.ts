@@ -3,45 +3,42 @@ import { useCallback, useEffect, useState } from "react";
 type Theme = "light" | "dark";
 
 /**
- * Hook para gestionar el tema del navegador
- * Maneja automáticamente la clase 'dark' en document.documentElement
- * basado en la preferencia del navegador
+ * Hook para detectar el tema actual usando light-dark() CSS
+ * CSS maneja automáticamente el cambio basado en prefers-color-scheme
+ * Solo proporciona información del tema para componentes que la necesitan
  */
 export function useTheme() {
 	const [theme, setTheme] = useState<Theme>("light");
 
-	// Detectar el tema preferido del navegador
-	const getSystemTheme = useCallback((): Theme => {
-		if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-			return "dark";
-		}
-		return "light";
+	// Detectar el tema del navegador usando CSScomputedStyle con light-dark()
+	const detectCurrentTheme = useCallback((): Theme => {
+		const testElement = document.createElement("div");
+		testElement.style.color = "light-dark(black, white)";
+		document.body.appendChild(testElement);
+
+		const computedStyle = getComputedStyle(testElement);
+		const isDark = computedStyle.color === "rgb(255, 255, 255)"; // white = dark theme
+
+		document.body.removeChild(testElement);
+		return isDark ? "dark" : "light";
 	}, []);
 
-	// Aplicar la clase 'dark' al elemento raíz y actualizar estado
-	const applyTheme = useCallback((newTheme: Theme) => {
-		const root = document.documentElement;
-		if (newTheme === "dark") {
-			root.classList.add("dark");
-		} else {
-			root.classList.remove("dark");
-		}
-		setTheme(newTheme);
-	}, []);
+	// Actualizar estado del tema detectado
+	const updateTheme = useCallback(() => {
+		setTheme(detectCurrentTheme());
+	}, [detectCurrentTheme]);
 
-	// Inicializar tema basado en navegador al montar
+	// Inicializar al montar el componente
 	useEffect(() => {
-		const systemTheme = getSystemTheme();
-		applyTheme(systemTheme);
-	}, [getSystemTheme, applyTheme]);
+		updateTheme();
+	}, [updateTheme]);
 
-	// Escuchar cambios en la preferencia del navegador
+	// Escuchar cambios de media query
 	useEffect(() => {
 		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-		const handleChange = (e: MediaQueryListEvent) => {
-			const newTheme: Theme = e.matches ? "dark" : "light";
-			applyTheme(newTheme);
+		const handleChange = () => {
+			updateTheme();
 		};
 
 		mediaQuery.addEventListener("change", handleChange);
@@ -49,11 +46,11 @@ export function useTheme() {
 		return () => {
 			mediaQuery.removeEventListener("change", handleChange);
 		};
-	}, [applyTheme]);
+	}, [updateTheme]);
 
 	return {
 		theme,
-		setTheme: applyTheme,
 		isDark: theme === "dark",
+		// light-dark() maneja el tema automáticamente, no se necesita setTheme
 	} as const;
 }
