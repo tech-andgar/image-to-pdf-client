@@ -11,19 +11,24 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Partytown web worker loader for GA (zero main thread blocking) -->
-    <script src="/~partytown/partytown.js"></script>
-
-    <!-- Google Analytics with Partytown (runs in web worker) -->
+    <!-- Google Analytics with Partytown (official implementation) -->
     <script type="text/partytown">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-4N51HKGYV5', {
-        anonymize_ip: true,
-        allow_google_signals: false,
-        allow_ad_personalization_signals: false
-      });
+      (function() {
+        // Mount the dataLayer to window, forwarding to Partytown's worker for processing
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date().toISOString());
+        gtag('set', 'developer_id.dZjNhNU', true);
+        gtag('config', 'G-4N51HKGYV5', {
+          anonymize_ip: true,
+          allow_google_signals: false,
+          allow_ad_personalization_signals: false,
+          allow_custom_scripts: false,
+          custom_map: {'dimension1': 'page_location'},
+          send_page_view: false
+        });
+      })();
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4N51HKGYV5" type="text/partytown"></script>
   </body>

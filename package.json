@@ -5,11 +5,12 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "vite build",
+		"build": "partytown copylib public/~partytown && vite build",
 		"lint": "biome check .",
 		"format": "biome format . --write",
 		"preview": "vite preview",
-		"prepare": "husky"
+		"prepare": "husky",
+		"partytown": "partytown copylib public/~partytown"
 	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.3.1",

@@ -13,7 +13,7 @@
 			"README.md",
 			"*.config.*",
 			"env.d.ts",
-			"!public/~partytown/partytown.js"
+			"!public/~partytown"
 		]
 	},
 	"vcs": {

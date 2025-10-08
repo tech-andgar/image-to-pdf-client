@@ -1,18 +1,22 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { partytownVite } from "@qwik.dev/partytown/utils";
 
 // https://vite.dev/config/
 export default defineConfig({
 	base: process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/",
 	plugins: [
 		react(),
+		partytownVite({
+			forward: ["dataLayer.push", "gtag"],
+		}),
 		VitePWA({
 			registerType: "autoUpdate",
 			devOptions: {
 				enabled: false,
 			},
-			includeAssets: ["icon.svg", "icon-192.svg", "icon-512.svg"],
+			includeAssets: ["icon.svg", "icon-192.svg"],
 			manifest: {
 				name: "Conversor de Imágenes a PDF",
 				short_name: "ImgToPDF",
