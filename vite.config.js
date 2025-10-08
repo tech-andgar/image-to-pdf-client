@@ -4,7 +4,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 // https://vite.dev/config/
 export default defineConfig({
-	base: process.env.GITHUB_PAGES ? "/img-to-pdf-client/" : "/",
+	base: process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/",
 	plugins: [
 		react(),
 		VitePWA({
