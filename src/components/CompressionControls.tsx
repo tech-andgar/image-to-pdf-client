@@ -13,21 +13,20 @@ import {
 import type { CompressionPreset } from "@/types/image";
 
 interface CompressionControlsProps {
-	isCompressing: boolean;
-	compressionError: string | null;
-	currentPreset: CompressionPreset;
-	compressionProgress: number;
-	formattedStats: {
-		originalSize: string;
-		compressedSize: string;
-		savingsPercentage: string;
-		timeElapsed: string;
+	readonly isCompressing: boolean;
+	readonly compressionError: string | null;
+	readonly currentPreset: CompressionPreset;
+	readonly compressionProgress: number;
+	readonly formattedStats: {
+		readonly originalSize: string;
+		readonly compressedSize: string;
+		readonly savingsPercentage: string;
+		readonly timeElapsed: string;
 	} | null;
-	hasSignificantSavings: boolean;
-	presets: Record<CompressionPreset, any>;
-	onCompress: () => void;
-	onPresetChange: (preset: CompressionPreset) => void;
-	onClearError: () => void;
+	readonly hasSignificantSavings: boolean;
+	readonly onCompress: () => void;
+	readonly onPresetChange: (preset: CompressionPreset) => void;
+	readonly onClearError: () => void;
 }
 
 const PRESET_LABELS: Record<
@@ -56,7 +55,6 @@ export function CompressionControls({
 	compressionProgress,
 	formattedStats,
 	hasSignificantSavings,
-	presets,
 	onCompress,
 	onPresetChange,
 	onClearError,

@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import type {
 	ImageFile,
-	CompressionOptions,
 	CompressionResult,
 	CompressionStats,
 	CompressionPreset,

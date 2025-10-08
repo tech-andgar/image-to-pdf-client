@@ -29,7 +29,7 @@ function SortableImageItem({
 	index,
 	onRemoveImage,
 	onPreviewImage,
-}: SortableImageItemProps) {
+}: Readonly<SortableImageItemProps>) {
 	const {
 		attributes,
 		listeners,
@@ -106,18 +106,15 @@ function SortableImageItem({
 					</div>
 				</button>
 			) : (
-				<div
-					className="aspect-square flex items-center justify-center cursor-pointer"
+				<button
+					type="button"
+					className="aspect-square flex items-center justify-center cursor-pointer w-full bg-transparent border-0 p-0"
 					onClick={() => onPreviewImage(index)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" || e.key === " ") {
-							e.preventDefault();
-							onPreviewImage(index);
-						}
-					}}
-					tabIndex={0}
-					role="button"
 					aria-label={`Preview ${image.file.name}`}
+					onMouseDown={(e) => {
+						// Prevent button mousedown from interfering with drag
+						if (!e.currentTarget.contains(e.target as Node)) return;
+					}}
 				>
 					<div className="text-center p-2">
 						<AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
@@ -126,7 +123,7 @@ function SortableImageItem({
 						</p>
 						<p className="text-xs text-destructive/75">{image.error}</p>
 					</div>
-				</div>
+				</button>
 			)}
 		</div>
 	);
@@ -144,7 +141,7 @@ export function ImagePreviewGrid({
 	onRemoveImage,
 	onReorderImages,
 	onPreviewImage,
-}: ImagePreviewGridProps) {
+}: Readonly<ImagePreviewGridProps>) {
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {

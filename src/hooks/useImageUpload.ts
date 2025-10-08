@@ -6,7 +6,7 @@ import { processFiles, revokeImagePreview } from "../services/fileService";
  * Generates a unique ID for an image
  */
 function generateImageId(): string {
-	return `image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+	return `image-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 /**

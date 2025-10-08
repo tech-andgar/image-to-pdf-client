@@ -63,8 +63,6 @@ export async function compressImageFile(
 	file: File,
 	options: CompressionOptions,
 ): Promise<CompressionResult> {
-	const startTime = Date.now();
-
 	try {
 		const img = await loadImageFromFile(file);
 		const { width, height } = calculateDimensions(
@@ -114,8 +112,6 @@ export async function compressImageFile(
 
 		// Clean up
 		URL.revokeObjectURL(img.src);
-
-		const endTime = Date.now();
 
 		return {
 			file: compressedFile,

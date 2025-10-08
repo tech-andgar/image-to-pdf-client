@@ -25,7 +25,7 @@ export function ImagePreviewModal({
 	isOpen,
 	onClose,
 	onImageSelect,
-}: ImagePreviewModalProps) {
+}: Readonly<ImagePreviewModalProps>) {
 	const currentImage = currentIndex !== null ? images[currentIndex] : null;
 	const hasMultipleImages = images.length > 1;
 

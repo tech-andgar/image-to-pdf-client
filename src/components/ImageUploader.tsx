@@ -34,10 +34,8 @@ export function ImageUploader() {
 		compressionError,
 		currentPreset,
 		compressionProgress,
-		compressionStats,
 		formattedStats,
 		hasSignificantSavings,
-		presets,
 		compressImages,
 		changePreset,
 		clearError: clearCompressionError,
@@ -85,7 +83,6 @@ export function ImageUploader() {
 								compressionProgress={compressionProgress}
 								formattedStats={formattedStats}
 								hasSignificantSavings={hasSignificantSavings}
-								presets={presets}
 								onCompress={() => compressImages(uploadedImages)}
 								onPresetChange={changePreset}
 								onClearError={clearCompressionError}

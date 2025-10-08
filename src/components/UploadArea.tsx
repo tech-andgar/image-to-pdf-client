@@ -25,19 +25,16 @@ export function UploadArea({
 					? "border-primary bg-primary/5"
 					: "border-muted-foreground/25"
 			}`}
-			role="button"
-			tabIndex={0}
-			aria-label="Drop zone for image files - drag images here or click to select files"
 			onDragOver={onDragOver}
 			onDragLeave={onDragLeave}
 			onDrop={onDrop}
+			onClick={() => fileInputRef.current?.click()}
 			onKeyDown={(e) => {
 				if (e.key === "Enter" || e.key === " ") {
 					e.preventDefault();
 					fileInputRef.current?.click();
 				}
 			}}
-			onClick={() => fileInputRef.current?.click()}
 		>
 			<Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
 			<h3 className="text-lg font-medium mb-2">Arrastra las imágenes aquí</h3>
