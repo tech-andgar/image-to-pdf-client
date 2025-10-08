@@ -1,3 +1,4 @@
+import { useTheme } from "../hooks/useTheme";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 
@@ -6,6 +7,7 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: Readonly<MainLayoutProps>) {
+	useTheme();
 	return (
 		<div className="min-h-screen bg-background">
 			<div className="flex flex-col">

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useImageUpload } from "../hooks/useImageUpload";
 import { usePdfExport } from "../hooks/usePdfExport";
 import { useImageCompression } from "../hooks/useImageCompression";
+import { useTheme } from "../hooks/useTheme";
 import { UploadArea } from "./UploadArea";
 import { ImagePreviewGrid } from "./ImagePreviewGrid";
 import { ImagePreviewModal } from "./ImagePreviewModal";
@@ -53,6 +54,8 @@ export function ImageUploader() {
 		clearError: clearCompressionError,
 	} = useImageCompression();
 
+	const { theme, isDark } = useTheme();
+
 	return (
 		<div className="w-full max-w-2xl mx-auto">
 			<Card className="mx-auto max-w-none">
@@ -66,7 +69,8 @@ export function ImageUploader() {
 					{/* Debug info */}
 					<div className="mb-4 p-2 bg-muted rounded">
 						<p className="text-sm">
-							Debug: {uploadedImages.length} imágenes cargadas
+							Debug: {uploadedImages.length} imágenes cargadas | Tema: {theme} (
+							{isDark ? "Dark Mode" : "Light Mode"})
 						</p>
 					</div>
 
