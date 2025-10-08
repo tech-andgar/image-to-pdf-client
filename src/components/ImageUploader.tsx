@@ -3,16 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useImageUpload } from "../hooks/useImageUpload";
 import { UploadArea } from "./UploadArea";
 import { ImagePreviewGrid } from "./ImagePreviewGrid";
+import { ImagePreviewModal } from "./ImagePreviewModal";
 
 export function ImageUploader() {
 	const {
 		uploadedImages,
 		isDragOver,
 		removeImage,
+		reorderImages,
 		handleDragOver,
 		handleDragLeave,
 		handleDrop,
 		handleFileSelect,
+		// Preview modal state and functions
+		previewModal,
+		openPreviewModal,
+		closePreviewModal,
+		setPreviewImage,
 	} = useImageUpload();
 
 	return (
@@ -25,6 +32,13 @@ export function ImageUploader() {
 					</CardTitle>
 				</CardHeader>
 				<CardContent>
+					{/* Debug info */}
+					<div className="mb-4 p-2 bg-muted rounded">
+						<p className="text-sm">
+							Debug: {uploadedImages.length} imágenes cargadas
+						</p>
+					</div>
+
 					{/* Upload Area */}
 					<UploadArea
 						isDragOver={isDragOver}
@@ -40,10 +54,24 @@ export function ImageUploader() {
 						}}
 					/>
 
+					{/* Test Click Component */}
+					<div className="mb-4 p-4 border-2 border-blue-500 rounded">
+						<h3 className="text-sm font-bold mb-2">Test Click Component:</h3>
+						<button
+							type="button"
+							className="w-32 h-32 bg-red-500 cursor-pointer border-0"
+							onClick={() => console.log('TEST CLICK WORKS!')}
+						>
+							Click me - test básico
+						</button>
+					</div>
+
 					{/* Image Previews */}
 					<ImagePreviewGrid
 						uploadedImages={uploadedImages}
 						onRemoveImage={removeImage}
+						onReorderImages={reorderImages}
+						onPreviewImage={openPreviewModal}
 					/>
 
 					{/* Instructions */}
@@ -57,6 +85,15 @@ export function ImageUploader() {
 					</div>
 				</CardContent>
 			</Card>
+
+			{/* Preview Modal */}
+			<ImagePreviewModal
+				images={uploadedImages}
+				currentIndex={previewModal.currentIndex}
+				isOpen={previewModal.isOpen}
+				onClose={closePreviewModal}
+				onImageSelect={setPreviewImage}
+			/>
 		</div>
 	);
 }

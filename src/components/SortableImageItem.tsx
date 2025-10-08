@@ -1,15 +1,6 @@
 import { AlertCircle, GripVertical, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-	DndContext,
-	DragEndEvent,
-	PointerSensor,
-	TouchSensor,
-	useSensor,
-	useSensors,
-	rectIntersection,
-} from "@dnd-kit/core";
-import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ImageFile } from "../types/image";
 
@@ -18,25 +9,25 @@ interface SortableImageItemProps {
 	index: number;
 	onRemoveImage: (imageId: string) => void;
 	onPreviewImage: (imageIndex: number) => void;
+	isDragging?: boolean;
 }
 
-function SortableImageItem({
+/**
+ * Individual sortable image item component
+ * Handles drag behavior and UI presentation for a single image
+ */
+export function SortableImageItem({
 	image,
 	index,
 	onRemoveImage,
 	onPreviewImage,
+	isDragging = false,
 }: SortableImageItemProps) {
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({
-		id: image.id,
-		data: { index },
-	});
+	const { attributes, listeners, setNodeRef, transform, transition } =
+		useSortable({
+			id: image.id,
+			data: { index },
+		});
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
@@ -54,7 +45,7 @@ function SortableImageItem({
 		>
 			{/* Drag handle - dedicated grip area (larger for mobile) */}
 			<div
-				className={`absolute top-2 left-2 z-10 bg-black/50 rounded p-1 md:p-1.5 transition-opacity touch-manipulation ${
+				className={`absolute top-2 left-2 z-10 bg-black/50 rounded p-1 md:p-1 transition-opacity touch-manipulation ${
 					isDragging
 						? "opacity-100"
 						: "opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100"
@@ -125,92 +116,5 @@ function SortableImageItem({
 				</div>
 			)}
 		</div>
-	);
-}
-
-interface ImagePreviewGridProps {
-	uploadedImages: ImageFile[];
-	onRemoveImage: (imageId: string) => void;
-	onReorderImages: (oldIndex: number, newIndex: number) => void;
-	onPreviewImage: (imageIndex: number) => void;
-}
-
-export function ImagePreviewGrid({
-	uploadedImages,
-	onRemoveImage,
-	onReorderImages,
-	onPreviewImage,
-}: ImagePreviewGridProps) {
-	const sensors = useSensors(
-		useSensor(PointerSensor, {
-			activationConstraint: {
-				distance: 5, // Slightly reduced for better responsiveness
-			},
-		}),
-		useSensor(TouchSensor, {
-			activationConstraint: {
-				delay: 150, // Reduced from 300ms for better responsiveness
-				tolerance: 8,
-			},
-		}),
-	);
-
-	if (uploadedImages.length === 0) {
-		return null;
-	}
-
-	const handleDragStart = (event: DragEndEvent) => {
-		console.log("Drag started:", event.active.id);
-	};
-
-	const handleDragEnd = (event: DragEndEvent) => {
-		const { active, over } = event;
-
-		if (!over) {
-			console.log("Drag ended without drop target");
-			return;
-		}
-
-		const activeId = active.id as string;
-		const overId = over.id as string;
-
-		if (activeId !== overId) {
-			const oldIndex = uploadedImages.findIndex(
-				(image) => image.id === activeId,
-			);
-			const newIndex = uploadedImages.findIndex((image) => image.id === overId);
-
-			if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-				console.log(`Reordering image from ${oldIndex} to ${newIndex}`);
-				// Note: onReorderImages should handle the arrayMove logic internally
-				onReorderImages(oldIndex, newIndex);
-			}
-		}
-	};
-
-	return (
-		<DndContext
-			sensors={sensors}
-			collisionDetection={rectIntersection} // Better for grid layouts
-			onDragStart={handleDragStart}
-			onDragEnd={handleDragEnd}
-		>
-			<SortableContext
-				items={uploadedImages.map((img) => img.id)}
-				strategy={rectSortingStrategy}
-			>
-				<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 relative">
-					{uploadedImages.map((image, index) => (
-						<SortableImageItem
-							key={image.id}
-							image={image}
-							index={index}
-							onRemoveImage={onRemoveImage}
-							onPreviewImage={onPreviewImage}
-						/>
-					))}
-				</div>
-			</SortableContext>
-		</DndContext>
 	);
 }

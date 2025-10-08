@@ -1,5 +1,6 @@
 // Image and file related type definitions
 export interface ImageFile {
+	id: string;
 	file: File;
 	preview: string;
 	error?: string;
