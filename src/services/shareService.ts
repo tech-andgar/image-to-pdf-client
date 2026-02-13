@@ -70,7 +70,7 @@ export class ClipboardShareService implements IUrlShareService {
 		}
 	}
 
-	canShareUrl?(data: ShareUrlData): boolean {
+	canShareUrl?(_data: ShareUrlData): boolean {
 		return !!navigator.clipboard;
 	}
 }
@@ -80,7 +80,7 @@ export class ClipboardShareService implements IUrlShareService {
  */
 export class WebShareAPIService implements IUniversalShareService {
 	constructor(
-		private clipboardFallback: IUrlShareService = new ClipboardShareService(),
+		private readonly clipboardFallback: IUrlShareService = new ClipboardShareService(),
 	) {}
 
 	async shareFile(data: ShareFileData): Promise<ShareResult> {
@@ -125,20 +125,23 @@ export class WebShareAPIService implements IUniversalShareService {
 	}
 
 	canShareFile?(data: ShareFileData): boolean {
-		return (
-			!!navigator.share &&
-			"canShare" in navigator.share &&
-			(navigator.share as any).canShare(data)
-		);
+		return this.canShareWithApi(data);
 	}
 
 	canShareUrl?(data: ShareUrlData): boolean {
+		return this.canShareWithApi(data);
+	}
+
+	private readonly canShareWithApi = (
+		data: ShareFileData | ShareUrlData,
+	): boolean => {
 		return (
 			!!navigator.share &&
 			"canShare" in navigator.share &&
+			// biome-ignore lint/suspicious/noExplicitAny: Check if canShare exists
 			(navigator.share as any).canShare(data)
 		);
-	}
+	};
 }
 
 /**

@@ -8,6 +8,7 @@ import {
 } from "../services/fileService";
 import { createFileSignature } from "../types/image";
 import { logger } from "../services/logger";
+import { storageService } from "../services/storageService";
 
 /**
  * Generates a unique ID for an image
@@ -36,43 +37,59 @@ export function useImageUpload() {
 	 * Processes files and updates state with duplicate checking
 	 */
 	const processUploadedFiles = useCallback(
-		(fileList: FileList) => {
-			setUploadedImages((currentImages) => {
-				logger.trackFileOperation("upload started", fileList.length, 0);
+		async (fileList: FileList) => {
+			// Convert to array for processing
+			const filesArray = Array.from(fileList);
+			logger.trackFileOperation("upload started", filesArray.length, 0);
 
+			setUploadedImages((currentImages: ImageFile[]) => {
 				// Get signatures of existing images for duplicate checking
 				const existingSignatures = getFileSignaturesFromImages(currentImages);
 
 				// Process files with duplicate checking
-				const processedFiles = processFilesWithDuplicateCheck(
+				// Note: processFilesWithDuplicateCheck returns plain objects, not ImageFile
+				const processedResults = processFilesWithDuplicateCheck(
 					fileList,
 					existingSignatures,
 					allowDuplicates,
 				);
 
-				// Convert to ImageFile format with unique IDs
-				const newImages: ImageFile[] = processedFiles.map((result) => {
+				const newImages: ImageFile[] = [];
+
+				// We need to handle async storage operations, but we want to update UI immediately
+				// So we'll update UI first, then trigger background storage
+				processedResults.forEach((result) => {
+					const imageId = generateImageId();
+
 					if ("preview" in result && result.preview) {
-						return {
-							id: generateImageId(),
+						const newImage: ImageFile = {
+							id: imageId,
 							file: result.file,
 							preview: result.preview,
-						} satisfies ImageFile;
+							storageId: imageId, // Use the same ID for storage
+						};
+						newImages.push(newImage);
+
+						// Save to IndexedDB in background
+						storageService.saveImage(result.file, imageId).catch((err) =>
+							logger.error("Failed to save image to IndexedDB", {
+								id: imageId,
+								error: err,
+							}),
+						);
 					} else {
 						logger.warn("File processing error", {
 							fileName: result.file.name,
 							error: "error" in result ? result.error : "Unknown error",
 						});
-						return {
-							id: generateImageId(),
+						newImages.push({
+							id: imageId,
 							file: result.file,
 							preview: "",
 							error: "error" in result ? result.error : undefined,
-						} satisfies ImageFile;
+						});
 					}
 				});
-
-				const updatedImages = [...currentImages, ...newImages];
 
 				const successCount = newImages.filter((img) => !img.error).length;
 				const errorCount = newImages.filter((img) => img.error).length;
@@ -87,7 +104,7 @@ export function useImageUpload() {
 					logger.warn(`${errorCount} files failed to process`);
 				}
 
-				return updatedImages;
+				return [...currentImages, ...newImages];
 			});
 		},
 		[allowDuplicates],
@@ -97,13 +114,20 @@ export function useImageUpload() {
 	 * Removes an image by ID and cleans up its preview URL
 	 */
 	const removeImage = useCallback((imageId: string) => {
-		setUploadedImages((prev) => {
+		setUploadedImages((prev: ImageFile[]) => {
 			const newImages = prev.filter((image) => {
 				if (image.id === imageId) {
 					// Clean up blob URL for removed image
 					if (image.preview) {
 						revokeImagePreview(image.preview);
 					}
+					// Remove from IndexedDB
+					storageService.removeImage(imageId).catch((err) => {
+						logger.error("Failed to remove image from IndexedDB", {
+							id: imageId,
+							error: err,
+						});
+					});
 					return false; // Remove this image
 				}
 				return true; // Keep other images
@@ -164,7 +188,9 @@ export function useImageUpload() {
 			return newArray;
 		};
 
-		setUploadedImages((prev) => arrayMove(prev, oldIndex, newIndex));
+		setUploadedImages((prev: ImageFile[]) =>
+			arrayMove(prev, oldIndex, newIndex),
+		);
 		logger.trackUserAction("image reordered", { from: oldIndex, to: newIndex });
 	}, []);
 
@@ -206,12 +232,16 @@ export function useImageUpload() {
 	 * Clears all uploaded images
 	 */
 	const clearAllImages = useCallback(() => {
-		setUploadedImages((prev) => {
+		setUploadedImages((prev: ImageFile[]) => {
 			// Clean up all blob URLs
 			prev.forEach((image) => {
 				if (image.preview) {
 					revokeImagePreview(image.preview);
 				}
+			});
+			// Clear IndexedDB
+			storageService.clearAll().catch((err) => {
+				logger.error("Failed to clear IndexedDB", err);
 			});
 			return [];
 		});
@@ -223,7 +253,7 @@ export function useImageUpload() {
 	 * Converts duplicate images between preview and error states as needed
 	 */
 	useEffect(() => {
-		setUploadedImages((currentImages) => {
+		setUploadedImages((currentImages: ImageFile[]) => {
 			if (currentImages.length === 0) return currentImages;
 
 			// Create a map to track which file signatures have been seen

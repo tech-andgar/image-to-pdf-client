@@ -4,6 +4,7 @@ import { sanitizeFilename, generateFallbackFilename } from "./fileSanitizer";
 import type { IUniversalShareService, ShareResult } from "./shareService";
 import { createBestShareService } from "./shareService";
 import { logger } from "./logger";
+import { storageService } from "./storageService";
 
 // PDF Generator - Single Responsibility: Create PDFs from images
 class PdfGenerator {
@@ -24,13 +25,29 @@ class PdfGenerator {
 				}
 
 				// Validate File before attempting to read it (handles background/foreground transitions)
-				if (!(await this.validateFile(image.file))) {
+				// Note: If using storageId, we rely on the stored blob, so file validation might fail
+				// but we can still proceed if we have the blob.
+				const hasStorage = !!image.storageId;
+				if (!hasStorage && !(await this.validateFile(image.file))) {
 					throw new Error(
 						`Archivo "${image.file.name}" inválido. Reinicie la aplicación y cárgue las imágenes nuevamente. Los archivos expiran cuando la aplicación pierde el foco.`,
 					);
 				}
 
-				const imageBytes = await this.fileToUint8Array(image.file);
+				let imageBytes: Uint8Array;
+				try {
+					imageBytes = await this.getImageData(image);
+				} catch (error) {
+					logger.warn("Failed to get image data", { error });
+					// Try one last attempt with the file object directly if storage failed
+					if (hasStorage) {
+						logger.info("Retrying with raw file object");
+						imageBytes = await this.fileToUint8Array(image.file);
+					} else {
+						throw error;
+					}
+				}
+
 				let embeddedImage: PDFImage;
 
 				// Embed image based on type
@@ -112,6 +129,42 @@ class PdfGenerator {
 		}
 	}
 
+	private async getImageData(image: ImageFile): Promise<Uint8Array> {
+		// Priority 1: Try to get from IndexedDB if available
+		if (image.storageId) {
+			try {
+				const blob = await storageService.getImage(image.storageId);
+				if (blob) {
+					return this.blobToUint8Array(blob);
+				}
+				logger.warn(
+					`Image not found in storage: ${image.storageId}, falling back to File object`,
+				);
+			} catch (err) {
+				logger.warn("Error reading from storage", err);
+			}
+		}
+
+		// Priority 2: Use the File object directly
+		return this.fileToUint8Array(image.file);
+	}
+
+	private async blobToUint8Array(blob: Blob): Promise<Uint8Array> {
+		return new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onload = () => {
+				if (reader.result instanceof ArrayBuffer) {
+					resolve(new Uint8Array(reader.result));
+				} else {
+					reject(new Error("Failed to read blob"));
+				}
+			};
+			reader.onerror = () =>
+				reject(new Error(reader.error?.message || "Failed to read blob"));
+			reader.readAsArrayBuffer(blob);
+		});
+	}
+
 	// Moved here to follow SRP - this class handles all image/PDF operations
 	private async fileToUint8Array(file: File): Promise<Uint8Array> {
 		return new Promise((resolve, reject) => {
@@ -148,7 +201,7 @@ class PdfDownloader {
 			link.download = filename;
 			document.body.appendChild(link);
 			link.click();
-			document.body.removeChild(link);
+			link.remove();
 
 			setTimeout(() => URL.revokeObjectURL(url), 100);
 		} catch (error) {
@@ -160,27 +213,12 @@ class PdfDownloader {
 
 // PDF Sharer - Single Responsibility: Handle sharing operations
 class PdfSharer {
-	private shareService: IUniversalShareService;
-	private sanitizer = sanitizeFilename;
-	private fallbackGenerator = generateFallbackFilename;
+	private readonly shareService: IUniversalShareService;
+	private readonly sanitizer = sanitizeFilename;
+	private readonly fallbackGenerator = generateFallbackFilename;
 
-	constructor(private downloader: PdfDownloader) {
+	constructor(_downloader: PdfDownloader) {
 		this.shareService = createBestShareService();
-	}
-
-	// Validate if File object is still valid (handles background/foreground transitions)
-	private async validateFile(file: File): Promise<boolean> {
-		try {
-			// Try to access file size (will fail if file is invalidated)
-			const testSize = file.size;
-			if (testSize === undefined || testSize < 0) {
-				return false;
-			}
-			return true;
-		} catch (error) {
-			logger.warn("Share file validation failed", { error });
-			return false;
-		}
 	}
 
 	async share(pdfBytes: Uint8Array, filename: string): Promise<ShareResult> {
@@ -231,7 +269,7 @@ class PdfSharer {
 				};
 
 				// Manual timeout handling since FileReader doesn't support native timeout
-				timeoutId = window.setTimeout(() => {
+				timeoutId = globalThis.setTimeout(() => {
 					if (resolved) return;
 					cleanup();
 					logger.warn("PDF File validation read timeout before sharing");

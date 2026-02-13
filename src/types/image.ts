@@ -4,6 +4,7 @@ export interface ImageFile {
 	file: File;
 	preview: string;
 	error?: string;
+	storageId?: string;
 }
 
 export interface FileValidationResult {
