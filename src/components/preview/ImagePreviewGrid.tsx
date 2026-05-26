@@ -51,16 +51,22 @@ function SortableImageItem({
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={`relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border ${
-				image.error ? "bg-destructive/10 border-destructive/20" : ""
-			} ${isDragging ? "opacity-50 scale-95 z-50" : ""}`}
+			className={
+				isDragging
+					? "relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border opacity-50 scale-95 z-50"
+					: image.error
+						? "relative group rounded-lg overflow-hidden transition-all duration-200 touch-none border bg-destructive/10 border-destructive/20"
+						: "relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border"
+			}
 			{...attributes}
 		>
 			{/* Drag handle - always visible on mobile, more visible on desktop */}
 			<div
-				className={`absolute top-2 left-2 z-10 bg-black/70 hover:bg-black/90 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation ${
-					isDragging ? "bg-black/90 scale-110" : ""
-				}`}
+				className={
+					isDragging
+						? "absolute top-2 left-2 z-10 bg-black/90 scale-110 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation"
+						: "absolute top-2 left-2 z-10 bg-black/70 hover:bg-black/90 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation"
+				}
 				title="Arrastrar para reordenar"
 				{...listeners}
 			>
@@ -72,9 +78,11 @@ function SortableImageItem({
 				<Button
 					variant="destructive"
 					size="sm"
-					className={`w-6 h-6 md:w-5 md:h-5 p-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity touch-manipulation ${
-						isDragging ? "opacity-0 pointer-events-none" : ""
-					}`}
+					className={
+						isDragging
+							? "w-6 h-6 md:w-5 md:h-5 p-0 opacity-0 pointer-events-none touch-manipulation"
+							: "w-6 h-6 md:w-5 md:h-5 p-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity touch-manipulation"
+					}
 					onClick={(e) => {
 						e.stopPropagation();
 						e.preventDefault();
@@ -105,24 +113,15 @@ function SortableImageItem({
 					</div>
 				</button>
 			) : (
-				<button
-					type="button"
-					className="aspect-square flex items-center justify-center cursor-pointer w-full bg-transparent border-0 p-0"
-					onClick={() => onPreviewImage(index)}
-					aria-label={`Preview ${image.file.name}`}
-					onMouseDown={(e) => {
-						// Prevent button mousedown from interfering with drag
-						if (!e.currentTarget.contains(e.target as Node)) return;
-					}}
-				>
-					<div className="text-center p-2">
-						<AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
-						<p className="text-xs text-destructive font-medium">
-							{image.file.name}
-						</p>
-						<p className="text-xs text-destructive/75">{image.error}</p>
-					</div>
-				</button>
+				<div className="aspect-square flex flex-col items-center justify-center p-2 text-center">
+					<AlertCircle className="h-6 w-6 text-destructive mx-auto mb-1.5 shrink-0" />
+					<p className="text-[10px] text-destructive font-medium leading-tight line-clamp-2 break-all">
+						{image.file.name}
+					</p>
+					<p className="text-[10px] text-destructive/70 mt-1 leading-tight line-clamp-2">
+						Duplicada
+					</p>
+				</div>
 			)}
 		</div>
 	);

@@ -23,17 +23,11 @@ export function UploadArea({
 			role="button"
 			tabIndex={0}
 			aria-label="Seleccionar imágenes"
-			className={`
-				relative border-2 border-dashed rounded-xl
-				flex flex-col items-center justify-center
-				min-h-[160px] sm:min-h-[200px] p-8 text-center
-				cursor-pointer select-none transition-all duration-200
-				${
-					isDragOver
-						? "border-foreground bg-muted/60 scale-[1.01]"
-						: "border-border hover:border-muted-foreground/50 hover:bg-muted/30"
-				}
-			`}
+			className={
+				isDragOver
+					? "relative border-2 border-dashed rounded-xl flex flex-col items-center justify-center min-h-[160px] sm:min-h-[200px] p-8 text-center cursor-pointer select-none transition-all duration-200 border-foreground bg-muted/60 scale-[1.01]"
+					: "relative border-2 border-dashed rounded-xl flex flex-col items-center justify-center min-h-[160px] sm:min-h-[200px] p-8 text-center cursor-pointer select-none transition-all duration-200 border-border hover:border-muted-foreground/50 hover:bg-muted/30"
+			}
 			onDragOver={onDragOver}
 			onDragLeave={onDragLeave}
 			onDrop={onDrop}
@@ -45,9 +39,7 @@ export function UploadArea({
 				}
 			}}
 		>
-			<div
-				className={`mb-3 p-3 rounded-full bg-muted transition-colors ${isDragOver ? "bg-muted/80" : ""}`}
-			>
+			<div className="mb-3 p-3 rounded-full bg-muted transition-colors">
 				<ImagePlus className="h-6 w-6 text-muted-foreground" />
 			</div>
 			<p className="text-sm font-medium text-foreground mb-1">

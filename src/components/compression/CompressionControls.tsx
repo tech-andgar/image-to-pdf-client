@@ -1,15 +1,8 @@
-import { Zap, AlertCircle, Info } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Zap, AlertCircle, ChevronDown } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@/components/ui/accordion";
 import type { CompressionPreset } from "@/types/image";
 
 interface CompressionControlsProps {
@@ -33,19 +26,10 @@ const PRESET_LABELS: Record<
 	CompressionPreset,
 	{ label: string; description: string }
 > = {
-	high: {
-		label: "Alta Calidad",
-		description: "2048px, 90% calidad - Mejor imagen",
-	},
-	medium: {
-		label: "Mediana",
-		description: "1536px, 75% calidad - Balance óptimo",
-	},
-	low: { label: "Baja", description: "1024px, 60% calidad - Más compacto" },
-	minimal: {
-		label: "Mínima",
-		description: "800px, 40% calidad - Máximo ahorro",
-	},
+	high: { label: "Alta", description: "2048px · 90%" },
+	medium: { label: "Media", description: "1536px · 75%" },
+	low: { label: "Baja", description: "1024px · 60%" },
+	minimal: { label: "Mínima", description: "800px · 40%" },
 };
 
 export function CompressionControls({
@@ -59,145 +43,147 @@ export function CompressionControls({
 	onPresetChange,
 	onClearError,
 }: CompressionControlsProps) {
+	const [open, setOpen] = useState(false);
+
 	return (
-		<Accordion type="single" collapsible defaultValue="">
-			<AccordionItem value="compression" className="border-0">
-				<Card className="border-dashed border-2">
-					<CardHeader className="pb-3">
-						<AccordionTrigger className="hover:no-underline">
-							<CardTitle className="flex items-center gap-2 text-base hover:no-underline">
-								<Zap className="h-4 w-4" />
-								Optimización de Imágenes
-								{hasSignificantSavings && (
-									<Badge variant="secondary" className="text-xs">
-										Ahorro estimado: {formattedStats?.savingsPercentage}%
-									</Badge>
-								)}
-							</CardTitle>
-						</AccordionTrigger>
-					</CardHeader>
-					<AccordionContent>
-						<CardContent className="space-y-4">
-							{/* Preset Selection */}
-							<div className="space-y-2">
-								<div className="flex items-center gap-2 text-sm font-medium">
-									Calidad de Compresión
-									<Info className="h-3 w-3 text-muted-foreground" />
-								</div>
-								<div className="grid grid-cols-2 gap-2">
-									{(Object.keys(PRESET_LABELS) as CompressionPreset[]).map(
-										(preset) => (
-											<Button
-												key={preset}
-												variant={
-													currentPreset === preset ? "default" : "outline"
-												}
-												size="sm"
-												onClick={() => onPresetChange(preset)}
-												disabled={isCompressing}
-												className="justify-start"
-											>
-												<div className="flex flex-col items-start w-full">
-													<span className="font-medium text-xs">
-														{PRESET_LABELS[preset].label}
-													</span>
-													<span className="text-[10px] opacity-70 leading-tight">
-														{PRESET_LABELS[preset].description}
-													</span>
-												</div>
-											</Button>
-										),
-									)}
-								</div>
-							</div>
+		<div className="rounded-xl border bg-card overflow-hidden">
+			{/* Header / trigger */}
+			<button
+				type="button"
+				onClick={() => setOpen((v) => !v)}
+				className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-muted/40 transition-colors"
+			>
+				<span className="flex items-center gap-2">
+					<Zap className="h-3.5 w-3.5 text-muted-foreground" />
+					Optimización
+					{hasSignificantSavings && formattedStats && (
+						<Badge variant="secondary" className="text-xs font-normal">
+							−{formattedStats.savingsPercentage}%
+						</Badge>
+					)}
+				</span>
+				<ChevronDown
+					className={
+						open
+							? "h-4 w-4 text-muted-foreground transition-transform duration-200 rotate-180"
+							: "h-4 w-4 text-muted-foreground transition-transform duration-200"
+					}
+				/>
+			</button>
 
-							{/* Error Message */}
-							{compressionError && (
-								<Alert variant="destructive" className="py-2">
-									<AlertCircle className="h-4 w-4" />
-									<AlertDescription className="flex items-center justify-between">
-										{compressionError}
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={onClearError}
-											className="h-6 px-2 text-red-600 hover:text-red-800"
+			{/* Collapsible body */}
+			{open && (
+				<div className="px-4 pb-4 space-y-3 border-t">
+					{/* Preset grid */}
+					<div className="pt-3 space-y-2">
+						<p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+							Calidad
+						</p>
+						<div className="grid grid-cols-4 gap-1.5">
+							{(Object.keys(PRESET_LABELS) as CompressionPreset[]).map(
+								(preset) => {
+									const active = currentPreset === preset;
+									return (
+										<button
+											key={preset}
+											type="button"
+											onClick={() => onPresetChange(preset)}
+											disabled={isCompressing}
+											className={
+												active
+													? "flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100"
+													: "flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-white text-zinc-900 border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 dark:bg-zinc-950 dark:text-zinc-100 dark:border-zinc-700 dark:hover:border-zinc-500"
+											}
 										>
-											✕
-										</Button>
-									</AlertDescription>
-								</Alert>
+											<span className="font-medium leading-tight">
+												{PRESET_LABELS[preset].label}
+											</span>
+											<span
+												className={
+													active
+														? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-600"
+														: "text-[10px] leading-tight mt-0.5 text-zinc-500"
+												}
+											>
+												{PRESET_LABELS[preset].description}
+											</span>
+										</button>
+									);
+								},
 							)}
+						</div>
+					</div>
 
-							{/* Progress Bar */}
-							{isCompressing && (
-								<div className="space-y-2">
-									<div className="flex items-center justify-between text-sm">
-										<span>Comprimiendo imágenes...</span>
-										<span>{Math.round(compressionProgress * 100)}%</span>
-									</div>
-									<Progress value={compressionProgress * 100} className="h-2" />
-								</div>
-							)}
-
-							{/* Compression Stats */}
-							{formattedStats && !isCompressing && (
-								<div className="p-3 bg-muted/50 rounded-lg space-y-2">
-									<div className="text-sm font-medium">
-										Resultados de Compresión
-									</div>
-									<div className="grid grid-cols-2 gap-3 text-xs">
-										<div>
-											<span className="text-muted-foreground">Original:</span>
-											<span className="font-medium ml-1">
-												{formattedStats.originalSize}
-											</span>
-										</div>
-										<div>
-											<span className="text-muted-foreground">Comprimido:</span>
-											<span className="font-medium ml-1 text-green-600">
-												{formattedStats.compressedSize}
-											</span>
-										</div>
-										<div>
-											<span className="text-muted-foreground">Ahorro:</span>
-											<span className="font-medium ml-1 text-green-600">
-												-{formattedStats.savingsPercentage}%
-											</span>
-										</div>
-										<div>
-											<span className="text-muted-foreground">Tiempo:</span>
-											<span className="font-medium ml-1">
-												{formattedStats.timeElapsed}
-											</span>
-										</div>
-									</div>
-								</div>
-							)}
-
-							{/* Compression Button */}
-							<Button
-								onClick={onCompress}
-								disabled={isCompressing}
-								className="w-full"
-								size="sm"
+					{/* Error */}
+					{compressionError && (
+						<div className="flex items-start gap-2 p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
+							<AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+							<span className="flex-1">{compressionError}</span>
+							<button
+								type="button"
+								onClick={onClearError}
+								className="opacity-60 hover:opacity-100"
+								aria-label="Cerrar"
 							>
-								{isCompressing ? (
-									<>
-										<Zap className="h-4 w-4 mr-2 animate-spin" />
-										Comprimiendo...
-									</>
-								) : (
-									<>
-										<Zap className="h-4 w-4 mr-2" />
-										{PRESET_LABELS[currentPreset].label}
-									</>
-								)}
-							</Button>
-						</CardContent>
-					</AccordionContent>
-				</Card>
-			</AccordionItem>
-		</Accordion>
+								✕
+							</button>
+						</div>
+					)}
+
+					{/* Progress */}
+					{isCompressing && (
+						<div className="space-y-1.5">
+							<div className="flex justify-between text-xs text-muted-foreground">
+								<span>Comprimiendo…</span>
+								<span>{Math.round(compressionProgress * 100)}%</span>
+							</div>
+							<Progress value={compressionProgress * 100} className="h-1.5" />
+						</div>
+					)}
+
+					{/* Stats */}
+					{formattedStats && !isCompressing && (
+						<div className="grid grid-cols-3 gap-2 p-2.5 bg-muted/50 rounded-lg text-xs">
+							<div className="text-center">
+								<p className="text-muted-foreground">Original</p>
+								<p className="font-medium">{formattedStats.originalSize}</p>
+							</div>
+							<div className="text-center">
+								<p className="text-muted-foreground">Resultado</p>
+								<p className="font-medium text-emerald-600">
+									{formattedStats.compressedSize}
+								</p>
+							</div>
+							<div className="text-center">
+								<p className="text-muted-foreground">Ahorro</p>
+								<p className="font-medium text-emerald-600">
+									−{formattedStats.savingsPercentage}%
+								</p>
+							</div>
+						</div>
+					)}
+
+					{/* Compress button */}
+					<Button
+						onClick={onCompress}
+						disabled={isCompressing}
+						className="w-full"
+						size="sm"
+					>
+						{isCompressing ? (
+							<>
+								<Zap className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+								Comprimiendo…
+							</>
+						) : (
+							<>
+								<Zap className="h-3.5 w-3.5 mr-1.5" />
+								Comprimir imágenes
+							</>
+						)}
+					</Button>
+				</div>
+			)}
+		</div>
 	);
 }
