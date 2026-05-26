@@ -19,6 +19,7 @@ export function ImageUploader() {
 		setAllowDuplicates,
 		removeImage,
 		reorderImages,
+		updateImages,
 		handleDragOver,
 		handleDragLeave,
 		handleDrop,
@@ -54,6 +55,7 @@ export function ImageUploader() {
 		compressImages,
 		changePreset,
 		clearError: clearCompressionError,
+		resetCompression,
 	} = useImageCompression();
 
 	const { theme, isDark } = useTheme();
@@ -86,11 +88,15 @@ export function ImageUploader() {
 						onDragLeave={(_e) => handleDragLeave()}
 						onDrop={(e) => {
 							const files = e.dataTransfer.files;
-							if (files) handleDrop(files);
+							if (files) {
+								handleDrop(files);
+								resetCompression();
+							}
 						}}
 						onFileSelect={(e) => {
 							const files = e.target.files;
 							handleFileSelect(files);
+							resetCompression();
 						}}
 					/>
 
@@ -117,8 +123,14 @@ export function ImageUploader() {
 								compressionProgress={compressionProgress}
 								formattedStats={formattedStats}
 								hasSignificantSavings={hasSignificantSavings}
-								onCompress={() => compressImages(uploadedImages)}
-								onPresetChange={changePreset}
+								onCompress={async () => {
+									const compressed = await compressImages(uploadedImages);
+									updateImages(compressed);
+								}}
+								onPresetChange={(preset) => {
+									changePreset(preset);
+									resetCompression();
+								}}
 								onClearError={clearCompressionError}
 							/>
 						</div>
@@ -127,7 +139,10 @@ export function ImageUploader() {
 					{/* Image Previews */}
 					<ImagePreviewGrid
 						uploadedImages={uploadedImages}
-						onRemoveImage={removeImage}
+						onRemoveImage={(id) => {
+							removeImage(id);
+							resetCompression();
+						}}
 						onReorderImages={reorderImages}
 						onPreviewImage={openPreviewModal}
 					/>

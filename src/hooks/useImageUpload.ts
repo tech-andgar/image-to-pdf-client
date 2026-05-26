@@ -303,6 +303,10 @@ export function useImageUpload() {
 		});
 	}, [allowDuplicates]);
 
+	const updateImages = useCallback((images: ImageFile[]) => {
+		setUploadedImages(images);
+	}, []);
+
 	return {
 		uploadedImages,
 		isDragOver,
@@ -312,6 +316,7 @@ export function useImageUpload() {
 		removeImage,
 		reorderImages,
 		clearAllImages,
+		updateImages,
 		handleDragOver,
 		handleDragLeave,
 		handleDrop,

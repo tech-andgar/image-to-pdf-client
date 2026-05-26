@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import type {
 	ImageFile,
 	CompressionResult,
@@ -26,6 +26,7 @@ export function useImageCompression() {
 	const [compressedImages, setCompressedImages] = useState<CompressionResult[]>(
 		[],
 	);
+	const originalImagesRef = useRef<ImageFile[] | null>(null);
 
 	const currentOptions = useMemo(
 		() => COMPRESSION_PRESETS[currentPreset],
@@ -41,6 +42,12 @@ export function useImageCompression() {
 				throw new Error("No hay imágenes para comprimir");
 			}
 
+			// Save originals on first compression; reuse them on subsequent calls
+			if (!originalImagesRef.current) {
+				originalImagesRef.current = images;
+			}
+			const baseImages = originalImagesRef.current;
+
 			setIsCompressing(true);
 			setCompressionError(null);
 			setCompressionProgress(0);
@@ -49,7 +56,7 @@ export function useImageCompression() {
 
 			try {
 				const startTime = Date.now();
-				const imageFiles = images.map((img) => img.file);
+				const imageFiles = baseImages.map((img) => img.file);
 
 				// Compress images in batch
 				const compressedResults = await compressImagesBatch(
@@ -69,7 +76,7 @@ export function useImageCompression() {
 				setCompressionStats(stats);
 
 				// Create updated ImageFile objects with compressed files
-				const updatedImages = images.map((originalImg) => {
+				const updatedImages = baseImages.map((originalImg) => {
 					const compressed = compressedResults.find((result) =>
 						result.file.name.includes(originalImg.file.name.split(".")[0]),
 					);
@@ -82,6 +89,7 @@ export function useImageCompression() {
 							...originalImg,
 							file: compressed.file,
 							preview: compressedPreview,
+							storageId: undefined,
 						};
 					}
 
@@ -126,6 +134,7 @@ export function useImageCompression() {
 		setCompressionProgress(0);
 		setCompressionStats(null);
 		setCompressedImages([]);
+		originalImagesRef.current = null;
 	}, []);
 
 	/**
