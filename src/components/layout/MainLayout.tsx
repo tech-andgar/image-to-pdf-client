@@ -9,19 +9,14 @@ interface MainLayoutProps {
 export function MainLayout({ children }: Readonly<MainLayoutProps>) {
 	useTheme();
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="flex flex-col">
-				{/* Header - Fixed at top */}
-				<Header />
-
-				{/* Main Content - Centered */}
-				<main className="flex-1 flex items-center justify-center p-4">
+		<div className="min-h-screen w-full bg-background flex flex-col">
+			<Header />
+			<main className="flex-1">
+				<div className="max-w-2xl w-full mx-auto px-4 py-6 sm:py-8">
 					{children}
-				</main>
-
-				{/* Footer - Fixed at bottom */}
-				<Footer />
-			</div>
+				</div>
+			</main>
+			<Footer />
 		</div>
 	);
 }
