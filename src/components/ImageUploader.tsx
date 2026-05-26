@@ -1,9 +1,7 @@
 import { Activity, Upload, FileDown, AlertCircle, Share2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useImageUpload } from "../hooks/useImageUpload";
-import { usePdfExport } from "../hooks/usePdfExport";
-import { useImageCompression } from "../hooks/useImageCompression";
+import { useImageWorkflow } from "../hooks/useImageWorkflow";
 import { useTheme } from "../hooks/useTheme";
 import { UploadArea } from "./UploadArea";
 import { ImagePreviewGrid } from "./ImagePreviewGrid";
@@ -17,46 +15,37 @@ export function ImageUploader() {
 		isDragOver,
 		allowDuplicates,
 		setAllowDuplicates,
-		removeImage,
 		reorderImages,
-		updateImages,
 		handleDragOver,
 		handleDragLeave,
 		handleDrop,
 		handleFileSelect,
-		// Preview modal state and functions
+		handleRemoveImage,
 		previewModal,
 		openPreviewModal,
 		closePreviewModal,
 		setPreviewImage,
-	} = useImageUpload();
-
-	const {
-		isGenerating,
-		isSharing,
-		exportError,
-		exportToPDF,
-		clearExportError,
-		shareResult,
-		shareToPDF,
-		clearShareResult,
-		filename,
-		setFilename,
-		previewFilename,
-	} = usePdfExport();
-
-	const {
 		isCompressing,
 		compressionError,
 		currentPreset,
 		compressionProgress,
 		formattedStats,
 		hasSignificantSavings,
-		compressImages,
-		changePreset,
-		clearError: clearCompressionError,
-		resetCompression,
-	} = useImageCompression();
+		clearCompressionError,
+		handleCompress,
+		handlePresetChange,
+		isGenerating,
+		isSharing,
+		exportError,
+		clearExportError,
+		shareResult,
+		clearShareResult,
+		filename,
+		setFilename,
+		previewFilename,
+		exportToPDF,
+		shareToPDF,
+	} = useImageWorkflow();
 
 	const { theme, isDark } = useTheme();
 
@@ -88,16 +77,9 @@ export function ImageUploader() {
 						onDragLeave={(_e) => handleDragLeave()}
 						onDrop={(e) => {
 							const files = e.dataTransfer.files;
-							if (files) {
-								handleDrop(files);
-								resetCompression();
-							}
+							if (files) handleDrop(files);
 						}}
-						onFileSelect={(e) => {
-							const files = e.target.files;
-							handleFileSelect(files);
-							resetCompression();
-						}}
+						onFileSelect={(e) => handleFileSelect(e.target.files)}
 					/>
 
 					{/* Duplicate Files Toggle */}
@@ -123,14 +105,8 @@ export function ImageUploader() {
 								compressionProgress={compressionProgress}
 								formattedStats={formattedStats}
 								hasSignificantSavings={hasSignificantSavings}
-								onCompress={async () => {
-									const compressed = await compressImages(uploadedImages);
-									updateImages(compressed);
-								}}
-								onPresetChange={(preset) => {
-									changePreset(preset);
-									resetCompression();
-								}}
+								onCompress={handleCompress}
+								onPresetChange={handlePresetChange}
 								onClearError={clearCompressionError}
 							/>
 						</div>
@@ -139,10 +115,7 @@ export function ImageUploader() {
 					{/* Image Previews */}
 					<ImagePreviewGrid
 						uploadedImages={uploadedImages}
-						onRemoveImage={(id) => {
-							removeImage(id);
-							resetCompression();
-						}}
+						onRemoveImage={handleRemoveImage}
 						onReorderImages={reorderImages}
 						onPreviewImage={openPreviewModal}
 					/>
@@ -181,7 +154,7 @@ export function ImageUploader() {
 							{/* Export buttons */}
 							<div className="grid grid-cols-2 gap-3">
 								<Button
-									onClick={() => exportToPDF(uploadedImages)}
+									onClick={exportToPDF}
 									disabled={isGenerating || uploadedImages.length === 0}
 									size="lg"
 								>
@@ -196,7 +169,7 @@ export function ImageUploader() {
 								</Button>
 
 								<Button
-									onClick={() => shareToPDF(uploadedImages)}
+									onClick={shareToPDF}
 									disabled={isSharing || uploadedImages.length === 0}
 									variant="outline"
 									size="lg"

@@ -183,5 +183,8 @@ export function useImageCompression() {
 
 		// Presets
 		presets: COMPRESSION_PRESETS,
+
+		// Original images reference (before any compression)
+		originalImages: originalImagesRef.current,
 	};
 }
