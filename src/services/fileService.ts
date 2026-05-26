@@ -49,36 +49,6 @@ export function revokeImagePreview(url: string): void {
 }
 
 /**
- * Processes a FileList and returns validated files
- */
-export function processFiles(
-	fileList: FileList,
-): Array<
-	{ file: File; preview: string } | { file: File; preview: ""; error: string }
-> {
-	const results: Array<
-		{ file: File; preview: string } | { file: File; preview: ""; error: string }
-	> = [];
-
-	Array.from(fileList).forEach((file) => {
-		const validation = validateFile(file);
-
-		if (validation.isValid) {
-			const preview = createImagePreview(file);
-			results.push({ file, preview });
-		} else {
-			results.push({
-				file,
-				preview: "",
-				error: validation.errorMessage ?? "Archivo inválido",
-			});
-		}
-	});
-
-	return results;
-}
-
-/**
  * Processes a FileList and returns validated files, with optional duplicate checking
  */
 export function processFilesWithDuplicateCheck(

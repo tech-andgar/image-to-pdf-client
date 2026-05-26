@@ -198,10 +198,6 @@ export function useImageUpload() {
 	 * Opens the preview modal for a specific image
 	 */
 	const openPreviewModal = useCallback((imageIndex: number) => {
-		console.log(
-			"useImageUpload: openPreviewModal called with index:",
-			imageIndex,
-		);
 		setPreviewModal({
 			isOpen: true,
 			currentIndex: imageIndex,

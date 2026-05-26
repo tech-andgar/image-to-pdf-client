@@ -1,28 +1,24 @@
 import { useImageUpload } from "./useImageUpload";
 import { usePdfExport } from "./usePdfExport";
 import { useImageCompression } from "./useImageCompression";
+import type { CompressionPreset } from "../types/image";
 
 export function useImageWorkflow() {
 	const upload = useImageUpload();
 	const export_ = usePdfExport();
 	const compression = useImageCompression();
 
-	function resetCompressionState() {
-		compression.resetCompression();
-		upload.updateImages(upload.uploadedImages);
-	}
-
 	async function handleCompress() {
 		const compressed = await compression.compressImages(upload.uploadedImages);
 		upload.updateImages(compressed);
 	}
 
-	function handlePresetChange(
-		preset: Parameters<typeof compression.changePreset>[0],
-	) {
+	function handlePresetChange(preset: CompressionPreset) {
+		// Capture originals before reset clears the ref
+		const originals = compression.originalImages ?? upload.uploadedImages;
 		compression.changePreset(preset);
 		compression.resetCompression();
-		upload.updateImages(compression.originalImages ?? upload.uploadedImages);
+		upload.updateImages(originals);
 	}
 
 	function handleDrop(files: FileList) {
