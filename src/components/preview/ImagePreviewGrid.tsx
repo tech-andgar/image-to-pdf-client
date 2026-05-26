@@ -15,7 +15,7 @@ import {
 	useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { ImageFile } from "../types/image";
+import type { ImageFile } from "../../types/image";
 
 interface SortableImageItemProps {
 	image: ImageFile;

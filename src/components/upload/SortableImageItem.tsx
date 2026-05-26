@@ -2,7 +2,7 @@ import { AlertCircle, GripVertical, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { ImageFile } from "../types/image";
+import type { ImageFile } from "../../types/image";
 
 interface SortableImageItemProps {
 	image: ImageFile;

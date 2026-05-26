@@ -1,5 +1,5 @@
-import { Head } from "./components/Head";
-import { MainLayout } from "./components/MainLayout";
+import { Head } from "./components/layout/Head";
+import { MainLayout } from "./components/layout/MainLayout";
 import { ImageUploader } from "./components/ImageUploader";
 
 function App() {

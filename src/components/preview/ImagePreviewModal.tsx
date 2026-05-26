@@ -2,14 +2,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
 
 import type { ImageFile } from "../types/image";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "./ui/dialog";
+} from "../ui/dialog";
 
 interface ImagePreviewModalProps {
 	images: ImageFile[];

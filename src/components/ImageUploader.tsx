@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useImageWorkflow } from "../hooks/useImageWorkflow";
 import { useTheme } from "../hooks/useTheme";
-import { UploadArea } from "./UploadArea";
-import { ImagePreviewGrid } from "./ImagePreviewGrid";
-import { ImagePreviewModal } from "./ImagePreviewModal";
-import { CompressionControls } from "./CompressionControls";
-import { FilenameInput } from "./FilenameInput";
+import { UploadArea } from "./upload/UploadArea";
+import { ImagePreviewGrid } from "./preview/ImagePreviewGrid";
+import { ImagePreviewModal } from "./preview/ImagePreviewModal";
+import { CompressionControls } from "./compression/CompressionControls";
+import { FilenameInput } from "./export/FilenameInput";
 
 export function ImageUploader() {
 	const {
