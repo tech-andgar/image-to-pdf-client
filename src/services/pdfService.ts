@@ -1,7 +1,7 @@
 import type { PDFImage } from "pdf-lib";
 import type { ImageFile, CompressionPreset } from "../types/image";
 import { COMPRESSION_PRESETS } from "../types/image";
-import { compressPdfPageImages } from "../lib/pdf/pdf-page-compressor";
+import { compressAllPdfImages } from "../lib/pdf/pdf-page-compressor";
 import { sanitizeFilename, generateFallbackFilename } from "./fileSanitizer";
 import type { IUniversalShareService, ShareResult } from "./shareService";
 import { createBestShareService } from "./shareService";
@@ -22,37 +22,72 @@ class PdfGenerator {
 			const { PDFDocument } = await import("pdf-lib");
 			const pdfDoc = await PDFDocument.create();
 
-			// Cache parsed source PDFs to avoid re-parsing same file for multiple pages
-			const pdfSourceCache = new Map<
+			// Pre-pass: compress each unique PDF source once, then batch-copy all pages per source.
+			// Calling copyPages once per source preserves shared XObjects in the output PDF.
+			const compressedSourceCache = new Map<Uint8Array, Uint8Array>();
+			const parsedSourceCache = new Map<
 				Uint8Array,
 				Awaited<ReturnType<typeof PDFDocument.load>>
 			>();
+			// Map: sourceBytes → (pageIndex → copied PDFPage)
+			const copiedPageCache = new Map<
+				Uint8Array,
+				Map<number, import("pdf-lib").PDFPage>
+			>();
 
-			for (const image of images) {
-				if (image.error) {
-					logger.warn("Skipping invalid image", { error: image.error });
-					continue;
+			const validImages = images.filter((img) => !img.error);
+
+			// Collect unique page indices per source
+			const sourcePageIndices = new Map<Uint8Array, Set<number>>();
+			for (const image of validImages) {
+				if (!image.pdfSource) continue;
+				const { pdfBytes, pageIndex } = image.pdfSource;
+				if (!sourcePageIndices.has(pdfBytes))
+					sourcePageIndices.set(pdfBytes, new Set());
+				const existing = sourcePageIndices.get(pdfBytes);
+				if (existing) existing.add(pageIndex);
+			}
+
+			// Compress + parse + batch-copy each source
+			for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
+				let sourceBytesToLoad = pdfBytes;
+				if (preset) {
+					let compressed = compressedSourceCache.get(pdfBytes);
+					if (!compressed) {
+						compressed = await compressAllPdfImages(pdfBytes, {
+							quality: COMPRESSION_PRESETS[preset].quality,
+							mimeType: "image/jpeg",
+						});
+						compressedSourceCache.set(pdfBytes, compressed);
+					}
+					sourceBytesToLoad = compressed;
 				}
 
-				// PDF-sourced pages: text/vectors are lossless; embedded images get compressed if preset given
+				let srcDoc = parsedSourceCache.get(sourceBytesToLoad);
+				if (!srcDoc) {
+					srcDoc = await PDFDocument.load(sourceBytesToLoad);
+					parsedSourceCache.set(sourceBytesToLoad, srcDoc);
+				}
+
+				const indices = Array.from(pageIndices);
+				// Single copyPages call per source — XObjects are shared in the copy context
+				const copiedPages = await pdfDoc.copyPages(srcDoc, indices);
+				const pageMap = new Map<number, import("pdf-lib").PDFPage>();
+				for (let i = 0; i < indices.length; i++) {
+					pageMap.set(indices[i], copiedPages[i]);
+				}
+				copiedPageCache.set(pdfBytes, pageMap);
+				logger.info(
+					`[pdf-generator] batch-copied ${indices.length} pages from source, preset=${preset ?? "none"}`,
+				);
+			}
+
+			for (const image of validImages) {
+				// PDF-sourced pages: look up pre-copied page
 				if (image.pdfSource) {
 					const { pdfBytes, pageIndex } = image.pdfSource;
-					logger.info(
-						`[pdf-generator] page from PDF source, pageIndex=${pageIndex}, preset=${preset ?? "none"}`,
-					);
-					const sourceBytesToLoad = preset
-						? await compressPdfPageImages(pdfBytes, pageIndex, {
-								quality: COMPRESSION_PRESETS[preset].quality,
-								mimeType: "image/jpeg",
-							})
-						: pdfBytes;
-					let srcDoc = pdfSourceCache.get(sourceBytesToLoad);
-					if (!srcDoc) {
-						srcDoc = await PDFDocument.load(sourceBytesToLoad);
-						pdfSourceCache.set(sourceBytesToLoad, srcDoc);
-					}
-					const [copiedPage] = await pdfDoc.copyPages(srcDoc, [pageIndex]);
-					pdfDoc.addPage(copiedPage);
+					const page = copiedPageCache.get(pdfBytes)?.get(pageIndex);
+					if (page) pdfDoc.addPage(page);
 					continue;
 				}
 
