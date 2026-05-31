@@ -1,5 +1,10 @@
 import { ImagePlus } from "lucide-react";
 import { type ChangeEvent, type DragEvent, useRef } from "react";
+import {
+	ALLOWED_EXTENSIONS,
+	ALLOWED_IMAGE_TYPES,
+	MAX_FILE_SIZE,
+} from "../../types/image";
 
 interface UploadAreaProps {
 	isDragOver: boolean;
@@ -50,13 +55,14 @@ export function UploadArea({
 				<span className="underline underline-offset-2">
 					selecciona archivos
 				</span>{" "}
-				· JPEG, PNG, BMP, GIF · máx. 10 MB
+				· {ALLOWED_EXTENSIONS.join(", ")} · máx. {MAX_FILE_SIZE / 1024 / 1024}{" "}
+				MB
 			</p>
 			<input
 				ref={fileInputRef}
 				type="file"
 				multiple
-				accept="image/jpeg,image/png,image/bmp,image/gif"
+				accept={ALLOWED_IMAGE_TYPES.join(",")}
 				onChange={onFileSelect}
 				className="hidden"
 			/>

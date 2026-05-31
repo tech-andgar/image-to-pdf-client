@@ -15,18 +15,20 @@ export interface FileValidationResult {
 export type AllowedImageTypes =
 	| "image/jpeg"
 	| "image/png"
+	| "image/webp"
 	| "image/bmp"
 	| "image/gif";
 
 export const ALLOWED_IMAGE_TYPES: AllowedImageTypes[] = [
 	"image/jpeg",
 	"image/png",
+	"image/webp",
 	"image/bmp",
 	"image/gif",
 ];
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-export const ALLOWED_EXTENSIONS = ["JPEG", "PNG", "BMP", "GIF"];
+export const ALLOWED_EXTENSIONS = ["JPEG", "PNG", "WEBP", "BMP", "GIF"];
 
 export interface CompressionOptions {
 	quality: number; // 0-1 for JPEG, ignored for PNG
