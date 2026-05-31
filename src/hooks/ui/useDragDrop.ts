@@ -6,6 +6,7 @@ import {
 	rectIntersection,
 	type DragEndEvent,
 } from "@dnd-kit/core";
+import { DRAG_ACTIVATION_DISTANCE } from "../../config/limits";
 
 export interface UseDragDropOptions {
 	/** Items con sus IDs únicas */
@@ -23,7 +24,7 @@ export function useDragDrop({ items, onReorder }: UseDragDropOptions) {
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
 			activationConstraint: {
-				distance: 8, // Standard activation distance
+				distance: DRAG_ACTIVATION_DISTANCE,
 			},
 		}),
 	);

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import type { CompressionStats } from "../../types/image";
 import { formatFileSize } from "../../lib/image/compression";
+import { SIGNIFICANT_SAVINGS_THRESHOLD } from "../../config/limits";
 
 export function useCompressionStats(compressionStats: CompressionStats | null) {
 	const formattedStats = useMemo(() => {
@@ -17,7 +18,10 @@ export function useCompressionStats(compressionStats: CompressionStats | null) {
 	}, [compressionStats]);
 
 	const hasSignificantSavings = useMemo(
-		() => (compressionStats ? compressionStats.compressionRatio < 0.8 : false),
+		() =>
+			compressionStats
+				? compressionStats.compressionRatio < SIGNIFICANT_SAVINGS_THRESHOLD
+				: false,
 		[compressionStats],
 	);
 

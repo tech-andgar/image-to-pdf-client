@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { APP_NAME } from "../../config/app";
-
-const STORAGE_KEY = "pwa-app-name";
+import { STORAGE_KEYS } from "../../config/limits";
 
 export function usePwaRename() {
 	const [showBanner, setShowBanner] = useState(false);
@@ -15,11 +14,11 @@ export function usePwaRename() {
 
 		if (!isStandalone) return;
 
-		const recorded = localStorage.getItem(STORAGE_KEY);
+		const recorded = localStorage.getItem(STORAGE_KEYS.APP_NAME);
 
 		if (!recorded) {
 			// First visit — record current name, no banner
-			localStorage.setItem(STORAGE_KEY, APP_NAME);
+			localStorage.setItem(STORAGE_KEYS.APP_NAME, APP_NAME);
 			return;
 		}
 
@@ -29,7 +28,7 @@ export function usePwaRename() {
 	}, []);
 
 	const dismiss = () => {
-		localStorage.setItem(STORAGE_KEY, APP_NAME);
+		localStorage.setItem(STORAGE_KEYS.APP_NAME, APP_NAME);
 		setShowBanner(false);
 	};
 
