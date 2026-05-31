@@ -43,7 +43,7 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 		>
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: handled on parent */}
 			<div
-				className="mx-4 w-full max-w-md rounded-xl border bg-white p-6 shadow-2xl dark:bg-zinc-900"
+				className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-2xl"
 				onClick={(e) => e.stopPropagation()}
 			>
 				<h2 className="text-lg font-semibold">Privacidad</h2>
