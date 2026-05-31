@@ -1,4 +1,3 @@
-import { logger } from "../../services/logger";
 import { useCallback } from "react";
 import {
 	PointerSensor,
@@ -42,7 +41,6 @@ export function useDragDrop({ items, onReorder }: UseDragDropOptions) {
 			const newIndex = items.findIndex((item) => item.id === over.id);
 
 			if (oldIndex !== newIndex && oldIndex !== -1 && newIndex !== -1) {
-				logger.info(`Reordering from ${oldIndex} to ${newIndex}`);
 				onReorder(oldIndex, newIndex);
 			}
 		},

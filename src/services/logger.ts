@@ -21,8 +21,9 @@ export interface LogEntry {
 
 class LoggerService {
 	private logs: LogEntry[] = [];
-	private readonly maxLogs = 100; // Keep last 100 logs
+	private readonly maxLogs = 100;
 	private readonly sessionId: string;
+	private flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 	constructor() {
 		this.sessionId = this.generateSessionId();
@@ -69,12 +70,16 @@ class LoggerService {
 		}
 	}
 
-	private saveLogsToStorage() {
-		try {
-			localStorage.setItem("app_logs", JSON.stringify(this.logs));
-		} catch (error) {
-			console.warn("Failed to save logs to storage:", error);
-		}
+	private scheduleFlush() {
+		if (this.flushTimer) return;
+		this.flushTimer = setTimeout(() => {
+			this.flushTimer = null;
+			try {
+				localStorage.setItem("app_logs", JSON.stringify(this.logs));
+			} catch (error) {
+				console.warn("Failed to save logs to storage:", error);
+			}
+		}, 1000);
 	}
 
 	private createLogEntry(
@@ -104,8 +109,8 @@ class LoggerService {
 			this.logs.shift();
 		}
 
-		// Save to storage
-		this.saveLogsToStorage();
+		// Debounced persist
+		this.scheduleFlush();
 
 		// Console output - Get appropriate console method for log level
 		let logMethod: "log" | "warn" | "error" = "log";

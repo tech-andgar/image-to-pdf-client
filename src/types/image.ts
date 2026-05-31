@@ -31,7 +31,7 @@ export const ALLOWED_IMAGE_TYPES: AllowedImageTypes[] = [
 
 export const ALLOWED_PDF_TYPE = "application/pdf";
 
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export { MAX_FILE_SIZE } from "../config/limits";
 export const ALLOWED_EXTENSIONS = ["JPEG", "PNG", "WebP", "BMP", "GIF", "PDF"];
 
 export interface CompressionOptions {
