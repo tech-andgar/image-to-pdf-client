@@ -13,12 +13,17 @@ export function useImageWorkflow() {
 		upload.updateImages(compressed);
 	}
 
-	function handlePresetChange(preset: CompressionPreset) {
-		// Capture originals before reset clears the ref
+	async function handlePresetChange(preset: CompressionPreset) {
 		const originals = compression.originalImages ?? upload.uploadedImages;
 		compression.changePreset(preset);
-		compression.resetCompression();
+		compression.resetCompressionState();
 		upload.updateImages(originals);
+
+		// Auto-apply if all images already cached for this preset
+		if (compression.isPresetCached(originals, preset)) {
+			const compressed = await compression.compressImages(originals, preset);
+			upload.updateImages(compressed);
+		}
 	}
 
 	function handleDrop(files: FileList) {
@@ -35,6 +40,11 @@ export function useImageWorkflow() {
 		upload.removeImage(id);
 		compression.resetCompression();
 	}
+
+	const currentPresetCached = compression.isPresetCached(
+		upload.uploadedImages,
+		compression.currentPreset,
+	);
 
 	return {
 		// upload state
@@ -61,6 +71,7 @@ export function useImageWorkflow() {
 		formattedStats: compression.formattedStats,
 		hasSignificantSavings: compression.hasSignificantSavings,
 		clearCompressionError: compression.clearError,
+		currentPresetCached,
 		handleCompress,
 		handlePresetChange,
 		// export

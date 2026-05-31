@@ -17,6 +17,7 @@ interface CompressionControlsProps {
 		readonly timeElapsed: string;
 	} | null;
 	readonly hasSignificantSavings: boolean;
+	readonly isPresetCached: boolean;
 	readonly onCompress: () => void;
 	readonly onPresetChange: (preset: CompressionPreset) => void;
 	readonly onClearError: () => void;
@@ -39,6 +40,7 @@ export function CompressionControls({
 	compressionProgress,
 	formattedStats,
 	hasSignificantSavings,
+	isPresetCached,
 	onCompress,
 	onPresetChange,
 	onClearError,
@@ -174,6 +176,11 @@ export function CompressionControls({
 							<>
 								<Zap className="h-3.5 w-3.5 mr-1.5 animate-spin" />
 								Comprimiendo…
+							</>
+						) : isPresetCached ? (
+							<>
+								<Zap className="h-3.5 w-3.5 mr-1.5" />
+								Aplicar preset
 							</>
 						) : (
 							<>

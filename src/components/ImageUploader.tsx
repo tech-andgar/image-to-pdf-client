@@ -30,6 +30,7 @@ export function ImageUploader() {
 		formattedStats,
 		hasSignificantSavings,
 		clearCompressionError,
+		currentPresetCached,
 		handleCompress,
 		handlePresetChange,
 		isGenerating,
@@ -93,6 +94,7 @@ export function ImageUploader() {
 					compressionProgress={compressionProgress}
 					formattedStats={formattedStats}
 					hasSignificantSavings={hasSignificantSavings}
+					isPresetCached={currentPresetCached}
 					onCompress={handleCompress}
 					onPresetChange={handlePresetChange}
 					onClearError={clearCompressionError}

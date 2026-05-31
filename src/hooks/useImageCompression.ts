@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import type {
 	ImageFile,
+	CompressionResult,
 	CompressionStats,
 	CompressionPreset,
 } from "../types/image";
@@ -23,20 +24,21 @@ export function useImageCompression() {
 	const [compressionStats, setCompressionStats] =
 		useState<CompressionStats | null>(null);
 	const originalImagesRef = useRef<ImageFile[] | null>(null);
-	const compressionCacheRef = useRef<Map<string, ImageFile>>(new Map());
-
-	const currentOptions = useMemo(
-		() => COMPRESSION_PRESETS[currentPreset],
-		[currentPreset],
-	);
+	const compressionCacheRef = useRef<
+		Map<string, { imageFile: ImageFile; result: CompressionResult }>
+	>(new Map());
 
 	/**
 	 * Compresses all images with the current compression settings
 	 */
 	const compressImages = useCallback(
-		async (images: ImageFile[]): Promise<ImageFile[]> => {
+		async (
+			images: ImageFile[],
+			presetOverride?: CompressionPreset,
+		): Promise<ImageFile[]> => {
 			if (images.length === 0)
 				throw new Error("No hay imágenes para comprimir");
+			const activePreset = presetOverride ?? currentPreset;
 
 			originalImagesRef.current ??= images;
 			// Merge any new originals not yet tracked (images added after first compression)
@@ -59,7 +61,7 @@ export function useImageCompression() {
 				// Split: cached vs needs compression
 				const cache = compressionCacheRef.current;
 				const toCompress = baseImages.filter(
-					(img) => !cache.has(`${img.id}:${currentPreset}`),
+					(img) => !cache.has(`${img.id}:${activePreset}`),
 				);
 
 				let compressedResults: Awaited<ReturnType<typeof compressImagesBatch>> =
@@ -68,7 +70,7 @@ export function useImageCompression() {
 					const imageFiles = toCompress.map((img) => img.file);
 					compressedResults = await compressImagesBatch(
 						imageFiles,
-						currentOptions,
+						COMPRESSION_PRESETS[activePreset],
 						(progress) => setCompressionProgress(progress),
 					);
 
@@ -76,11 +78,14 @@ export function useImageCompression() {
 					toCompress.forEach((originalImg, i) => {
 						const compressed = compressedResults[i];
 						if (compressed) {
-							cache.set(`${originalImg.id}:${currentPreset}`, {
-								...originalImg,
-								file: compressed.file,
-								preview: URL.createObjectURL(compressed.file),
-								storageId: undefined,
+							cache.set(`${originalImg.id}:${activePreset}`, {
+								imageFile: {
+									...originalImg,
+									file: compressed.file,
+									preview: URL.createObjectURL(compressed.file),
+									storageId: undefined,
+								},
+								result: compressed,
 							});
 						}
 					});
@@ -88,17 +93,26 @@ export function useImageCompression() {
 
 				// Stats: combine all images (new + cached)
 				const allOriginalFiles = baseImages.map((img) => img.file);
-				const allCompressedFiles = baseImages.map((img) => {
-					const cached = cache.get(`${img.id}:${currentPreset}`);
-					return cached
-						? { file: cached.file }
-						: compressedResults.find((r) =>
-								r.file.name.includes(img.file.name.split(".")[0]),
-							) ?? { file: img.file };
-				});
+				const allCompressedResults: CompressionResult[] = baseImages.map(
+					(img) => {
+						const cached = cache.get(`${img.id}:${activePreset}`);
+						if (cached) return cached.result;
+						const fresh = compressedResults.find((r) =>
+							r.file.name.includes(img.file.name.split(".")[0]),
+						);
+						return (
+							fresh ?? {
+								file: img.file,
+								compressedSize: img.file.size,
+								compressionRatio: 1,
+								dimensions: { width: 0, height: 0 },
+							}
+						);
+					},
+				);
 				const stats = calculateCompressionStats(
 					allOriginalFiles,
-					allCompressedFiles,
+					allCompressedResults,
 				);
 				stats.time_elapsed = Date.now() - startTime;
 				setCompressionStats(stats);
@@ -106,7 +120,8 @@ export function useImageCompression() {
 				// Build final image list from cache (all should be cached now)
 				const updatedImages = baseImages.map(
 					(originalImg) =>
-						cache.get(`${originalImg.id}:${currentPreset}`) ?? originalImg,
+						cache.get(`${originalImg.id}:${activePreset}`)?.imageFile ??
+						originalImg,
 				);
 
 				setCompressionProgress(1);
@@ -120,7 +135,7 @@ export function useImageCompression() {
 				setIsCompressing(false);
 			}
 		},
-		[currentOptions],
+		[currentPreset],
 	);
 
 	/**
@@ -137,16 +152,38 @@ export function useImageCompression() {
 		setCompressionError(null);
 	}, []);
 
-	/**
-	 * Resets compression state
-	 */
+	const isPresetCached = useCallback(
+		(images: ImageFile[], preset?: CompressionPreset) => {
+			const key = preset ?? currentPreset;
+			return (
+				images.length > 0 &&
+				images.every((img) =>
+					compressionCacheRef.current.has(`${img.id}:${key}`),
+				)
+			);
+		},
+		[currentPreset],
+	);
+
+	/** Resets UI state only — keeps cache and originals intact */
+	const resetCompressionState = useCallback(() => {
+		setIsCompressing(false);
+		setCompressionError(null);
+		setCompressionProgress(0);
+		setCompressionStats(null);
+	}, []);
+
+	/** Full reset — clears cache and originals (use on new upload/remove) */
 	const resetCompression = useCallback(() => {
 		setIsCompressing(false);
 		setCompressionError(null);
 		setCompressionProgress(0);
 		setCompressionStats(null);
 		originalImagesRef.current = null;
-		compressionCacheRef.current = new Map();
+		compressionCacheRef.current = new Map<
+			string,
+			{ imageFile: ImageFile; result: CompressionResult }
+		>();
 	}, []);
 
 	/**
@@ -181,6 +218,8 @@ export function useImageCompression() {
 		changePreset,
 		clearError,
 		resetCompression,
+		resetCompressionState,
+		isPresetCached,
 		originalImages: originalImagesRef.current,
 	};
 }
