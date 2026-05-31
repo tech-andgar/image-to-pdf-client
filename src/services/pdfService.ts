@@ -1,5 +1,7 @@
 import type { PDFImage } from "pdf-lib";
-import type { ImageFile } from "../types/image";
+import type { ImageFile, CompressionPreset } from "../types/image";
+import { COMPRESSION_PRESETS } from "../types/image";
+import { compressPdfPageImages } from "../lib/pdf/pdf-page-compressor";
 import { sanitizeFilename, generateFallbackFilename } from "./fileSanitizer";
 import type { IUniversalShareService, ShareResult } from "./shareService";
 import { createBestShareService } from "./shareService";
@@ -8,7 +10,10 @@ import { storageService } from "./storageService";
 
 // PDF Generator - Single Responsibility: Create PDFs from images
 class PdfGenerator {
-	async generate(images: ImageFile[]): Promise<Uint8Array> {
+	async generate(
+		images: ImageFile[],
+		preset?: CompressionPreset,
+	): Promise<Uint8Array> {
 		if (images.length === 0) {
 			throw new Error("No images provided for PDF generation");
 		}
@@ -29,13 +34,19 @@ class PdfGenerator {
 					continue;
 				}
 
-				// PDF-sourced pages: copy original page directly — preserves text, vectors, fonts
+				// PDF-sourced pages: text/vectors are lossless; embedded images get compressed if preset given
 				if (image.pdfSource) {
 					const { pdfBytes, pageIndex } = image.pdfSource;
-					let srcDoc = pdfSourceCache.get(pdfBytes);
+					const sourceBytesToLoad = preset
+						? await compressPdfPageImages(pdfBytes, pageIndex, {
+								quality: COMPRESSION_PRESETS[preset].quality,
+								mimeType: "image/jpeg",
+							})
+						: pdfBytes;
+					let srcDoc = pdfSourceCache.get(sourceBytesToLoad);
 					if (!srcDoc) {
-						srcDoc = await PDFDocument.load(pdfBytes);
-						pdfSourceCache.set(pdfBytes, srcDoc);
+						srcDoc = await PDFDocument.load(sourceBytesToLoad);
+						pdfSourceCache.set(sourceBytesToLoad, srcDoc);
 					}
 					const [copiedPage] = await pdfDoc.copyPages(srcDoc, [pageIndex]);
 					pdfDoc.addPage(copiedPage);
@@ -364,8 +375,11 @@ export async function sharePDF(
 /**
  * Generates a PDF from an array of ImageFiles in the specified order
  */
-export async function generatePDF(images: ImageFile[]): Promise<Uint8Array> {
-	return pdfGenerator.generate(images);
+export async function generatePDF(
+	images: ImageFile[],
+	preset?: CompressionPreset,
+): Promise<Uint8Array> {
+	return pdfGenerator.generate(images, preset);
 }
 
 /**

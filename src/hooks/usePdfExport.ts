@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { ImageFile } from "../types/image";
+import type { ImageFile, CompressionPreset } from "../types/image";
 import { generatePDF, downloadPDF, sharePDF } from "../services/pdfService";
 import { sanitizeFilename } from "../services/fileSanitizer";
 
@@ -49,7 +49,7 @@ export function usePdfExport() {
 	 * Generates and downloads a PDF from the provided ImageFiles array
 	 */
 	const exportToPDF = useCallback(
-		async (images: ImageFile[]) => {
+		async (images: ImageFile[], preset?: CompressionPreset) => {
 			if (images.length === 0) {
 				setExportError("No hay imágenes para exportar");
 				return;
@@ -60,10 +60,9 @@ export function usePdfExport() {
 			setExportError(null);
 
 			try {
-				const pdfBytes = await generatePDF(images);
+				const pdfBytes = await generatePDF(images, preset);
 				setIsLoadingLibrary(false);
 
-				// Use sanitized filename
 				downloadPDF(pdfBytes, previewFilename);
 
 				// Reset error state on success
@@ -85,7 +84,7 @@ export function usePdfExport() {
 	 * Shares a PDF using Web Share API or fallback options
 	 */
 	const shareToPDF = useCallback(
-		async (images: ImageFile[]) => {
+		async (images: ImageFile[], preset?: CompressionPreset) => {
 			if (images.length === 0) {
 				setShareResult({
 					success: false,
@@ -100,7 +99,7 @@ export function usePdfExport() {
 			setShareResult(null);
 
 			try {
-				const pdfBytes = await generatePDF(images);
+				const pdfBytes = await generatePDF(images, preset);
 				setIsLoadingLibrary(false);
 
 				const result = await sharePDF(pdfBytes, previewFilename);

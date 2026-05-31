@@ -3,17 +3,10 @@ import type {
 	CompressionResult,
 	CompressionStats,
 } from "../types/image";
+import { loadImageFromUrl } from "../lib/image/canvas-utils";
 
-/**
- * Loads an image from a File object and prepares it for compression
- */
 function loadImageFromFile(file: File): Promise<HTMLImageElement> {
-	return new Promise((resolve, reject) => {
-		const img = new Image();
-		img.onload = () => resolve(img);
-		img.onerror = () => reject(new Error("Failed to load image"));
-		img.src = URL.createObjectURL(file);
-	});
+	return loadImageFromUrl(URL.createObjectURL(file));
 }
 
 /**
@@ -85,19 +78,12 @@ export async function compressImageFile(
 		// Draw and compress
 		ctx.drawImage(img, 0, 0, width, height);
 
-		// Convert to blob with compression
 		const mimeType = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
 		const quality = mimeType === "image/jpeg" ? options.quality : undefined;
 
 		const blob = await new Promise<Blob>((resolve, reject) => {
 			canvas.toBlob(
-				(blob) => {
-					if (blob) {
-						resolve(blob);
-					} else {
-						reject(new Error("Failed to compress image"));
-					}
-				},
+				(b) => (b ? resolve(b) : reject(new Error("Failed to compress image"))),
 				mimeType,
 				quality,
 			);

@@ -84,7 +84,9 @@ export function useImageWorkflow() {
 		filename: export_.filename,
 		setFilename: export_.setFilename,
 		previewFilename: export_.previewFilename,
-		exportToPDF: () => export_.exportToPDF(upload.uploadedImages),
-		shareToPDF: () => export_.shareToPDF(upload.uploadedImages),
+		exportToPDF: () =>
+			export_.exportToPDF(upload.uploadedImages, compression.currentPreset),
+		shareToPDF: () =>
+			export_.shareToPDF(upload.uploadedImages, compression.currentPreset),
 	};
 }
