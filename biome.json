@@ -38,6 +38,13 @@
 		"enabled": true,
 		"indentStyle": "tab"
 	},
+	"css": {
+		"parser": {
+			"cssModules": false,
+			"allowWrongLineComments": false,
+			"tailwindDirectives": true
+		}
+	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
