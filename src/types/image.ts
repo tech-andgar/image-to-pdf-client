@@ -5,6 +5,8 @@ export interface ImageFile {
 	preview: string;
 	error?: string;
 	storageId?: string;
+	/** When imported from a PDF, holds the original PDF bytes + page index for lossless re-embed */
+	pdfSource?: { pdfBytes: Uint8Array; pageIndex: number };
 }
 
 export interface FileValidationResult {

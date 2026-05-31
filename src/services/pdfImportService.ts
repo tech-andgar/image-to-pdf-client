@@ -8,7 +8,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 
 export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 	const arrayBuffer = await file.arrayBuffer();
-	const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+	// Keep original for pdfSource; pass a copy to pdfjs since it transfers the buffer to the worker
+	const pdfBytes = new Uint8Array(arrayBuffer);
+	const pdf = await pdfjsLib.getDocument({ data: pdfBytes.slice() }).promise;
 	const results: ImageFile[] = [];
 
 	for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -42,6 +44,7 @@ export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 			id: `pdf-${file.name}-p${pageNum}-${Date.now()}`,
 			file: pageFile,
 			preview: URL.createObjectURL(blob),
+			pdfSource: { pdfBytes, pageIndex: pageNum - 1 },
 		});
 	}
 

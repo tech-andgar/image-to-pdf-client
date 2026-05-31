@@ -14,9 +14,14 @@ class PdfGenerator {
 		}
 
 		try {
-			// Lazy load pdf-lib to improve initial bundle size
 			const { PDFDocument } = await import("pdf-lib");
 			const pdfDoc = await PDFDocument.create();
+
+			// Cache parsed source PDFs to avoid re-parsing same file for multiple pages
+			const pdfSourceCache = new Map<
+				Uint8Array,
+				Awaited<ReturnType<typeof PDFDocument.load>>
+			>();
 
 			for (const image of images) {
 				if (image.error) {
@@ -24,13 +29,23 @@ class PdfGenerator {
 					continue;
 				}
 
-				// Validate File before attempting to read it (handles background/foreground transitions)
-				// Note: If using storageId, we rely on the stored blob, so file validation might fail
-				// but we can still proceed if we have the blob.
+				// PDF-sourced pages: copy original page directly — preserves text, vectors, fonts
+				if (image.pdfSource) {
+					const { pdfBytes, pageIndex } = image.pdfSource;
+					let srcDoc = pdfSourceCache.get(pdfBytes);
+					if (!srcDoc) {
+						srcDoc = await PDFDocument.load(pdfBytes);
+						pdfSourceCache.set(pdfBytes, srcDoc);
+					}
+					const [copiedPage] = await pdfDoc.copyPages(srcDoc, [pageIndex]);
+					pdfDoc.addPage(copiedPage);
+					continue;
+				}
+
 				const hasStorage = !!image.storageId;
 				if (!hasStorage && !(await this.validateFile(image.file))) {
 					throw new Error(
-						`Archivo "${image.file.name}" inválido. Reinicie la aplicación y cárgue las imágenes nuevamente. Los archivos expiran cuando la aplicación pierde el foco.`,
+						`Archivo "${image.file.name}" inválido. Reinicie la aplicación y cargue las imágenes nuevamente. Los archivos expiran cuando la aplicación pierde el foco.`,
 					);
 				}
 
@@ -39,7 +54,6 @@ class PdfGenerator {
 					imageBytes = await this.getImageData(image);
 				} catch (error) {
 					logger.warn("Failed to get image data", { error });
-					// Try one last attempt with the file object directly if storage failed
 					if (hasStorage) {
 						logger.info("Retrying with raw file object");
 						imageBytes = await this.fileToUint8Array(image.file);
@@ -49,55 +63,59 @@ class PdfGenerator {
 				}
 
 				let embeddedImage: PDFImage;
+				let embedBytes = imageBytes;
+				let embedType = image.file.type;
 
-				// Embed image based on type
+				// Convert unsupported types (WebP, BMP, GIF) to JPEG via canvas
 				if (
-					image.file.type === "image/jpeg" ||
-					image.file.type === "image/jpg"
+					embedType !== "image/jpeg" &&
+					embedType !== "image/jpg" &&
+					embedType !== "image/png"
 				) {
-					embeddedImage = await pdfDoc.embedJpg(imageBytes);
-				} else if (image.file.type === "image/png") {
-					embeddedImage = await pdfDoc.embedPng(imageBytes);
-				} else {
-					// For other formats (BMP, GIF), we'll skip for now as pdf-lib doesn't support them directly
-					logger.warn("Unsupported image type for PDF", {
-						imageType: image.file.type,
-					});
-					continue;
+					const blobUrl = URL.createObjectURL(
+						new Blob([embedBytes.buffer as ArrayBuffer], { type: embedType }),
+					);
+					try {
+						embedBytes = await new Promise<Uint8Array>((resolve, reject) => {
+							const img = new Image();
+							img.onload = () => {
+								const canvas = document.createElement("canvas");
+								canvas.width = img.naturalWidth;
+								canvas.height = img.naturalHeight;
+								const ctx = canvas.getContext("2d");
+								if (!ctx) return reject(new Error("No canvas context"));
+								ctx.drawImage(img, 0, 0);
+								canvas.toBlob(
+									(b) => {
+										if (!b) return reject(new Error("toBlob failed"));
+										b.arrayBuffer().then((ab) => resolve(new Uint8Array(ab)));
+									},
+									"image/jpeg",
+									0.92,
+								);
+							};
+							img.onerror = () => reject(new Error("Image load failed"));
+							img.src = blobUrl;
+						});
+					} finally {
+						URL.revokeObjectURL(blobUrl);
+					}
+					embedType = "image/jpeg";
 				}
 
-				// Calculate page size to maintain aspect ratio
+				if (embedType === "image/jpeg" || embedType === "image/jpg") {
+					embeddedImage = await pdfDoc.embedJpg(embedBytes);
+				} else {
+					embeddedImage = await pdfDoc.embedPng(embedBytes);
+				}
+
 				const { width: imgWidth, height: imgHeight } = embeddedImage;
-				const aspectRatio = imgWidth / imgHeight;
-
-				// Standard A4 page size (8.27 x 11.69 inches at 72 DPI = 595 x 842 points)
-				const pageWidth = 595;
-				const pageHeight = 842;
-
-				let finalWidth: number;
-				let finalHeight: number;
-
-				// Scale to fit page while maintaining aspect ratio
-				if (aspectRatio > pageWidth / pageHeight) {
-					// Image is wider than page aspect ratio
-					finalHeight = pageWidth / aspectRatio;
-					finalWidth = pageWidth;
-				} else {
-					// Image is taller than page aspect ratio
-					finalWidth = pageHeight * aspectRatio;
-					finalHeight = pageHeight;
-				}
-
-				// Create page and add image centered
-				const page = pdfDoc.addPage([pageWidth, pageHeight]);
-				const x = (pageWidth - finalWidth) / 2;
-				const y = (pageHeight - finalHeight) / 2;
-
+				const page = pdfDoc.addPage([imgWidth, imgHeight]);
 				page.drawImage(embeddedImage, {
-					x,
-					y,
-					width: finalWidth,
-					height: finalHeight,
+					x: 0,
+					y: 0,
+					width: imgWidth,
+					height: imgHeight,
 				});
 			}
 
