@@ -1,11 +1,11 @@
-# 🖼️ Image to PDF Converter - Client Side
+# DocuMergePDF
 
 [![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.1.14-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.14-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
-**A modern, privacy-focused web application that converts images to PDF entirely in the browser**, ensuring user data never leaves their device. **🎉 NOW COMPLETE with professional-grade PDF generation and intelligent image compression!**
+**Convert and merge images and PDFs into a single PDF file — entirely in the browser. No files are ever sent to a server.**
 
 ![Build Status](https://img.shields.io/badge/Build-Passing-22C55E?style=flat-square)
 ![Lint](https://img.shields.io/badge/Lint-Passing-3B82F6?style=flat-square)
@@ -155,18 +155,43 @@ pnpm run format   # Format code with Biome
 ```
 📁 Project Structure
 ├── 📁 src/
+│   ├── 📁 config/
+│   │   └── app.ts                  # APP_NAME, APP_SHORT_NAME — single source of truth
+│   ├── 📁 lib/
+│   │   ├── 📁 image/
+│   │   │   ├── canvas-utils.ts     # Primitive canvas/blob helpers
+│   │   │   ├── compression.ts      # compressImageFile, compressImagesBatch, formatFileSize
+│   │   │   └── file-processing.ts  # buildImageFiles, reevaluateDuplicates (pure fns)
+│   │   └── 📁 pdf/
+│   │       ├── types.ts            # PdfXObject, CompressOptions, ImageDecoder
+│   │       ├── image-decoders.ts   # OCP decoder registry (DCT / JPX / Flate)
+│   │       ├── xobject-extractor.ts
+│   │       ├── xobject-compressor.ts
+│   │       ├── xobject-writer.ts   # Writes compressed XObject + SMask back to context
+│   │       └── pdf-compressor.ts   # Full-doc compression (one pass, shared XObjects)
 │   ├── 📁 components/      # React components (UI Layer)
-│   │   ├── 📁 ui/         # shadcn/ui reusable components
-│   │   ├── ImagePreviewGrid.tsx    # 🖼️ Drag & drop grid
-│   │   ├── ImagePreviewModal.tsx   # 🔍 Full-screen preview
-│   │   └── UploadArea.tsx         # 📁 File upload zone
-│   ├── 📁 hooks/          # Custom React hooks (Logic Layer)
-│   │   └── useImageUpload.ts       # 🧠 Main state management
-│   ├── 📁 services/       # Business logic (Service Layer)
-│   │   ├── fileService.ts          # 🔧 File validation & processing
-│   │   └── pdfService.ts            # 📄 PDF generation ready
-│   ├── 📁 types/          # TypeScript definitions
-│   │   └── image.ts                # 📝 Shared interfaces
+│   │   ├── 📁 ui/          # shadcn/ui reusable components
+│   │   ├── 📁 compression/ # CompressionControls
+│   │   ├── 📁 export/      # ExportSection, FilenameInput
+│   │   ├── 📁 layout/      # Header, Footer, MainLayout, PwaRenameBanner
+│   │   ├── 📁 preview/     # ImagePreviewGrid, ImagePreviewModal, SortableImageItem
+│   │   └── 📁 upload/      # UploadArea
+│   ├── 📁 hooks/
+│   │   ├── 📁 upload/      # useImageUpload
+│   │   ├── 📁 compression/ # useCompressionCache, useCompressionStats, useImageCompression
+│   │   ├── 📁 export/      # useFilename, usePdfExport
+│   │   ├── 📁 ui/          # useDragDrop, usePreviewModal, useTheme, usePwaRename
+│   │   └── useImageWorkflow.ts     # Facade composing upload + compression + export
+│   ├── 📁 services/
+│   │   ├── 📁 pdf/         # PdfGenerator, PdfDownloader, PdfSharer, index
+│   │   ├── fileService.ts
+│   │   ├── fileSanitizer.ts
+│   │   ├── pdfImportService.ts     # PDF → ImageFile[] via pdfjs-dist
+│   │   ├── shareService.ts
+│   │   ├── storageService.ts       # IndexedDB (ArrayBuffer, Safari-safe)
+│   │   └── logger.ts
+│   ├── 📁 types/
+│   │   └── image.ts                # ImageFile, CompressionPreset, COMPRESSION_PRESETS
 │   └── main.tsx           # 🚀 App entry point
 ├── 📁 .ruler/                # 📋 Project documentation
 ├── 📁 public/             # 🖼️ Static assets & PWA files
@@ -193,7 +218,10 @@ pnpm run format   # Format code with Biome
 
 ### **Key Libraries**
 - **@dnd-kit v6.17.0**: Professional drag & drop with touch support
-- **@pdf-lib v1.17.1**: Ready for client-side PDF generation (Phase 4)
+- **pdf-lib v1.17.1**: Client-side PDF creation and XObject manipulation
+- **pdfjs-dist v6**: PDF import — renders pages and extracts metadata
+- **fflate v0.8**: zlib compression for alpha mask streams
+- **web-streams-polyfill**: Safari ReadableStream compatibility for pdfjs
 - **lucide-react v0.545**: Consistent iconography
 - **Biome v1.9.4**: Fast linting and code formatting
 
@@ -225,6 +253,14 @@ pnpm run format   # Format code with Biome
 - ✅ **Phase 16**: Cross-platform compatibility (desktop/mobile/PWA)
 - ✅ **Phase 17**: File sanitization for Android Chrome compatibility
 - ✅ **Phase 18**: Performance monitoring and telemetry (optional GA)
+- ✅ **Phase 19**: WebP + PDF import via pdfjs-dist with Safari compatibility
+- ✅ **Phase 20**: App renamed to DocuMergePDF — single config source, PWA rename banner
+- ✅ **Phase 21**: Hybrid PDF compression — vector text preserved, raster XObjects recompressed
+- ✅ **Phase 22**: Transparency support — SMask preserved when compressing images with alpha
+- ✅ **Phase 23**: Shared XObject deduplication — copyPages called once per source PDF
+- ✅ **Phase 24**: SOLID/DRY refactor — lib/image, lib/pdf pipeline, services/pdf split, hooks subdirs
+- ✅ **Phase 25**: IndexedDB Safari fix — store ArrayBuffer instead of Blob/File
+- ✅ **Phase 26**: PDF-sourced UI clarity — preset-only panel when all images come from PDFs
 
 ## 🎯 **Project Quality Metrics - Complete (8 Octubre 2025)**
 
