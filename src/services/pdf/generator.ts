@@ -12,7 +12,7 @@ import {
 } from "../../lib/image/canvas-utils";
 import { compressAllPdfImages } from "../../lib/pdf/pdf-compressor";
 import { logger } from "../logger";
-import { storageService } from "../storageService";
+import { storageService } from "../storage/storageService";
 
 export class PdfGenerator {
 	async generate(

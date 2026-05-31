@@ -7,7 +7,8 @@ import { MAX_IMAGE_PIXELS } from "../../config/limits";
 import { loadImageFromUrl } from "./canvas-utils";
 
 function loadImageFromFile(file: File): Promise<HTMLImageElement> {
-	return loadImageFromUrl(URL.createObjectURL(file));
+	const url = URL.createObjectURL(file);
+	return loadImageFromUrl(url).finally(() => URL.revokeObjectURL(url));
 }
 
 function calculateDimensions(

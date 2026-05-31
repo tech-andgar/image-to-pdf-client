@@ -5,9 +5,9 @@ import {
 	getFileSignaturesFromImages,
 	revokeImagePreview,
 	createImagePreview,
-} from "../../services/fileService";
+} from "../../services/file/fileService";
 import { logger } from "../../services/logger";
-import { storageService } from "../../services/storageService";
+import { storageService } from "../../services/storage/storageService";
 
 export function generateImageId(): string {
 	return `image-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
