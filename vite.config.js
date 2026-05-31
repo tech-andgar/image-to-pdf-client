@@ -150,6 +150,12 @@ export default defineConfig({
 					if (id.includes("pdf-lib")) {
 						return "pdf";
 					}
+					if (id.includes("pdfjs-dist")) {
+						return "pdfjs";
+					}
+					if (id.includes("web-streams-polyfill")) {
+						return "streams-polyfill";
+					}
 					// Dnd-kit libraries
 					if (id.includes("@dnd-kit")) {
 						return "dnd";
