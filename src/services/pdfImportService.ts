@@ -1,4 +1,3 @@
-import { ReadableStream as PolyReadableStream } from "web-streams-polyfill";
 import type { ImageFile } from "../types/image";
 import {
 	MAX_CANVAS_PIXELS,
@@ -7,28 +6,32 @@ import {
 	PDF_RENDER_SCALE,
 } from "../config/limits";
 import { blobToUint8Array, bitmapToBlob } from "../lib/image/canvas-utils";
+import type * as PdfjsLib from "pdfjs-dist";
 
-// Safari's native ReadableStream lacks async iteration methods pdfjs v6 requires.
-// Replace global with polyfill before importing pdfjs so it uses the polyfill throughout.
-if (
-	typeof ReadableStream !== "undefined" &&
-	(!ReadableStream.prototype[Symbol.asyncIterator] ||
-		!ReadableStream.prototype.values)
-) {
-	(globalThis as unknown as Record<string, unknown>).ReadableStream =
-		PolyReadableStream;
+async function loadPdfjs(): Promise<typeof PdfjsLib> {
+	// Safari's native ReadableStream lacks async iteration methods pdfjs v6 requires.
+	// Polyfill must be patched into globalThis before pdfjs module executes.
+	if (
+		typeof ReadableStream !== "undefined" &&
+		(!ReadableStream.prototype[Symbol.asyncIterator] ||
+			!ReadableStream.prototype.values)
+	) {
+		const { ReadableStream: PolyReadableStream } = await import(
+			"web-streams-polyfill"
+		);
+		(globalThis as unknown as Record<string, unknown>).ReadableStream =
+			PolyReadableStream;
+	}
+	const pdfjsLib = await import("pdfjs-dist");
+	pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+		"pdfjs-dist/build/pdf.worker.min.mjs",
+		import.meta.url,
+	).href;
+	return pdfjsLib;
 }
 
-import * as pdfjsLib from "pdfjs-dist";
-
-// Use fake worker src — pdfjs will fall back to main-thread if worker fails to load
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-	"pdfjs-dist/build/pdf.worker.min.mjs",
-	import.meta.url,
-).href;
-
 async function renderPageToBlob(
-	page: pdfjsLib.PDFPageProxy,
+	page: PdfjsLib.PDFPageProxy,
 	scale = PDF_RENDER_SCALE,
 ): Promise<Blob> {
 	let viewport = page.getViewport({ scale });
@@ -45,7 +48,6 @@ async function renderPageToBlob(
 	const ctx = canvas.getContext("2d");
 	if (!ctx) throw new Error("No canvas context");
 	await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-	// Use canvas.transferToImageBitmap for efficiency, then bitmapToBlob
 	const bitmap = await createImageBitmap(canvas);
 	const blob = await bitmapToBlob(bitmap, "image/jpeg", DEFAULT_JPEG_QUALITY);
 	bitmap.close();
@@ -53,7 +55,7 @@ async function renderPageToBlob(
 }
 
 async function pageHasVectorText(
-	page: pdfjsLib.PDFPageProxy,
+	page: PdfjsLib.PDFPageProxy,
 ): Promise<boolean> {
 	const textContent = await page.getTextContent();
 	return textContent.items.some(
@@ -62,6 +64,8 @@ async function pageHasVectorText(
 }
 
 export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
+	const pdfjsLib = await loadPdfjs();
+
 	const arrayBuffer = await file.arrayBuffer();
 	// Keep original bytes for pdfSource; pass a copy to pdfjs since it transfers the buffer to the worker
 	const pdfBytes = new Uint8Array(arrayBuffer);
