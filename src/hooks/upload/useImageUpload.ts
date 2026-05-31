@@ -1,94 +1,15 @@
 import { useCallback, useState, useEffect } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
-import type { ImageFile } from "../types/image";
+import type { ImageFile } from "../../types/image";
+import { isPdf } from "../../services/fileService";
 import {
-	processFilesWithDuplicateCheck,
-	getFileSignaturesFromImages,
-	revokeImagePreview,
-	createImagePreview,
-	isPdf,
-} from "../services/fileService";
-import { createFileSignature } from "../types/image";
-import { logger } from "../services/logger";
-import { storageService } from "../services/storageService";
-import { pdfToImageFiles } from "../services/pdfImportService";
-import { usePreviewModal } from "./usePreviewModal";
-
-function generateImageId(): string {
-	return `image-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-}
-
-function buildImageFiles(
-	fileList: FileList,
-	existingImages: ImageFile[],
-	allowDuplicates: boolean,
-): ImageFile[] {
-	const existingSignatures = getFileSignaturesFromImages(existingImages);
-	const results = processFilesWithDuplicateCheck(
-		fileList,
-		existingSignatures,
-		allowDuplicates,
-	);
-
-	return results.map((result) => {
-		const id = generateImageId();
-		if ("preview" in result && result.preview) {
-			storageService
-				.saveImage(result.file, id)
-				.catch((err) =>
-					logger.error("Failed to save image to IndexedDB", { id, error: err }),
-				);
-			return { id, file: result.file, preview: result.preview, storageId: id };
-		}
-		logger.warn("File processing error", {
-			fileName: result.file.name,
-			error: "error" in result ? result.error : "Unknown error",
-		});
-		return {
-			id,
-			file: result.file,
-			preview: "",
-			error: "error" in result ? result.error : undefined,
-		};
-	});
-}
-
-function reevaluateDuplicates(
-	images: ImageFile[],
-	allowDuplicates: boolean,
-): ImageFile[] {
-	const seen = new Map<string, number>();
-	return images.map((image) => {
-		const sig = createFileSignature(image.file);
-		const key = sig.name + sig.size + sig.lastModified;
-		const isDuplicate = seen.has(key);
-
-		if (isDuplicate && !allowDuplicates) {
-			if (image.preview) revokeImagePreview(image.preview);
-			return {
-				...image,
-				preview: "",
-				error:
-					"Esta imagen ya se ha cargado anteriormente. Marca la opción 'Permitir imágenes duplicadas' para cargar múltiples copias.",
-			} satisfies ImageFile;
-		}
-
-		if (
-			(!isDuplicate || allowDuplicates) &&
-			!image.preview &&
-			image.error?.includes("ya se ha cargado")
-		) {
-			return {
-				...image,
-				preview: createImagePreview(image.file),
-				error: undefined,
-			} satisfies ImageFile;
-		}
-
-		if (!isDuplicate) seen.set(key, 1);
-		return image;
-	});
-}
+	buildImageFiles,
+	reevaluateDuplicates,
+} from "../../lib/image/file-processing";
+import { logger } from "../../services/logger";
+import { storageService } from "../../services/storageService";
+import { pdfToImageFiles } from "../../services/pdfImportService";
+import { usePreviewModal } from "../ui/usePreviewModal";
 
 export function useImageUpload() {
 	const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
@@ -134,7 +55,7 @@ export function useImageUpload() {
 		setUploadedImages((prev) =>
 			prev.filter((image) => {
 				if (image.id !== imageId) return true;
-				if (image.preview) revokeImagePreview(image.preview);
+				if (image.preview) URL.revokeObjectURL(image.preview);
 				storageService.removeImage(imageId).catch((err) =>
 					logger.error("Failed to remove image from IndexedDB", {
 						id: imageId,
@@ -153,7 +74,7 @@ export function useImageUpload() {
 
 	const clearAllImages = useCallback(() => {
 		setUploadedImages((prev) => {
-			for (const img of prev) if (img.preview) revokeImagePreview(img.preview);
+			for (const img of prev) if (img.preview) URL.revokeObjectURL(img.preview);
 			storageService
 				.clearAll()
 				.catch((err) => logger.error("Failed to clear IndexedDB", err));
@@ -180,9 +101,10 @@ export function useImageUpload() {
 		[processUploadedFiles],
 	);
 
-	const updateImages = useCallback((images: ImageFile[]) => {
-		setUploadedImages(images);
-	}, []);
+	const updateImages = useCallback(
+		(images: ImageFile[]) => setUploadedImages(images),
+		[],
+	);
 
 	useEffect(() => {
 		setUploadedImages((current) => {

@@ -3,7 +3,7 @@ import type {
 	ImageFile,
 	CompressionResult,
 	CompressionPreset,
-} from "../types/image";
+} from "../../types/image";
 
 type CacheEntry = { imageFile: ImageFile; result: CompressionResult };
 type Cache = Map<string, CacheEntry>;

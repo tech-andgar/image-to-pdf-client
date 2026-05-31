@@ -1,4 +1,4 @@
-import { useTheme } from "../../hooks/useTheme";
+import { useTheme } from "../../hooks/ui/useTheme";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PwaRenameBanner } from "./PwaRenameBanner";

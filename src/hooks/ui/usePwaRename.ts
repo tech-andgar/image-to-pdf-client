@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { APP_NAME } from "../config/app";
+import { APP_NAME } from "../../config/app";
 
 const STORAGE_KEY = "pwa-app-name";
 

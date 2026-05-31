@@ -1,17 +1,17 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import type {
 	ImageFile,
 	CompressionResult,
 	CompressionStats,
 	CompressionPreset,
-} from "../types/image";
-import { COMPRESSION_PRESETS } from "../types/image";
+} from "../../types/image";
+import { COMPRESSION_PRESETS } from "../../types/image";
 import {
 	compressImagesBatch,
 	calculateCompressionStats,
-	formatFileSize,
-} from "../services/imageCompressionService";
+} from "../../lib/image/compression";
 import { useCompressionCache } from "./useCompressionCache";
+import { useCompressionStats } from "./useCompressionStats";
 
 export function useImageCompression() {
 	const [isCompressing, setIsCompressing] = useState(false);
@@ -22,6 +22,8 @@ export function useImageCompression() {
 	const [compressionStats, setCompressionStats] =
 		useState<CompressionStats | null>(null);
 	const cache = useCompressionCache();
+	const { formattedStats, hasSignificantSavings } =
+		useCompressionStats(compressionStats);
 
 	const resetState = useCallback(() => {
 		setIsCompressing(false);
@@ -51,15 +53,14 @@ export function useImageCompression() {
 				const toCompress = baseImages.filter(
 					(img) => !cache.get(img.id, activePreset),
 				);
-
 				let freshResults: Awaited<ReturnType<typeof compressImagesBatch>> = [];
+
 				if (toCompress.length > 0) {
 					freshResults = await compressImagesBatch(
 						toCompress.map((img) => img.file),
 						COMPRESSION_PRESETS[activePreset],
 						(progress) => setCompressionProgress(progress),
 					);
-
 					toCompress.forEach((originalImg, i) => {
 						const compressed = freshResults[i];
 						if (!compressed) return;
@@ -102,9 +103,9 @@ export function useImageCompression() {
 					(img) => cache.get(img.id, activePreset)?.imageFile ?? img,
 				);
 			} catch (error) {
-				const message =
-					error instanceof Error ? error.message : "Error en la compresión";
-				setCompressionError(message);
+				setCompressionError(
+					error instanceof Error ? error.message : "Error en la compresión",
+				);
 				throw error;
 			} finally {
 				setIsCompressing(false);
@@ -113,42 +114,21 @@ export function useImageCompression() {
 		[currentPreset, cache],
 	);
 
-	const changePreset = useCallback((preset: CompressionPreset) => {
-		setCurrentPreset(preset);
-	}, []);
-
+	const changePreset = useCallback(
+		(preset: CompressionPreset) => setCurrentPreset(preset),
+		[],
+	);
 	const clearError = useCallback(() => setCompressionError(null), []);
-
 	const isPresetCached = useCallback(
 		(images: ImageFile[], preset?: CompressionPreset) =>
 			cache.isAllCached(images, preset ?? currentPreset),
 		[currentPreset, cache],
 	);
-
 	const resetCompressionState = useCallback(() => resetState(), [resetState]);
-
 	const resetCompression = useCallback(() => {
 		resetState();
 		cache.reset();
 	}, [resetState, cache]);
-
-	const formattedStats = useMemo(() => {
-		if (!compressionStats) return null;
-		return {
-			originalSize: formatFileSize(compressionStats.originalSize),
-			compressedSize: formatFileSize(compressionStats.compressedSize),
-			savingsPercentage: (
-				(1 - compressionStats.compressionRatio) *
-				100
-			).toFixed(1),
-			timeElapsed: `${compressionStats.time_elapsed}ms`,
-		};
-	}, [compressionStats]);
-
-	const hasSignificantSavings = useMemo(
-		() => (compressionStats ? compressionStats.compressionRatio < 0.8 : false),
-		[compressionStats],
-	);
 
 	return {
 		isCompressing,

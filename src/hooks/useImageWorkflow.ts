@@ -1,6 +1,6 @@
-import { useImageUpload } from "./useImageUpload";
-import { usePdfExport } from "./usePdfExport";
-import { useImageCompression } from "./useImageCompression";
+import { useImageUpload } from "./upload/useImageUpload";
+import { usePdfExport } from "./export/usePdfExport";
+import { useImageCompression } from "./compression/useImageCompression";
 import type { CompressionPreset } from "../types/image";
 
 export function useImageWorkflow() {
@@ -19,7 +19,6 @@ export function useImageWorkflow() {
 		compression.resetCompressionState();
 		upload.updateImages(originals);
 
-		// Auto-apply if all images already cached for this preset
 		if (compression.isPresetCached(originals, preset)) {
 			const compressed = await compression.compressImages(originals, preset);
 			upload.updateImages(compressed);
@@ -51,7 +50,6 @@ export function useImageWorkflow() {
 		upload.uploadedImages.every((img) => !!img.pdfSource);
 
 	return {
-		// upload state
 		uploadedImages: upload.uploadedImages,
 		isDragOver: upload.isDragOver,
 		allowDuplicates: upload.allowDuplicates,
@@ -62,12 +60,10 @@ export function useImageWorkflow() {
 		handleDrop,
 		handleFileSelect,
 		handleRemoveImage,
-		// preview modal
 		previewModal: upload.previewModal,
 		openPreviewModal: upload.openPreviewModal,
 		closePreviewModal: upload.closePreviewModal,
 		setPreviewImage: upload.setPreviewImage,
-		// compression
 		isCompressing: compression.isCompressing,
 		compressionError: compression.compressionError,
 		currentPreset: compression.currentPreset,
@@ -79,7 +75,6 @@ export function useImageWorkflow() {
 		allPdfSourced,
 		handleCompress,
 		handlePresetChange,
-		// export
 		isGenerating: export_.isGenerating,
 		isSharing: export_.isSharing,
 		exportError: export_.exportError,

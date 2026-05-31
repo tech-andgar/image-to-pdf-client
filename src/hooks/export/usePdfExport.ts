@@ -1,62 +1,40 @@
 import { useState, useCallback } from "react";
-import type { ImageFile, CompressionPreset } from "../types/image";
-import { generatePDF, downloadPDF, sharePDF } from "../services/pdfService";
-import {
-	sanitizeFilename,
-	generateFallbackFilename,
-} from "../services/fileSanitizer";
+import type { ImageFile, CompressionPreset } from "../../types/image";
+import { generatePDF, downloadPDF, sharePDF } from "../../services/pdf/index";
+import { logger } from "../../services/logger";
+import { useFilename } from "./useFilename";
 
-// Share result type
 export interface ShareResult {
 	success: boolean;
 	method: string;
 	error?: string;
 }
 
-/**
- * Hook for managing PDF export functionality
- */
 export function usePdfExport() {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isSharing, setIsSharing] = useState(false);
 	const [isLoadingLibrary, setIsLoadingLibrary] = useState(false);
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [shareResult, setShareResult] = useState<ShareResult | null>(null);
-	const [filenameInput, setFilenameInput] = useState("");
 	const [lastPdfSize, setLastPdfSize] = useState<number | null>(null);
+	const { filename, previewFilename, setFilename } = useFilename();
 
-	// Compute preview filename (sanitized filename for operations)
-	const previewFilename = filenameInput.trim()
-		? sanitizeFilename(filenameInput)
-		: generateFallbackFilename();
-
-	// Handle filename changes (raw user input for UI display)
-	const setFilename = useCallback((filename: string) => {
-		setFilenameInput(filename);
-	}, []);
-
-	/**
-	 * Generates and downloads a PDF from the provided ImageFiles array
-	 */
 	const exportToPDF = useCallback(
 		async (images: ImageFile[], preset?: CompressionPreset) => {
 			if (images.length === 0) {
 				setExportError("No hay imágenes para exportar");
 				return;
 			}
-
 			setIsGenerating(true);
 			setIsLoadingLibrary(true);
 			setExportError(null);
-
 			try {
 				const pdfBytes = await generatePDF(images, preset);
 				setIsLoadingLibrary(false);
 				setLastPdfSize(pdfBytes.length);
 				downloadPDF(pdfBytes, previewFilename);
-				setExportError(null);
 			} catch (error) {
-				console.error("Error exporting PDF:", error);
+				logger.error("Error exporting PDF", error);
 				setExportError(
 					error instanceof Error ? error.message : "Error al exportar PDF",
 				);
@@ -68,9 +46,6 @@ export function usePdfExport() {
 		[previewFilename],
 	);
 
-	/**
-	 * Shares a PDF using Web Share API or fallback options
-	 */
 	const shareToPDF = useCallback(
 		async (images: ImageFile[], preset?: CompressionPreset) => {
 			if (images.length === 0) {
@@ -81,24 +56,17 @@ export function usePdfExport() {
 				});
 				return;
 			}
-
 			setIsSharing(true);
 			setIsLoadingLibrary(true);
 			setShareResult(null);
-
 			try {
 				const pdfBytes = await generatePDF(images, preset);
 				setIsLoadingLibrary(false);
-
 				const result = await sharePDF(pdfBytes, previewFilename);
 				setShareResult(result);
-
-				// Clear error state if share was successful or had a fallback
-				if (result.success) {
-					setExportError(null);
-				}
+				if (result.success) setExportError(null);
 			} catch (error) {
-				console.error("Error sharing PDF:", error);
+				logger.error("Error sharing PDF", error);
 				setShareResult({
 					success: false,
 					method: "none",
@@ -113,19 +81,8 @@ export function usePdfExport() {
 		[previewFilename],
 	);
 
-	/**
-	 * Clears the current export error
-	 */
-	const clearExportError = useCallback(() => {
-		setExportError(null);
-	}, []);
-
-	/**
-	 * Clears the current share result
-	 */
-	const clearShareResult = useCallback(() => {
-		setShareResult(null);
-	}, []);
+	const clearExportError = useCallback(() => setExportError(null), []);
+	const clearShareResult = useCallback(() => setShareResult(null), []);
 
 	return {
 		isGenerating,
@@ -138,8 +95,8 @@ export function usePdfExport() {
 		shareResult,
 		shareToPDF,
 		clearShareResult,
-		filename: filenameInput,
-		setFilename: setFilename,
+		filename,
+		setFilename,
 		previewFilename,
 		lastPdfSize,
 	};

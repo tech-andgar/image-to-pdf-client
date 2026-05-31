@@ -1,6 +1,6 @@
 import { RefreshCw, X } from "lucide-react";
 import { APP_NAME } from "../../config/app";
-import { usePwaRename } from "../../hooks/usePwaRename";
+import { usePwaRename } from "../../hooks/ui/usePwaRename";
 
 export function PwaRenameBanner() {
 	const { showBanner, dismiss } = usePwaRename();
