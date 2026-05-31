@@ -4,14 +4,7 @@ import {
 	type PDFDocument,
 	type PDFRef,
 } from "pdf-lib";
-import { deflate } from "fflate";
 import type { CompressedXObject } from "./types";
-
-function deflateAsync(data: Uint8Array): Promise<Uint8Array> {
-	return new Promise((resolve, reject) =>
-		deflate(data, (err, result) => (err ? reject(err) : resolve(result))),
-	);
-}
 
 /**
  * Writes a CompressedXObject back into the PDFDocument context,
