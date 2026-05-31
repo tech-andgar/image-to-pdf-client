@@ -22,12 +22,21 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 ).href;
 
 const MAX_PDF_PAGES = 100;
+const MAX_CANVAS_PIXELS = 16_777_216; // 4096x4096 — safe for all browsers
 
 async function renderPageToBlob(
 	page: pdfjsLib.PDFPageProxy,
 	scale = 2,
 ): Promise<Blob> {
-	const viewport = page.getViewport({ scale });
+	let viewport = page.getViewport({ scale });
+
+	// Clamp scale to avoid oversized canvases
+	const pixels = viewport.width * viewport.height;
+	if (pixels > MAX_CANVAS_PIXELS) {
+		const clampedScale = scale * Math.sqrt(MAX_CANVAS_PIXELS / pixels);
+		viewport = page.getViewport({ scale: clampedScale });
+	}
+
 	const canvas = document.createElement("canvas");
 	canvas.width = viewport.width;
 	canvas.height = viewport.height;
