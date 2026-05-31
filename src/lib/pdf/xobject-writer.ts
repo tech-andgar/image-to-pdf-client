@@ -41,20 +41,11 @@ export async function writeCompressedXObject(
 		Filter: PDFName.of("DCTDecode"),
 	} as LiteralDict;
 
-	if (result.alphaMask) {
-		const compressedAlpha = await deflateAsync(result.alphaMask);
-		const maskStream = pdfDoc.context.stream(compressedAlpha, {
-			Type: "XObject",
-			Subtype: "Image",
-			Width: result.width,
-			Height: result.height,
-			ColorSpace: PDFName.of("DeviceGray"),
-			BitsPerComponent: 8,
-			Filter: PDFName.of("FlateDecode"),
-		} as LiteralDict);
-		(streamDict as Record<string, unknown>).SMask =
-			pdfDoc.context.register(maskStream);
-	}
+	// Preserve original SMask/Mask refs — the existing alpha mask is correct; don't replace it
+	const sMaskRef = dict.get(PDFName.of("SMask"));
+	const maskRef = dict.get(PDFName.of("Mask"));
+	if (sMaskRef) (streamDict as Record<string, unknown>).SMask = sMaskRef;
+	if (maskRef) (streamDict as Record<string, unknown>).Mask = maskRef;
 
 	pdfDoc.context.assign(ref, pdfDoc.context.stream(result.bytes, streamDict));
 	return true;

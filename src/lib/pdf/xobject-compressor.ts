@@ -1,10 +1,6 @@
 import type { CompressedXObject, CompressOptions, PdfXObject } from "./types";
 import { findDecoder } from "./image-decoders";
-import {
-	bitmapToBlob,
-	blobToUint8Array,
-	extractRgbAndAlpha,
-} from "../image/canvas-utils";
+import { bitmapToBlob, blobToUint8Array } from "../image/canvas-utils";
 
 export async function compressXObject(
 	xobj: PdfXObject,
@@ -17,19 +13,11 @@ export async function compressXObject(
 		const bitmap = await decoder.decode(xobj);
 
 		if (xobj.hasMask) {
-			// Split: RGB → JPEG, alpha → raw grayscale for SMask
-			const { rgbJpeg, alphaRaw } = await extractRgbAndAlpha(
-				bitmap,
-				options.quality,
-			);
+			// Compress RGB only — the existing SMask ref in the PDF will be preserved by the writer
+			const blob = await bitmapToBlob(bitmap, "image/jpeg", options.quality);
 			bitmap.close();
-			return {
-				name: xobj.name,
-				bytes: rgbJpeg,
-				width: xobj.width,
-				height: xobj.height,
-				alphaMask: alphaRaw,
-			};
+			const bytes = await blobToUint8Array(blob);
+			return { name: xobj.name, bytes, width: xobj.width, height: xobj.height };
 		}
 
 		const blob = await bitmapToBlob(bitmap, options.mimeType, options.quality);

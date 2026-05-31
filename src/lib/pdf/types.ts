@@ -17,8 +17,6 @@ export interface CompressedXObject {
 	bytes: Uint8Array;
 	width: number;
 	height: number;
-	/** Raw grayscale alpha bytes (1 per pixel) when source had transparency */
-	alphaMask?: Uint8Array;
 }
 
 export interface ImageDecoder {
