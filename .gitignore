@@ -76,3 +76,4 @@ dist-ssr
 /opencode.json
 /opencode.json.bak
 # END Ruler Generated Files
+.envrc
