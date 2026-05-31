@@ -11,7 +11,6 @@ export { MAX_PDF_PAGES, PDF_RENDER_SCALE } from "./pdf.config";
 
 export {
 	MAX_LOG_ENTRIES,
-	MAX_METRIC_ENTRIES,
 	LOG_FLUSH_DEBOUNCE_MS,
 	STORAGE_KEYS,
 } from "./storage.config";
