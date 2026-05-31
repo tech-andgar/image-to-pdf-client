@@ -3,7 +3,6 @@ import type { ImageFile } from "../../types/image";
 import { isPdf } from "../../services/file/fileService";
 import { buildImageFiles } from "../../lib/image/file-processing";
 import { logger } from "../../services/logger";
-import { pdfToImageFiles } from "../../services/pdfImportService";
 
 export function useFileProcessor(allowDuplicates: boolean) {
 	const processFiles = useCallback(
@@ -19,6 +18,9 @@ export function useFileProcessor(allowDuplicates: boolean) {
 
 			let pdfImages: ImageFile[] = [];
 			if (pdfFiles.length > 0) {
+				const { pdfToImageFiles } = await import(
+					"../../services/pdfImportService"
+				);
 				pdfImages = (
 					await Promise.all(pdfFiles.map((pdf) => pdfToImageFiles(pdf)))
 				).flat();
