@@ -2,6 +2,7 @@ import { useTheme } from "../../hooks/ui/useTheme";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PwaRenameBanner } from "./PwaRenameBanner";
+import { CookieConsent } from "./CookieConsent";
 
 interface MainLayoutProps {
 	children: React.ReactNode;
@@ -18,6 +19,7 @@ export function MainLayout({ children }: Readonly<MainLayoutProps>) {
 					{children}
 				</div>
 			</main>
+			<CookieConsent />
 			<Footer />
 		</div>
 	);

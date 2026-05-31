@@ -19,11 +19,16 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Google Analytics with Partytown -->
+    <!-- Google Analytics with Partytown + Consent Mode v2 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4N51HKGYV5" type="text/partytown"></script>
     <script type="text/partytown">
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        wait_for_update: 500
+      });
       gtag('js', new Date());
       gtag('config', 'G-4N51HKGYV5', {
         anonymize_ip: true,
