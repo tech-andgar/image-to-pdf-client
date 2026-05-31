@@ -63,15 +63,13 @@ class ConsentService {
 
 	applyToGtag() {
 		if (!window.gtag) return;
-		if (this.state.analytics) {
-			window.gtag("consent", "update", {
-				analytics_storage: "granted",
-			});
-		} else {
-			window.gtag("consent", "update", {
-				analytics_storage: "denied",
-			});
-		}
+		const granted = this.state.analytics ? "granted" : "denied";
+		window.gtag("consent", "update", {
+			analytics_storage: granted,
+			ad_storage: "denied",
+			ad_user_data: "denied",
+			ad_personalization: "denied",
+		});
 	}
 
 	private load(): ConsentState {
