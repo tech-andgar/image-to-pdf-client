@@ -12,6 +12,10 @@ function cacheKey(imageId: string, preset: CompressionPreset) {
 	return `${imageId}:${preset}`;
 }
 
+function revokeEntry(entry: CacheEntry) {
+	if (entry.imageFile.preview) URL.revokeObjectURL(entry.imageFile.preview);
+}
+
 export function useCompressionCache() {
 	const originalsRef = useRef<ImageFile[] | null>(null);
 	const cacheRef = useRef<Cache>(new Map());
@@ -31,7 +35,10 @@ export function useCompressionCache() {
 
 	const set = useCallback(
 		(imageId: string, preset: CompressionPreset, entry: CacheEntry) => {
-			cacheRef.current.set(cacheKey(imageId, preset), entry);
+			const key = cacheKey(imageId, preset);
+			const existing = cacheRef.current.get(key);
+			if (existing) revokeEntry(existing);
+			cacheRef.current.set(key, entry);
 		},
 		[],
 	);
@@ -44,6 +51,7 @@ export function useCompressionCache() {
 	);
 
 	const reset = useCallback(() => {
+		for (const entry of cacheRef.current.values()) revokeEntry(entry);
 		originalsRef.current = null;
 		cacheRef.current = new Map();
 	}, []);
