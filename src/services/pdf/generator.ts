@@ -72,7 +72,7 @@ export class PdfGenerator {
 
 		for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
 			const sourceBytesToLoad = preset
-				? await compressAllPdfImages(pdfBytes, {
+				? await compressAllPdfImages(pdfLib, pdfBytes, {
 						quality: COMPRESSION_PRESETS[preset].quality,
 						mimeType: "image/jpeg",
 					})
