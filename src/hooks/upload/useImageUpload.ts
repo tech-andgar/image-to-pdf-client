@@ -4,7 +4,19 @@ import type { ImageFile } from "../../types/image";
 import { reevaluateDuplicates } from "../../lib/image/file-processing";
 import { logger } from "../../services/logger";
 import { storageService } from "../../services/storageService";
+import { userMetrics } from "../../services/userMetrics";
+import { analytics } from "../../core/analytics";
 import { useFileProcessor } from "./useFileProcessor";
+
+function cleanupImage(image: ImageFile) {
+	if (image.preview) URL.revokeObjectURL(image.preview);
+	storageService.removeImage(image.id).catch((err) =>
+		logger.error("Failed to remove image from IndexedDB", {
+			id: image.id,
+			error: err,
+		}),
+	);
+}
 
 export function useImageUpload() {
 	const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
@@ -20,13 +32,18 @@ export function useImageUpload() {
 				return c;
 			});
 
+			analytics.timeStart("file_processing");
 			const { pdfImages, regularImages } = await processFiles(
 				fileList,
 				currentSnapshot,
 			);
+			analytics.timeEnd("file_processing");
+
 			const newImages = [...pdfImages, ...regularImages];
 			if (newImages.length > 0) {
 				setUploadedImages((prev) => [...prev, ...newImages]);
+				const totalSize = newImages.reduce((s, img) => s + img.file.size, 0);
+				userMetrics.trackFileUploaded(newImages.length, totalSize);
 			}
 		},
 		[processFiles],
@@ -36,13 +53,8 @@ export function useImageUpload() {
 		setUploadedImages((prev) =>
 			prev.filter((image) => {
 				if (image.id !== imageId) return true;
-				if (image.preview) URL.revokeObjectURL(image.preview);
-				storageService.removeImage(imageId).catch((err) =>
-					logger.error("Failed to remove image from IndexedDB", {
-						id: imageId,
-						error: err,
-					}),
-				);
+				cleanupImage(image);
+				userMetrics.trackImageRemoved();
 				return false;
 			}),
 		);
@@ -50,15 +62,12 @@ export function useImageUpload() {
 
 	const reorderImages = useCallback((oldIndex: number, newIndex: number) => {
 		setUploadedImages((prev) => arrayMove(prev, oldIndex, newIndex));
-		logger.trackUserAction("image reordered", { from: oldIndex, to: newIndex });
+		userMetrics.trackImageReordered();
 	}, []);
 
 	const clearAllImages = useCallback(() => {
 		setUploadedImages((prev) => {
-			for (const img of prev) if (img.preview) URL.revokeObjectURL(img.preview);
-			storageService
-				.clearAll()
-				.catch((err) => logger.error("Failed to clear IndexedDB", err));
+			for (const img of prev) cleanupImage(img);
 			return [];
 		});
 	}, []);

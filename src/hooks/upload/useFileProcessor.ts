@@ -12,7 +12,7 @@ export function useFileProcessor(allowDuplicates: boolean) {
 			currentImages: ImageFile[],
 		): Promise<{ pdfImages: ImageFile[]; regularImages: ImageFile[] }> => {
 			const filesArray = Array.from(fileList);
-			logger.trackFileOperation("upload started", filesArray.length, 0);
+			logger.info("File upload started", { fileCount: filesArray.length });
 
 			const pdfFiles = filesArray.filter(isPdf);
 			const imageFiles = filesArray.filter((f) => !isPdf(f));
@@ -34,11 +34,10 @@ export function useFileProcessor(allowDuplicates: boolean) {
 					allowDuplicates,
 				);
 				const successCount = regularImages.filter((img) => !img.error).length;
-				logger.trackFileOperation(
-					"upload completed",
-					successCount,
-					regularImages.reduce((t, img) => t + img.file.size, 0),
-				);
+				logger.info("File upload completed", {
+					fileCount: successCount,
+					totalSize: regularImages.reduce((t, img) => t + img.file.size, 0),
+				});
 			}
 
 			return { pdfImages, regularImages };

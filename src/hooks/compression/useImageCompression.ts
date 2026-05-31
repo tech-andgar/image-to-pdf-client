@@ -10,6 +10,8 @@ import {
 	compressImagesBatch,
 	calculateCompressionStats,
 } from "../../lib/image/compression";
+import { userMetrics } from "../../services/userMetrics";
+import { analytics } from "../../core/analytics";
 import { useCompressionCache } from "./useCompressionCache";
 import { useCompressionStats } from "./useCompressionStats";
 
@@ -49,6 +51,7 @@ export function useImageCompression() {
 
 			try {
 				const startTime = Date.now();
+				analytics.timeStart("image_compression");
 
 				const toCompress = baseImages.filter(
 					(img) => !cache.get(img.id, activePreset),
@@ -98,6 +101,15 @@ export function useImageCompression() {
 				stats.time_elapsed = Date.now() - startTime;
 				setCompressionStats(stats);
 				setCompressionProgress(1);
+				analytics.timeEnd("image_compression");
+
+				const reductionPercent =
+					stats.totalOriginalSize > 0
+						? Math.round(
+								(1 - stats.totalCompressedSize / stats.totalOriginalSize) * 100,
+							)
+						: 0;
+				userMetrics.trackCompressionUsed(activePreset, reductionPercent);
 
 				return baseImages.map(
 					(img) => cache.get(img.id, activePreset)?.imageFile ?? img,

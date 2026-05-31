@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { userMetrics } from "../../services/userMetrics";
 
 interface PreviewModalState {
 	isOpen: boolean;
@@ -13,6 +14,7 @@ export function usePreviewModal() {
 
 	const openPreviewModal = useCallback((imageIndex: number) => {
 		setPreviewModal({ isOpen: true, currentIndex: imageIndex });
+		userMetrics.trackImagePreviewed();
 	}, []);
 
 	const closePreviewModal = useCallback(() => {
