@@ -1,3 +1,50 @@
+import { clampDimensions, DEFAULT_JPEG_QUALITY } from "../../config/limits";
+
+/**
+ * Converts any browser-supported image format to embeddable JPEG or PNG bytes.
+ * Non-JPEG/PNG inputs are rasterised via canvas at the clamped safe dimensions.
+ */
+export async function toEmbeddableImageBytes(
+	bytes: Uint8Array,
+	mimeType: string,
+): Promise<{ bytes: Uint8Array; type: "image/jpeg" | "image/png" }> {
+	if (mimeType === "image/jpeg" || mimeType === "image/jpg") {
+		return { bytes, type: "image/jpeg" };
+	}
+	if (mimeType === "image/png") {
+		return { bytes, type: "image/png" };
+	}
+
+	const blobUrl = URL.createObjectURL(
+		new Blob([bytes.buffer as ArrayBuffer], { type: mimeType }),
+	);
+	try {
+		const img = await loadImageFromUrl(blobUrl);
+		const { width, height } = clampDimensions(
+			img.naturalWidth,
+			img.naturalHeight,
+		);
+
+		const canvas = document.createElement("canvas");
+		canvas.width = width;
+		canvas.height = height;
+		const ctx = canvas.getContext("2d");
+		if (!ctx) throw new Error("No canvas context");
+		ctx.drawImage(img, 0, 0, width, height);
+
+		const blob = await new Promise<Blob>((resolve, reject) =>
+			canvas.toBlob(
+				(b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
+				"image/jpeg",
+				DEFAULT_JPEG_QUALITY,
+			),
+		);
+		return { bytes: await blobToUint8Array(blob), type: "image/jpeg" };
+	} finally {
+		URL.revokeObjectURL(blobUrl);
+	}
+}
+
 export function bitmapToBlob(
 	bitmap: ImageBitmap,
 	mimeType: "image/jpeg" | "image/webp",
