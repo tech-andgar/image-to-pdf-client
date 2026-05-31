@@ -155,8 +155,17 @@ pnpm run format   # Format code with Biome
 ```
 📁 Project Structure
 ├── 📁 src/
+│   ├── 📁 core/                    # Reusable cross-project modules (no app dependencies)
+│   │   ├── 📁 logger/             # LoggerService — configurable, debounced, localStorage-backed
+│   │   ├── 📁 image/             # clampDimensions, magic-byte validation, canvas limits
+│   │   └── 📁 storage/           # StorageAdapter interface + localStorage adapter
 │   ├── 📁 config/
-│   │   └── app.ts                  # APP_NAME, APP_SHORT_NAME — single source of truth
+│   │   ├── app.ts                  # APP_NAME, APP_SHORT_NAME — single source of truth
+│   │   ├── image.config.ts         # MAX_FILE_SIZE, JPEG_QUALITY, re-exports core/image
+│   │   ├── pdf.config.ts           # MAX_PDF_PAGES, PDF_RENDER_SCALE
+│   │   ├── storage.config.ts       # STORAGE_KEYS, re-exports core/logger config
+│   │   ├── ui.config.ts            # DRAG_ACTIVATION_DISTANCE
+│   │   └── limits.ts               # Barrel re-export for backwards compatibility
 │   ├── 📁 lib/
 │   │   ├── 📁 image/
 │   │   │   ├── canvas-utils.ts     # Primitive canvas/blob helpers
@@ -201,10 +210,13 @@ pnpm run format   # Format code with Biome
 ### Architectural Principles
 
 - **Clean Architecture**: Separation of concerns with clear layer boundaries
+- **Reusable Core**: `src/core/` contains framework-agnostic modules portable to any project
+- **Centralized Config**: All magic numbers/strings in domain-specific config files
 - **Type Safety**: 100% TypeScript strict mode with shared interfaces
 - **Composition over Inheritance**: React functional components with hooks
 - **Accessibility First**: WCAG 2.1 compliant with keyboard navigation
 - **Performance**: Code splitting, lazy loading, and optimized bundles
+- **Security**: Magic-byte validation, decompression bomb protection, MIME spoofing prevention
 
 ---
 

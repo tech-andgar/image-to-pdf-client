@@ -7,7 +7,7 @@ export function Head() {
 			<Partytown
 				debug={false}
 				forward={["dataLayer.push", "gtag"]}
-				lib="/image-to-pdf-client-public/~partytown/"
+				lib={`${import.meta.env.BASE_URL}~partytown/`}
 			/>
 		</>
 	);

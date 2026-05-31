@@ -6,30 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>__APP_NAME__</title>
     <meta name="description" content="__APP_DESCRIPTION__" />
+    <!-- Partytown: run third-party scripts in web worker -->
+    <script>
+      partytown = {
+        lib: "__APP_BASE__~partytown/",
+        forward: ["dataLayer.push", "gtag"]
+      };
+    </script>
+    <script src="__APP_BASE__~partytown/partytown.js"></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Google Analytics with Partytown (official implementation) -->
-    <script type="text/partytown">
-      (function() {
-        // Mount the dataLayer to window, forwarding to Partytown's worker for processing
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date().toISOString());
-        gtag('set', 'developer_id.dZjNhNU', true);
-        gtag('config', 'G-4N51HKGYV5', {
-          anonymize_ip: true,
-          allow_google_signals: false,
-          allow_ad_personalization_signals: false,
-          allow_custom_scripts: false,
-          custom_map: {'dimension1': 'page_location'},
-          send_page_view: false
-        });
-      })();
-    </script>
+    <!-- Google Analytics with Partytown -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4N51HKGYV5" type="text/partytown"></script>
+    <script type="text/partytown">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4N51HKGYV5', {
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+    </script>
   </body>
 </html>

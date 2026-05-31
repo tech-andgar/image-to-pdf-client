@@ -9,12 +9,14 @@ import {
 } from "./src/config/app.config.js";
 
 function htmlAppMetaPlugin() {
+	const base = process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/";
 	return {
 		name: "html-app-meta",
 		transformIndexHtml(html) {
 			return html
 				.replace(/__APP_NAME__/g, APP_NAME)
-				.replace(/__APP_DESCRIPTION__/g, APP_DESCRIPTION);
+				.replace(/__APP_DESCRIPTION__/g, APP_DESCRIPTION)
+				.replace(/__APP_BASE__/g, base);
 		},
 	};
 }
