@@ -18,6 +18,7 @@ interface CompressionControlsProps {
 	} | null;
 	readonly hasSignificantSavings: boolean;
 	readonly isPresetCached: boolean;
+	readonly allPdfSourced: boolean;
 	readonly onCompress: () => void;
 	readonly onPresetChange: (preset: CompressionPreset) => void;
 	readonly onClearError: () => void;
@@ -41,6 +42,7 @@ export function CompressionControls({
 	formattedStats,
 	hasSignificantSavings,
 	isPresetCached,
+	allPdfSourced,
 	onCompress,
 	onPresetChange,
 	onClearError,
@@ -74,7 +76,54 @@ export function CompressionControls({
 			</button>
 
 			{/* Collapsible body */}
-			{open && (
+			{open && allPdfSourced && (
+				<div className="px-4 pb-4 space-y-3 border-t">
+					<div className="pt-3 space-y-2">
+						<p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+							Calidad
+						</p>
+						<div className="grid grid-cols-4 gap-1.5">
+							{(Object.keys(PRESET_LABELS) as CompressionPreset[]).map(
+								(preset) => {
+									const active = currentPreset === preset;
+									return (
+										<button
+											key={preset}
+											type="button"
+											onClick={() => onPresetChange(preset)}
+											disabled={isCompressing}
+											className={
+												active
+													? "flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100"
+													: "flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-white text-zinc-900 border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 dark:bg-zinc-950 dark:text-zinc-100 dark:border-zinc-700 dark:hover:border-zinc-500"
+											}
+										>
+											<span className="font-medium leading-tight">
+												{PRESET_LABELS[preset].label}
+											</span>
+											<span
+												className={
+													active
+														? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-600"
+														: "text-[10px] leading-tight mt-0.5 text-zinc-500"
+												}
+											>
+												{PRESET_LABELS[preset].description}
+											</span>
+										</button>
+									);
+								},
+							)}
+						</div>
+					</div>
+					<p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2.5">
+						El preset se aplica al exportar — texto e vectores se preservan,
+						solo las imágenes embebidas se comprimen.
+					</p>
+				</div>
+			)}
+
+			{open && !allPdfSourced && (
 				<div className="px-4 pb-4 space-y-3 border-t">
 					{/* Preset grid */}
 					<div className="pt-3 space-y-2">

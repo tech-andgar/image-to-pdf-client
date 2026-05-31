@@ -29,6 +29,7 @@ export function ImageUploader() {
 		hasSignificantSavings,
 		clearCompressionError,
 		currentPresetCached,
+		allPdfSourced,
 		handleCompress,
 		handlePresetChange,
 		isGenerating,
@@ -90,6 +91,7 @@ export function ImageUploader() {
 					formattedStats={formattedStats}
 					hasSignificantSavings={hasSignificantSavings}
 					isPresetCached={currentPresetCached}
+					allPdfSourced={allPdfSourced}
 					onCompress={handleCompress}
 					onPresetChange={handlePresetChange}
 					onClearError={clearCompressionError}

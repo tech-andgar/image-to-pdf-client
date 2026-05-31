@@ -46,6 +46,10 @@ export function useImageWorkflow() {
 		compression.currentPreset,
 	);
 
+	const allPdfSourced =
+		upload.uploadedImages.length > 0 &&
+		upload.uploadedImages.every((img) => !!img.pdfSource);
+
 	return {
 		// upload state
 		uploadedImages: upload.uploadedImages,
@@ -72,6 +76,7 @@ export function useImageWorkflow() {
 		hasSignificantSavings: compression.hasSignificantSavings,
 		clearCompressionError: compression.clearError,
 		currentPresetCached,
+		allPdfSourced,
 		handleCompress,
 		handlePresetChange,
 		// export
