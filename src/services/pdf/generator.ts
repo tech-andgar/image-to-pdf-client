@@ -160,23 +160,15 @@ export class PdfGenerator {
 		return this.fileToUint8Array(image.file);
 	}
 
-	private fileToUint8Array(file: File | Blob): Promise<Uint8Array> {
-		return new Promise((resolve, reject) => {
-			const reader = new FileReader();
-			reader.onload = () =>
-				reader.result instanceof ArrayBuffer
-					? resolve(new Uint8Array(reader.result))
-					: reject(new Error("Failed to read file"));
-			reader.onerror = () =>
-				reject(new Error(reader.error?.message ?? "Failed to read file"));
-			reader.readAsArrayBuffer(file);
-		});
+	private async fileToUint8Array(file: File | Blob): Promise<Uint8Array> {
+		return new Uint8Array(await file.arrayBuffer());
 	}
 
 	private async convertToJpeg(
 		bytes: Uint8Array,
 		mimeType: string,
 	): Promise<Uint8Array> {
+		const MAX_PIXELS = 16_777_216;
 		const blobUrl = URL.createObjectURL(
 			new Blob([bytes.buffer as ArrayBuffer], { type: mimeType }),
 		);
@@ -184,12 +176,18 @@ export class PdfGenerator {
 			return await new Promise<Uint8Array>((resolve, reject) => {
 				const img = new Image();
 				img.onload = () => {
+					let { naturalWidth: w, naturalHeight: h } = img;
+					if (w * h > MAX_PIXELS) {
+						const scale = Math.sqrt(MAX_PIXELS / (w * h));
+						w = Math.round(w * scale);
+						h = Math.round(h * scale);
+					}
 					const canvas = document.createElement("canvas");
-					canvas.width = img.naturalWidth;
-					canvas.height = img.naturalHeight;
+					canvas.width = w;
+					canvas.height = h;
 					const ctx = canvas.getContext("2d");
 					if (!ctx) return reject(new Error("No canvas context"));
-					ctx.drawImage(img, 0, 0);
+					ctx.drawImage(img, 0, 0, w, h);
 					canvas.toBlob(
 						(b) => {
 							if (!b) return reject(new Error("toBlob failed"));
