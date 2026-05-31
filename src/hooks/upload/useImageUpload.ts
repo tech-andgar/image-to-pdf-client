@@ -3,8 +3,8 @@ import { arrayMove } from "@dnd-kit/sortable";
 import type { ImageFile } from "../../types/image";
 import { reevaluateDuplicates } from "../../lib/image/file-processing";
 import { logger } from "../../services/logger";
-import { storageService } from "../../services/storageService";
-import { userMetrics } from "../../services/userMetrics";
+import { storageService } from "../../services/storage/storageService";
+import { userMetrics } from "../../services/privacy/userMetrics";
 import { analytics } from "../../core/analytics";
 import { useFileProcessor } from "./useFileProcessor";
 

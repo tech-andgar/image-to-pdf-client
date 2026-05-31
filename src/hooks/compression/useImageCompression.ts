@@ -10,7 +10,7 @@ import {
 	compressImagesBatch,
 	calculateCompressionStats,
 } from "../../lib/image/compression";
-import { userMetrics } from "../../services/userMetrics";
+import { userMetrics } from "../../services/privacy/userMetrics";
 import { analytics } from "../../core/analytics";
 import { useCompressionCache } from "./useCompressionCache";
 import { useCompressionStats } from "./useCompressionStats";

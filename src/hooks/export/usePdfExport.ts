@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import type { ImageFile, CompressionPreset } from "../../types/image";
 import { generatePDF, downloadPDF, sharePDF } from "../../services/pdf/index";
 import { logger } from "../../services/logger";
-import { userMetrics } from "../../services/userMetrics";
+import { userMetrics } from "../../services/privacy/userMetrics";
 import { analytics } from "../../core/analytics";
 import { useFilename } from "./useFilename";
 

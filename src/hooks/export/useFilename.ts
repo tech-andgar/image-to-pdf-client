@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import {
 	sanitizeFilename,
 	generateFallbackFilename,
-} from "../../services/fileSanitizer";
+} from "../../services/file/fileSanitizer";
 
 export function useFilename() {
 	const [filenameInput, setFilenameInput] = useState("");

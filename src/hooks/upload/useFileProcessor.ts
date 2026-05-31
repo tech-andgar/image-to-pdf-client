@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import type { ImageFile } from "../../types/image";
-import { isPdf } from "../../services/fileService";
+import { isPdf } from "../../services/file/fileService";
 import { buildImageFiles } from "../../lib/image/file-processing";
 import { logger } from "../../services/logger";
 import { pdfToImageFiles } from "../../services/pdfImportService";

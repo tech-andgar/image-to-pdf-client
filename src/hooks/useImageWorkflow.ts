@@ -1,7 +1,7 @@
 import { useImageUpload } from "./upload/useImageUpload";
 import { usePdfExport } from "./export/usePdfExport";
 import { useImageCompression } from "./compression/useImageCompression";
-import { usePreviewModal } from "./ui/usePreviewModal";
+import { usePreviewModal } from "./preview/usePreviewModal";
 import type { CompressionPreset } from "../types/image";
 
 export function useImageWorkflow() {
