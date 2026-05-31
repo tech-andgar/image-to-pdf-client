@@ -1,4 +1,5 @@
 import { FileImage } from "lucide-react";
+import { APP_NAME } from "../../config/app";
 
 export function Header() {
 	return (
@@ -6,7 +7,7 @@ export function Header() {
 			<div className="max-w-2xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-center gap-2">
 				<FileImage className="h-5 w-5 text-foreground shrink-0" />
 				<h1 className="text-base font-semibold text-foreground tracking-tight">
-					Imágenes a PDF
+					{APP_NAME}
 				</h1>
 			</div>
 		</header>
