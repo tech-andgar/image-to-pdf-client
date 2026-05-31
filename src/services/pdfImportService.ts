@@ -40,11 +40,19 @@ export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 			{ type: "image/jpeg" },
 		);
 
+		const textContent = await page.getTextContent();
+		const hasVectorText = textContent.items.some(
+			(item) => "str" in item && item.str.trim().length > 0,
+		);
+
 		results.push({
 			id: `pdf-${file.name}-p${pageNum}-${Date.now()}`,
 			file: pageFile,
 			preview: URL.createObjectURL(blob),
-			pdfSource: { pdfBytes, pageIndex: pageNum - 1 },
+			// Only preserve pdfSource for pages with vector text — image-only pages go through compression
+			...(hasVectorText
+				? { pdfSource: { pdfBytes, pageIndex: pageNum - 1 } }
+				: {}),
 		});
 	}
 
