@@ -156,6 +156,13 @@ pnpm run format   # Format code with Biome
 📁 Project Structure
 ├── 📁 src/
 │   ├── 📁 core/                    # Reusable cross-project modules (no app dependencies)
+│   │   ├── 📁 analytics/         # Multi-provider analytics system
+│   │   │   ├── types.ts          # AnalyticsEvent, Provider interface, Config
+│   │   │   ├── detect.ts         # Device/environment auto-detection
+│   │   │   ├── service.ts        # AnalyticsService — dispatch, queue, timing
+│   │   │   ├── base-provider.ts  # Abstract class with category routing (Template Method)
+│   │   │   ├── setup.ts          # Factory registration (wiring)
+│   │   │   └── 📁 providers/    # GA4, Datadog, Sentry, FullStory, Mixpanel, Hotjar, PostHog, Amplitude, Firebase
 │   │   ├── 📁 logger/             # LoggerService — configurable, debounced, localStorage-backed
 │   │   ├── 📁 image/             # clampDimensions, magic-byte validation, canvas limits
 │   │   └── 📁 storage/           # StorageAdapter interface + localStorage adapter
@@ -182,7 +189,7 @@ pnpm run format   # Format code with Biome
 │   │   ├── 📁 ui/          # shadcn/ui reusable components
 │   │   ├── 📁 compression/ # CompressionControls
 │   │   ├── 📁 export/      # ExportSection, FilenameInput
-│   │   ├── 📁 layout/      # Header, Footer, MainLayout, PwaRenameBanner
+│   │   ├── 📁 layout/      # Header, Footer, MainLayout, PwaRenameBanner, CookieConsent, PrivacyModal
 │   │   ├── 📁 preview/     # ImagePreviewGrid, ImagePreviewModal, SortableImageItem
 │   │   └── 📁 upload/      # UploadArea
 │   ├── 📁 hooks/
@@ -198,7 +205,9 @@ pnpm run format   # Format code with Biome
 │   │   ├── pdfImportService.ts     # PDF → ImageFile[] via pdfjs-dist
 │   │   ├── shareService.ts
 │   │   ├── storageService.ts       # IndexedDB (ArrayBuffer, Safari-safe)
-│   │   └── logger.ts
+│   │   ├── logger.ts               # AppLoggerService extends core/logger
+│   │   ├── userMetrics.ts          # Domain-specific analytics events
+│   │   └── consent.ts              # GDPR consent management + Consent Mode v2
 │   ├── 📁 types/
 │   │   └── image.ts                # ImageFile, CompressionPreset, COMPRESSION_PRESETS
 │   └── main.tsx           # 🚀 App entry point
@@ -217,6 +226,49 @@ pnpm run format   # Format code with Biome
 - **Accessibility First**: WCAG 2.1 compliant with keyboard navigation
 - **Performance**: Code splitting, lazy loading, and optimized bundles
 - **Security**: Magic-byte validation, decompression bomb protection, MIME spoofing prevention
+
+---
+
+## 📊 **Analytics & Privacy (GDPR)**
+
+### **Consent Architecture**
+
+| User Choice | What Happens |
+|-------------|-------------|
+| **"Solo anónimos"** | GA receives events with `analytics_storage: denied` — cookieless pings, modeled/aggregated data, no user identification |
+| **"Aceptar cookies"** | GA receives events with `analytics_storage: granted` — full tracking, sessions, user-level data |
+
+### **Data Classification**
+
+| Data Type | Consent Required | Provider | Purpose |
+|-----------|-----------------|----------|---------|
+| Errors/crashes | No (essential) | Sentry, Datadog, GA | App stability |
+| Performance timings | No (essential) | Datadog, GA | Latency monitoring |
+| Funnel steps | Yes (analytics) | GA, Mixpanel | Conversion analysis |
+| Feature adoption | Yes (analytics) | GA, Amplitude | Product decisions |
+| Session replay | Yes (analytics) | FullStory, Hotjar | UX debugging |
+
+### **Multi-Provider System**
+
+```typescript
+// Auto-detects available SDKs and registers providers
+analytics.configure({ debug: import.meta.env.DEV });
+analytics.init(); // Only activates providers whose SDK is loaded
+
+// Essential providers (Sentry, Datadog) → only receive error + performance
+// Analytics providers (GA, Mixpanel, etc.) → receive everything (gated by consent)
+```
+
+**Available providers:** GA4, Firebase, Datadog, Sentry, FullStory, Mixpanel, Hotjar, PostHog, Amplitude
+
+**Adding a new provider:** Extend `BaseProvider`, implement `onEvent()`, override category handlers as needed, register factory in `setup.ts`.
+
+### **User Controls**
+
+- Cookie consent banner on first visit
+- Footer → "Privacidad" link opens privacy modal
+- Toggle analytics cookies on/off anytime
+- "Reportar problema" exports diagnostic logs + opens email to dev
 
 ---
 
