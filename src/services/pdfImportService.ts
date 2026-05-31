@@ -21,6 +21,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 	import.meta.url,
 ).href;
 
+const MAX_PDF_PAGES = 100;
+
 async function renderPageToBlob(
 	page: pdfjsLib.PDFPageProxy,
 	scale = 2,
@@ -57,6 +59,13 @@ export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 		disableStream: true,
 		disableAutoFetch: true,
 	}).promise;
+
+	if (pdf.numPages > MAX_PDF_PAGES) {
+		throw new Error(
+			`El PDF tiene ${pdf.numPages} páginas. El límite es ${MAX_PDF_PAGES}.`,
+		);
+	}
+
 	const results: ImageFile[] = [];
 
 	for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -73,8 +82,9 @@ export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 
 		const hasText = await pageHasVectorText(page);
 
+		const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 		results.push({
-			id: `pdf-${file.name}-p${pageNum}-${Date.now()}`,
+			id: `pdf-${safeName}-p${pageNum}-${Date.now()}`,
 			file: pageFile,
 			preview: URL.createObjectURL(blob),
 			...(hasText ? { pdfSource: { pdfBytes, pageIndex: pageNum - 1 } } : {}),

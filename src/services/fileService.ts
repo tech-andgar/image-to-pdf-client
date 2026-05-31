@@ -14,10 +14,36 @@ export function isPdf(file: File): boolean {
 	return file.type === ALLOWED_PDF_TYPE;
 }
 
+const PDF_MAGIC = [0x25, 0x50, 0x44, 0x46]; // %PDF
+
+const IMAGE_SIGNATURES: Array<{ mime: string; bytes: number[] }> = [
+	{ mime: "image/jpeg", bytes: [0xff, 0xd8, 0xff] },
+	{ mime: "image/png", bytes: [0x89, 0x50, 0x4e, 0x47] },
+	{ mime: "image/gif", bytes: [0x47, 0x49, 0x46] },
+	{ mime: "image/webp", bytes: [0x52, 0x49, 0x46, 0x46] }, // RIFF header
+	{ mime: "image/bmp", bytes: [0x42, 0x4d] },
+];
+
+async function hasValidImageSignature(file: File): Promise<boolean> {
+	const slice = file.slice(0, 12);
+	const buf = await slice.arrayBuffer();
+	const bytes = new Uint8Array(buf);
+	const sig = IMAGE_SIGNATURES.find((s) => s.mime === file.type);
+	if (!sig) return false;
+	return sig.bytes.every((b, i) => bytes[i] === b);
+}
+
+async function hasPdfMagicBytes(file: File): Promise<boolean> {
+	const slice = file.slice(0, 4);
+	const buf = await slice.arrayBuffer();
+	const bytes = new Uint8Array(buf);
+	return PDF_MAGIC.every((b, i) => bytes[i] === b);
+}
+
 /**
- * Validates a single file
+ * Validates a single file, including magic-byte check for PDFs.
  */
-export function validateFile(file: File): FileValidationResult {
+export async function validateFile(file: File): Promise<FileValidationResult> {
 	// Check file type
 	if (
 		!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageTypes) &&
@@ -37,9 +63,27 @@ export function validateFile(file: File): FileValidationResult {
 		};
 	}
 
-	return {
-		isValid: true,
-	};
+	// Verify PDF magic bytes to catch misnamed files
+	if (file.type === ALLOWED_PDF_TYPE && !(await hasPdfMagicBytes(file))) {
+		return {
+			isValid: false,
+			errorMessage: "El archivo no es un PDF válido.",
+		};
+	}
+
+	// Verify image magic bytes to catch spoofed MIME types
+	if (
+		ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageTypes) &&
+		!(await hasValidImageSignature(file))
+	) {
+		return {
+			isValid: false,
+			errorMessage:
+				"El archivo no coincide con su tipo declarado. Posible archivo corrupto.",
+		};
+	}
+
+	return { isValid: true };
 }
 
 /**
@@ -59,30 +103,30 @@ export function revokeImagePreview(url: string): void {
 /**
  * Processes a FileList and returns validated files, with optional duplicate checking
  */
-export function processFilesWithDuplicateCheck(
+export async function processFilesWithDuplicateCheck(
 	fileList: FileList,
 	existingFiles: FileSignature[] = [],
 	allowDuplicates: boolean = false,
-): Array<
-	{ file: File; preview: string } | { file: File; preview: ""; error: string }
+): Promise<
+	Array<
+		{ file: File; preview: string } | { file: File; preview: ""; error: string }
+	>
 > {
 	const results: Array<
 		{ file: File; preview: string } | { file: File; preview: ""; error: string }
 	> = [];
 
-	Array.from(fileList).forEach((file) => {
-		// First validate the file
-		const validation = validateFile(file);
+	for (const file of Array.from(fileList)) {
+		const validation = await validateFile(file);
 		if (!validation.isValid) {
 			results.push({
 				file,
 				preview: "",
 				error: validation.errorMessage ?? "Archivo inválido",
 			});
-			return;
+			continue;
 		}
 
-		// Check for duplicates only if duplicates are not allowed
 		if (!allowDuplicates) {
 			const fileSignature = createFileSignature(file);
 			const isDuplicate = existingFiles.some((existing) =>
@@ -96,14 +140,13 @@ export function processFilesWithDuplicateCheck(
 					error:
 						"Esta imagen ya se ha cargado anteriormente. Marca la opción 'Permitir imágenes duplicadas' para cargar múltiples copias.",
 				});
-				return;
+				continue;
 			}
 		}
 
-		// File is valid and not a duplicate (or duplicates allowed)
 		const preview = createImagePreview(file);
 		results.push({ file, preview });
-	});
+	}
 
 	return results;
 }

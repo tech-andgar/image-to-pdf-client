@@ -13,13 +13,13 @@ export function generateImageId(): string {
 	return `image-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
-export function buildImageFiles(
+export async function buildImageFiles(
 	fileList: FileList,
 	existingImages: ImageFile[],
 	allowDuplicates: boolean,
-): ImageFile[] {
+): Promise<ImageFile[]> {
 	const existingSignatures = getFileSignaturesFromImages(existingImages);
-	const results = processFilesWithDuplicateCheck(
+	const results = await processFilesWithDuplicateCheck(
 		fileList,
 		existingSignatures,
 		allowDuplicates,

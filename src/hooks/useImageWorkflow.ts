@@ -1,12 +1,14 @@
 import { useImageUpload } from "./upload/useImageUpload";
 import { usePdfExport } from "./export/usePdfExport";
 import { useImageCompression } from "./compression/useImageCompression";
+import { usePreviewModal } from "./ui/usePreviewModal";
 import type { CompressionPreset } from "../types/image";
 
 export function useImageWorkflow() {
 	const upload = useImageUpload();
 	const export_ = usePdfExport();
 	const compression = useImageCompression();
+	const modal = usePreviewModal();
 
 	async function handleCompress() {
 		const compressed = await compression.compressImages(upload.uploadedImages);
@@ -60,10 +62,10 @@ export function useImageWorkflow() {
 		handleDrop,
 		handleFileSelect,
 		handleRemoveImage,
-		previewModal: upload.previewModal,
-		openPreviewModal: upload.openPreviewModal,
-		closePreviewModal: upload.closePreviewModal,
-		setPreviewImage: upload.setPreviewImage,
+		previewModal: modal.previewModal,
+		openPreviewModal: modal.openPreviewModal,
+		closePreviewModal: modal.closePreviewModal,
+		setPreviewImage: modal.setPreviewImage,
 		isCompressing: compression.isCompressing,
 		compressionError: compression.compressionError,
 		currentPreset: compression.currentPreset,
