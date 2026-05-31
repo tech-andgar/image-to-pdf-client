@@ -1,7 +1,15 @@
 import { LoggerService, LogLevel, type LogEntry } from "../core/logger";
+import { analytics } from "../core/analytics";
 import { STORAGE_KEYS } from "../config/limits";
 
 export { LogLevel, type LogEntry };
+
+declare global {
+	interface Window {
+		gtag?: (...args: unknown[]) => void;
+		dataLayer?: unknown[];
+	}
+}
 
 class AppLoggerService extends LoggerService {
 	constructor() {
@@ -10,28 +18,13 @@ class AppLoggerService extends LoggerService {
 		this.info("Application started");
 	}
 
-	trackUserAction(action: string, data?: unknown) {
-		this.info(`User action: ${action}`, data);
-	}
-
-	trackFileOperation(operation: string, fileCount: number, totalSize: number) {
-		this.info(`File ${operation}`, { fileCount, totalSize });
-	}
-
-	trackPdfGeneration(
-		imageCount: number,
-		compressionUsed: boolean,
-		presetsUsed?: string[],
-	) {
-		this.info("PDF generation started", {
-			imageCount,
-			compressionUsed,
-			presetsUsed,
+	override error(message: string, data?: unknown) {
+		super.error(message, data);
+		analytics.track({
+			action: "exception",
+			category: "error",
+			params: { description: message, fatal: false },
 		});
-	}
-
-	trackPdfGenerated(success: boolean, fileSize?: number) {
-		this.info("PDF generation completed", { success, fileSize });
 	}
 
 	private attachGlobalHandlers() {
@@ -50,7 +43,3 @@ class AppLoggerService extends LoggerService {
 }
 
 export const logger = new AppLoggerService();
-
-export function useLogger() {
-	return logger;
-}

@@ -9,7 +9,7 @@ import {
 	createFileSignature,
 	areFilesIdentical,
 } from "../types/image";
-import { hasValidSignature, hasPdfMagicBytes } from "../core/image";
+import { hasValidSignature, hasPdfMagicBytes } from "../core/validation";
 
 export function isPdf(file: File): boolean {
 	return file.type === ALLOWED_PDF_TYPE;
