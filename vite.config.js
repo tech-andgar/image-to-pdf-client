@@ -2,11 +2,28 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { partytownVite } from "@qwik.dev/partytown/utils";
+import {
+	APP_NAME,
+	APP_SHORT_NAME,
+	APP_DESCRIPTION,
+} from "./src/config/app.config.js";
+
+function htmlAppMetaPlugin() {
+	return {
+		name: "html-app-meta",
+		transformIndexHtml(html) {
+			return html
+				.replace(/__APP_NAME__/g, APP_NAME)
+				.replace(/__APP_DESCRIPTION__/g, APP_DESCRIPTION);
+		},
+	};
+}
 
 // https://vite.dev/config/
 export default defineConfig({
 	base: process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/",
 	plugins: [
+		htmlAppMetaPlugin(),
 		react(),
 		partytownVite({
 			forward: ["dataLayer.push", "gtag"],
@@ -18,10 +35,9 @@ export default defineConfig({
 			},
 			includeAssets: ["icon.svg"],
 			manifest: {
-				name: "Conversor de Imágenes a PDF",
-				short_name: "ImgToPDF",
-				description:
-					"Convierte tus imágenes a documentos PDF fácilmente. Procesa todo en tu navegador sin enviar archivos a servidores externos.",
+				name: APP_NAME,
+				short_name: APP_SHORT_NAME,
+				description: APP_DESCRIPTION,
 				start_url: process.env.GITHUB_PAGES
 					? "/image-to-pdf-client-public/"
 					: "/",

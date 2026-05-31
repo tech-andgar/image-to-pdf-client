@@ -1,21 +1,10 @@
 import { useState, useCallback } from "react";
 import type { ImageFile, CompressionPreset } from "../types/image";
 import { generatePDF, downloadPDF, sharePDF } from "../services/pdfService";
-import { sanitizeFilename } from "../services/fileSanitizer";
-
-/**
- * Generates an automatic filename with timestamp
- */
-function generateAutoFilename(): string {
-	const now = new Date();
-	const year = now.getFullYear();
-	const month = String(now.getMonth() + 1).padStart(2, "0");
-	const day = String(now.getDate()).padStart(2, "0");
-	const hour = String(now.getHours()).padStart(2, "0");
-	const minute = String(now.getMinutes()).padStart(2, "0");
-
-	return `imagenes-a-pdf-${year}-${month}-${day}-${hour}-${minute}.pdf`;
-}
+import {
+	sanitizeFilename,
+	generateFallbackFilename,
+} from "../services/fileSanitizer";
 
 // Share result type
 export interface ShareResult {
@@ -38,7 +27,7 @@ export function usePdfExport() {
 	// Compute preview filename (sanitized filename for operations)
 	const previewFilename = filenameInput.trim()
 		? sanitizeFilename(filenameInput)
-		: generateAutoFilename();
+		: generateFallbackFilename();
 
 	// Handle filename changes (raw user input for UI display)
 	const setFilename = useCallback((filename: string) => {

@@ -34,7 +34,7 @@ export function sanitizeFilename(
 
 	// Ensure we have a name after sanitization
 	if (hyphenated.length === 0) {
-		return `imagenes-a-pdf${extension}`;
+		return `documerge${extension}`;
 	}
 
 	// Add extension only if not already present (case insensitive)

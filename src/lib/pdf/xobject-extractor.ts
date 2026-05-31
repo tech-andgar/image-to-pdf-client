@@ -27,7 +27,7 @@ export function extractImageXObjects(page: PDFPage): PdfXObject[] {
 
 		const dict = xobj.dict;
 		const subtype = dict.get(PDFName.of("Subtype"));
-		if (!subtype || subtype.toString() !== "/Image") continue;
+		if (subtype?.toString() !== "/Image") continue;
 
 		const widthObj = dict.get(PDFName.of("Width"));
 		const heightObj = dict.get(PDFName.of("Height"));
