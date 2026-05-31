@@ -1,5 +1,11 @@
 import { ReadableStream as PolyReadableStream } from "web-streams-polyfill";
 import type { ImageFile } from "../types/image";
+import {
+	MAX_CANVAS_PIXELS,
+	MAX_PDF_PAGES,
+	DEFAULT_JPEG_QUALITY,
+	PDF_RENDER_SCALE,
+} from "../config/limits";
 import { blobToUint8Array, bitmapToBlob } from "../lib/image/canvas-utils";
 
 // Safari's native ReadableStream lacks async iteration methods pdfjs v6 requires.
@@ -21,16 +27,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 	import.meta.url,
 ).href;
 
-const MAX_PDF_PAGES = 100;
-const MAX_CANVAS_PIXELS = 16_777_216; // 4096x4096 — safe for all browsers
-
 async function renderPageToBlob(
 	page: pdfjsLib.PDFPageProxy,
-	scale = 2,
+	scale = PDF_RENDER_SCALE,
 ): Promise<Blob> {
 	let viewport = page.getViewport({ scale });
 
-	// Clamp scale to avoid oversized canvases
 	const pixels = viewport.width * viewport.height;
 	if (pixels > MAX_CANVAS_PIXELS) {
 		const clampedScale = scale * Math.sqrt(MAX_CANVAS_PIXELS / pixels);
@@ -45,7 +47,7 @@ async function renderPageToBlob(
 	await page.render({ canvasContext: ctx, viewport, canvas }).promise;
 	// Use canvas.transferToImageBitmap for efficiency, then bitmapToBlob
 	const bitmap = await createImageBitmap(canvas);
-	const blob = await bitmapToBlob(bitmap, "image/jpeg", 0.92);
+	const blob = await bitmapToBlob(bitmap, "image/jpeg", DEFAULT_JPEG_QUALITY);
 	bitmap.close();
 	return blob;
 }

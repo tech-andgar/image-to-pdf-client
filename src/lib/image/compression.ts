@@ -3,6 +3,7 @@ import type {
 	CompressionResult,
 	CompressionStats,
 } from "../../types/image";
+import { MAX_IMAGE_PIXELS } from "../../config/limits";
 import { loadImageFromUrl } from "./canvas-utils";
 
 function loadImageFromFile(file: File): Promise<HTMLImageElement> {
@@ -39,15 +40,13 @@ function generateCompressedFilename(
 	return `${baseName}_compressed_q${Math.round(options.quality * 100)}.jpg`;
 }
 
-const MAX_PIXEL_COUNT = 100_000_000; // 100MP — prevents decompression bombs
-
 export async function compressImageFile(
 	file: File,
 	options: CompressionOptions,
 ): Promise<CompressionResult> {
 	const img = await loadImageFromFile(file);
 
-	if (img.width * img.height > MAX_PIXEL_COUNT) {
+	if (img.width * img.height > MAX_IMAGE_PIXELS) {
 		URL.revokeObjectURL(img.src);
 		throw new Error(
 			`Imagen demasiado grande (${img.width}x${img.height}). Máximo ~100 megapíxeles.`,
