@@ -25,11 +25,12 @@
 		"clsx": "^2.1.1",
 		"lucide-react": "^0.545.0",
 		"pdf-lib": "^1.17.1",
-		"pdfjs-dist": "^6.0.227",
+		"pdfjs-dist": "^4.10.38",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
 		"tailwind-merge": "^3.6.0",
-		"tailwindcss-animate": "^1.0.7"
+		"tailwindcss-animate": "^1.0.7",
+		"web-streams-polyfill": "^4.3.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.16",
