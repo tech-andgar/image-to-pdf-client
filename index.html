@@ -6,22 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>__APP_NAME__</title>
     <meta name="description" content="__APP_DESCRIPTION__" />
-    <!-- Partytown: run third-party scripts in web worker -->
+    <!-- Google Analytics + Consent Mode v2 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4N51HKGYV5"></script>
     <script>
-      partytown = {
-        lib: "__APP_BASE__~partytown/",
-        forward: ["dataLayer.push", "gtag"]
-      };
-    </script>
-    <script src="__APP_BASE__~partytown/partytown.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Google Analytics with Partytown + Consent Mode v2 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4N51HKGYV5" type="text/partytown"></script>
-    <script type="text/partytown">
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('consent', 'default', {
@@ -36,5 +23,9 @@
         allow_ad_personalization_signals: false
       });
     </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

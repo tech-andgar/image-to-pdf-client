@@ -1,7 +1,6 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
-import { partytownVite } from "@qwik.dev/partytown/utils";
 import {
 	APP_NAME,
 	APP_SHORT_NAME,
@@ -9,14 +8,12 @@ import {
 } from "./src/config/app.config.js";
 
 function htmlAppMetaPlugin() {
-	const base = process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/";
 	return {
 		name: "html-app-meta",
 		transformIndexHtml(html) {
 			return html
 				.replace(/__APP_NAME__/g, APP_NAME)
-				.replace(/__APP_DESCRIPTION__/g, APP_DESCRIPTION)
-				.replace(/__APP_BASE__/g, base);
+				.replace(/__APP_DESCRIPTION__/g, APP_DESCRIPTION);
 		},
 	};
 }
@@ -27,9 +24,6 @@ export default defineConfig({
 	plugins: [
 		htmlAppMetaPlugin(),
 		react(),
-		partytownVite({
-			forward: ["dataLayer.push", "gtag"],
-		}),
 		VitePWA({
 			registerType: "autoUpdate",
 			devOptions: {
