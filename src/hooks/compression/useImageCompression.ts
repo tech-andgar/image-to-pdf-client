@@ -61,9 +61,12 @@ export function useImageCompression() {
 						COMPRESSION_PRESETS[activePreset],
 						(progress) => setCompressionProgress(progress),
 					);
+					// Build id→result map for O(1) lookup (toCompress and freshResults are index-aligned)
+					const freshById = new Map<string, CompressionResult>();
 					toCompress.forEach((originalImg, i) => {
 						const compressed = freshResults[i];
 						if (!compressed) return;
+						freshById.set(originalImg.id, compressed);
 						cache.set(originalImg.id, activePreset, {
 							imageFile: {
 								...originalImg,
@@ -79,16 +82,13 @@ export function useImageCompression() {
 				const allResults: CompressionResult[] = baseImages.map((img) => {
 					const cached = cache.get(img.id, activePreset);
 					if (cached) return cached.result;
-					return (
-						freshResults.find((r) =>
-							r.file.name.includes(img.file.name.split(".")[0]),
-						) ?? {
-							file: img.file,
-							compressedSize: img.file.size,
-							compressionRatio: 1,
-							dimensions: { width: 0, height: 0 },
-						}
-					);
+					// Fallback for images that failed compression — use original size
+					return {
+						file: img.file,
+						compressedSize: img.file.size,
+						compressionRatio: 1,
+						dimensions: { width: 0, height: 0 },
+					};
 				});
 
 				const stats = calculateCompressionStats(

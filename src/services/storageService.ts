@@ -34,6 +34,8 @@ class StorageService {
 			request.onerror = (event) => {
 				const error = (event.target as IDBOpenDBRequest).error;
 				logger.error("Error opening IndexedDB", error);
+				// Clear cached promise so next call retries instead of re-rejecting
+				this.dbPromise = null;
 				reject(error);
 			};
 		});
