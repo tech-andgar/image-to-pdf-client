@@ -19,9 +19,11 @@ export interface LogEntry {
 	sessionId?: string;
 }
 
+import { MAX_LOG_ENTRIES } from "../config/limits";
+
 class LoggerService {
 	private logs: LogEntry[] = [];
-	private readonly maxLogs = 100;
+	private readonly maxLogs = MAX_LOG_ENTRIES;
 	private readonly sessionId: string;
 	private flushTimer: ReturnType<typeof setTimeout> | null = null;
 

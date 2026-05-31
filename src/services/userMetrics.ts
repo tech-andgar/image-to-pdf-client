@@ -24,9 +24,11 @@ export interface UserMetric {
 	userAgent: string;
 }
 
+import { MAX_METRIC_ENTRIES } from "../config/limits";
+
 class UserMetricsService {
 	private metrics: UserMetric[] = [];
-	private readonly maxMetrics = 200; // Keep last 200 metrics
+	private readonly maxMetrics = MAX_METRIC_ENTRIES;
 	private readonly sessionId: string;
 
 	constructor() {
