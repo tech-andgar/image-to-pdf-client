@@ -4,6 +4,7 @@ export interface PdfXObject {
 	height: number;
 	filterName: string | null;
 	rawBytes: Uint8Array;
+	hasMask: boolean;
 }
 
 export interface CompressOptions {

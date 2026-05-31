@@ -151,7 +151,7 @@ export function CompressionControls({
 								<p className="font-medium">{formattedStats.originalSize}</p>
 							</div>
 							<div className="text-center">
-								<p className="text-muted-foreground">Resultado</p>
+								<p className="text-muted-foreground">Imágenes</p>
 								<p className="font-medium text-emerald-600">
 									{formattedStats.compressedSize}
 								</p>

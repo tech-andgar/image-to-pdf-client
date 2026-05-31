@@ -6,6 +6,9 @@ export async function compressXObject(
 	xobj: PdfXObject,
 	options: CompressOptions,
 ): Promise<CompressedXObject | null> {
+	// Skip images with transparency mask — JPEG compression would destroy alpha
+	if (xobj.hasMask) return null;
+
 	const decoder = findDecoder(xobj.filterName);
 	if (!decoder) return null;
 

@@ -40,6 +40,7 @@ export function ImageUploader() {
 		filename,
 		setFilename,
 		previewFilename,
+		lastPdfSize,
 		exportToPDF,
 		shareToPDF,
 	} = useImageWorkflow();
@@ -103,6 +104,7 @@ export function ImageUploader() {
 					shareResult={shareResult}
 					filename={filename}
 					previewFilename={previewFilename}
+					lastPdfSize={lastPdfSize}
 					setFilename={setFilename}
 					onExport={exportToPDF}
 					onShare={shareToPDF}

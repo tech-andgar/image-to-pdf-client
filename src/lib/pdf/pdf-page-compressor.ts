@@ -1,7 +1,9 @@
 import { PDFDocument, PDFName, PDFDict, PDFRawStream } from "pdf-lib";
+import { deflate } from "fflate";
 import type { CompressOptions } from "./types";
 import { extractImageXObjects } from "./xobject-extractor";
 import { compressXObject } from "./xobject-compressor";
+import { logger } from "../../services/logger";
 
 /**
  * Compresses embedded images on a single PDF page while preserving vector text/graphics.
@@ -14,12 +16,27 @@ export async function compressPdfPageImages(
 ): Promise<Uint8Array> {
 	const pdfDoc = await PDFDocument.load(pdfBytes);
 	const page = pdfDoc.getPage(pageIndex);
-	const xobjects = extractImageXObjects(page);
+	const imageObjects = extractImageXObjects(page);
 
-	if (xobjects.length === 0) return pdfBytes;
+	const maskedCount = imageObjects.filter((img) => img.hasMask).length;
+	logger.info(
+		`[pdf-compressor] page ${pageIndex}: found ${imageObjects.length} image XObjects (${maskedCount} with mask/alpha, skipped), quality=${options.quality}`,
+	);
+
+	if (imageObjects.length === 0) {
+		logger.info(
+			`[pdf-compressor] page ${pageIndex}: no raster images — preset has no effect`,
+		);
+		return pdfBytes;
+	}
 
 	const compressed = await Promise.all(
-		xobjects.map((xobj) => compressXObject(xobj, options)),
+		imageObjects.map((img) => compressXObject(img, options)),
+	);
+
+	const successCount = compressed.filter(Boolean).length;
+	logger.info(
+		`[pdf-compressor] page ${pageIndex}: compressed ${successCount}/${imageObjects.length} images`,
 	);
 
 	const resources = page.node.Resources();
@@ -31,25 +48,51 @@ export async function compressPdfPageImages(
 	for (const result of compressed) {
 		if (!result) continue;
 
+		// result.name already has "/" prefix from PDFName.toString() — look up directly
 		const ref = xObjectDict.get(PDFName.of(result.name));
-		if (!ref) continue;
+		if (!ref) {
+			logger.info(`[pdf-compressor] ref not found for ${result.name}`);
+			continue;
+		}
 
-		const xobj = pdfDoc.context.lookup(ref);
-		if (!(xobj instanceof PDFRawStream)) continue;
+		const streamObj = pdfDoc.context.lookup(ref);
+		if (!(streamObj instanceof PDFRawStream)) continue;
 
-		const newBytes = result.bytes;
-		// Replace stream content and update dictionary entries
-		const newStream = pdfDoc.context.stream(newBytes, {
+		const streamDict: Record<string, unknown> = {
 			Type: "XObject",
 			Subtype: "Image",
 			Width: result.width,
 			Height: result.height,
-			ColorSpace: xobj.dict.get(PDFName.of("ColorSpace")),
-			BitsPerComponent: xobj.dict.get(PDFName.of("BitsPerComponent")),
+			ColorSpace: streamObj.dict.get(PDFName.of("ColorSpace")),
+			BitsPerComponent: streamObj.dict.get(PDFName.of("BitsPerComponent")),
 			Filter: PDFName.of("DCTDecode"),
-		});
+		};
 
-		// Remap the reference to the new stream
+		if (result.alphaMask) {
+			const compressedAlpha = await new Promise<Uint8Array>((resolve, reject) =>
+				deflate(result.alphaMask as Uint8Array, (err, data) =>
+					err ? reject(err) : resolve(data),
+				),
+			);
+			const maskStream = pdfDoc.context.stream(compressedAlpha, {
+				Type: "XObject",
+				Subtype: "Image",
+				Width: result.width,
+				Height: result.height,
+				ColorSpace: PDFName.of("DeviceGray"),
+				BitsPerComponent: 8,
+				Filter: PDFName.of("FlateDecode"),
+			});
+			const maskRef = pdfDoc.context.register(maskStream);
+			streamDict.SMask = maskRef;
+		}
+
+		const newStream = pdfDoc.context.stream(result.bytes, streamDict);
+
+		logger.info(
+			`[pdf-compressor] replaced ${result.name}: ${result.width}x${result.height}`,
+		);
+
 		pdfDoc.context.assign(
 			ref as Parameters<typeof pdfDoc.context.assign>[0],
 			newStream,

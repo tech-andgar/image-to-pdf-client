@@ -42,11 +42,10 @@ function generateCompressedFilename(
 	originalFilename: string,
 	options: CompressionOptions,
 ): string {
-	const extension = originalFilename.split(".").pop()?.toLowerCase();
 	const baseName = originalFilename.replace(/\.[^/.]+$/, "");
 	const qualitySuffix = Math.round(options.quality * 100);
 
-	return `${baseName}_compressed_q${qualitySuffix}.${extension}`;
+	return `${baseName}_compressed_q${qualitySuffix}.jpg`;
 }
 
 /**
@@ -75,17 +74,18 @@ export async function compressImageFile(
 		canvas.width = width;
 		canvas.height = height;
 
-		// Draw and compress
+		// For formats with potential transparency (PNG, WebP), fill white before drawing
+		// so JPEG export doesn't produce black artifacts on transparent areas
+		const mimeType = "image/jpeg";
+		ctx.fillStyle = "#ffffff";
+		ctx.fillRect(0, 0, width, height);
 		ctx.drawImage(img, 0, 0, width, height);
-
-		const mimeType = file.type === "image/jpeg" ? "image/jpeg" : "image/png";
-		const quality = mimeType === "image/jpeg" ? options.quality : undefined;
 
 		const blob = await new Promise<Blob>((resolve, reject) => {
 			canvas.toBlob(
 				(b) => (b ? resolve(b) : reject(new Error("Failed to compress image"))),
 				mimeType,
-				quality,
+				options.quality,
 			);
 		});
 

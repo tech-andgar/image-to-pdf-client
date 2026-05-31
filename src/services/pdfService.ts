@@ -37,6 +37,9 @@ class PdfGenerator {
 				// PDF-sourced pages: text/vectors are lossless; embedded images get compressed if preset given
 				if (image.pdfSource) {
 					const { pdfBytes, pageIndex } = image.pdfSource;
+					logger.info(
+						`[pdf-generator] page from PDF source, pageIndex=${pageIndex}, preset=${preset ?? "none"}`,
+					);
 					const sourceBytesToLoad = preset
 						? await compressPdfPageImages(pdfBytes, pageIndex, {
 								quality: COMPRESSION_PRESETS[preset].quality,

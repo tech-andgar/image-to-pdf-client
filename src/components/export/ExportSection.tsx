@@ -1,6 +1,7 @@
 import { FileDown, AlertCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilenameInput } from "./FilenameInput";
+import { formatFileSize } from "../../services/imageCompressionService";
 
 interface ShareResult {
 	success: boolean;
@@ -15,6 +16,7 @@ interface ExportSectionProps {
 	readonly shareResult: ShareResult | null;
 	readonly filename: string;
 	readonly previewFilename: string;
+	readonly lastPdfSize: number | null;
 	readonly setFilename: (name: string) => void;
 	readonly onExport: () => void;
 	readonly onShare: () => void;
@@ -29,6 +31,7 @@ export function ExportSection({
 	shareResult,
 	filename,
 	previewFilename,
+	lastPdfSize,
 	setFilename,
 	onExport,
 	onShare,
@@ -117,8 +120,13 @@ export function ExportSection({
 				</div>
 			)}
 
-			<p className="text-xs text-muted-foreground">
-				Las imágenes se exportan en el orden actual
+			<p className="text-xs text-muted-foreground flex items-center justify-between">
+				<span>Las imágenes se exportan en el orden actual</span>
+				{lastPdfSize !== null && (
+					<span className="font-medium">
+						PDF: {formatFileSize(lastPdfSize)}
+					</span>
+				)}
 			</p>
 		</div>
 	);

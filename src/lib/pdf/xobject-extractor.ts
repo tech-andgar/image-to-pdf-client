@@ -1,4 +1,10 @@
-import { PDFName, PDFDict, PDFRawStream, type PDFPage } from "pdf-lib";
+import {
+	PDFName,
+	PDFDict,
+	PDFRawStream,
+	decodePDFRawStream,
+	type PDFPage,
+} from "pdf-lib";
 import type { PdfXObject } from "./types";
 
 function getFilterName(streamDict: PDFDict): string | null {
@@ -36,10 +42,26 @@ export function extractImageXObjects(page: PDFPage): PdfXObject[] {
 		const width = Number(widthObj.toString());
 		const height = Number(heightObj.toString());
 		const filterName = getFilterName(dict);
-		// Use raw stream bytes directly — DCT/JPX are already encoded image data, no decode needed
-		const rawBytes = xobj.contents;
+		// DCT/JPX: contents are already encoded image bytes (JPEG/JPEG2000) — use directly
+		// FlateDecode/raw: contents are zlib-compressed pixels — decode to raw pixel bytes
+		const rawBytes =
+			filterName === "DCTDecode" || filterName === "JPXDecode"
+				? xobj.contents
+				: decodePDFRawStream(xobj).decode();
 
-		results.push({ name: key.toString(), width, height, filterName, rawBytes });
+		const hasMask =
+			dict.get(PDFName.of("SMask")) != null ||
+			dict.get(PDFName.of("Mask")) != null;
+
+		// key.toString() returns "/Name" — strip leading slash for consistent lookup
+		results.push({
+			name: key.toString().replace(/^\//, ""),
+			width,
+			height,
+			filterName,
+			rawBytes,
+			hasMask,
+		});
 	}
 
 	return results;

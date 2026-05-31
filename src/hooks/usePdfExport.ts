@@ -23,6 +23,7 @@ export function usePdfExport() {
 	const [exportError, setExportError] = useState<string | null>(null);
 	const [shareResult, setShareResult] = useState<ShareResult | null>(null);
 	const [filenameInput, setFilenameInput] = useState("");
+	const [lastPdfSize, setLastPdfSize] = useState<number | null>(null);
 
 	// Compute preview filename (sanitized filename for operations)
 	const previewFilename = filenameInput.trim()
@@ -51,10 +52,8 @@ export function usePdfExport() {
 			try {
 				const pdfBytes = await generatePDF(images, preset);
 				setIsLoadingLibrary(false);
-
+				setLastPdfSize(pdfBytes.length);
 				downloadPDF(pdfBytes, previewFilename);
-
-				// Reset error state on success
 				setExportError(null);
 			} catch (error) {
 				console.error("Error exporting PDF:", error);
@@ -142,5 +141,6 @@ export function usePdfExport() {
 		filename: filenameInput,
 		setFilename: setFilename,
 		previewFilename,
+		lastPdfSize,
 	};
 }
