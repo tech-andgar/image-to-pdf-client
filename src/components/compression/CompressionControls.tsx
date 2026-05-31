@@ -104,8 +104,8 @@ export function CompressionControls({
 											<span
 												className={
 													active
-														? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-600"
-														: "text-[10px] leading-tight mt-0.5 text-zinc-500"
+														? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-500"
+														: "text-[10px] leading-tight mt-0.5 text-zinc-500 dark:text-zinc-400"
 												}
 											>
 												{PRESET_LABELS[preset].description}
@@ -152,8 +152,8 @@ export function CompressionControls({
 											<span
 												className={
 													active
-														? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-600"
-														: "text-[10px] leading-tight mt-0.5 text-zinc-500"
+														? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-500"
+														: "text-[10px] leading-tight mt-0.5 text-zinc-500 dark:text-zinc-400"
 												}
 											>
 												{PRESET_LABELS[preset].description}
