@@ -1,19 +1,19 @@
 import { ReadableStream as PolyReadableStream } from "web-streams-polyfill";
-import * as pdfjsLib from "pdfjs-dist";
 import type { ImageFile } from "../types/image";
 import { blobToUint8Array, bitmapToBlob } from "../lib/image/canvas-utils";
 
-// Safari lacks ReadableStream[Symbol.asyncIterator] which pdfjs v6 requires internally
+// Safari's native ReadableStream lacks async iteration methods pdfjs v6 requires.
+// Replace global with polyfill before importing pdfjs so it uses the polyfill throughout.
 if (
 	typeof ReadableStream !== "undefined" &&
-	!ReadableStream.prototype[Symbol.asyncIterator]
+	(!ReadableStream.prototype[Symbol.asyncIterator] ||
+		!ReadableStream.prototype.values)
 ) {
-	(ReadableStream.prototype as unknown as Record<symbol, unknown>)[
-		Symbol.asyncIterator
-	] = (PolyReadableStream.prototype as unknown as Record<symbol, unknown>)[
-		Symbol.asyncIterator
-	];
+	(globalThis as unknown as Record<string, unknown>).ReadableStream =
+		PolyReadableStream;
 }
+
+import * as pdfjsLib from "pdfjs-dist";
 
 // Use fake worker src — pdfjs will fall back to main-thread if worker fails to load
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
