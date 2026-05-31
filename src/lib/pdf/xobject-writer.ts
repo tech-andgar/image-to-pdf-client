@@ -1,17 +1,10 @@
-import {
-	PDFName,
-	type PDFRawStream,
-	type PDFDocument,
-	type PDFRef,
-} from "pdf-lib";
+import type { PDFRawStream, PDFDocument, PDFRef } from "pdf-lib";
 import type { CompressedXObject } from "./types";
 
-/**
- * Writes a CompressedXObject back into the PDFDocument context,
- * optionally creating a new SMask stream for transparency.
- * Returns false if the compressed bytes are not smaller than the original.
- */
+type PdfLib = typeof import("pdf-lib");
+
 export async function writeCompressedXObject(
+	pdfLib: PdfLib,
 	pdfDoc: PDFDocument,
 	ref: PDFRef,
 	result: CompressedXObject,
@@ -21,6 +14,7 @@ export async function writeCompressedXObject(
 		return false;
 	}
 
+	const { PDFName } = pdfLib;
 	const dict = originalStream.dict;
 	type LiteralDict = Parameters<typeof pdfDoc.context.stream>[1];
 
@@ -34,7 +28,6 @@ export async function writeCompressedXObject(
 		Filter: PDFName.of("DCTDecode"),
 	} as LiteralDict;
 
-	// Preserve original SMask/Mask refs — the existing alpha mask is correct; don't replace it
 	const sMaskRef = dict.get(PDFName.of("SMask"));
 	const maskRef = dict.get(PDFName.of("Mask"));
 	if (sMaskRef) (streamDict as Record<string, unknown>).SMask = sMaskRef;

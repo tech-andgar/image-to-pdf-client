@@ -1,30 +1,24 @@
-import {
-	PDFName,
-	PDFDict,
-	PDFRawStream,
-	decodePDFRawStream,
-	type PDFPage,
-} from "pdf-lib";
+import type { PDFDict, PDFRawStream, PDFPage } from "pdf-lib";
 import type { PdfXObject } from "./types";
+
+type PdfLib = typeof import("pdf-lib");
 
 const FILTER_RE =
 	/\/(DCTDecode|JPXDecode|FlateDecode|LZWDecode|CCITTFaxDecode)/;
 
-function getFilterName(streamDict: PDFDict): string | null {
-	const filter = streamDict.get(PDFName.of("Filter"));
+function getFilterName(pdfLib: PdfLib, streamDict: PDFDict): string | null {
+	const filter = streamDict.get(pdfLib.PDFName.of("Filter"));
 	if (!filter) return null;
 	const match = filter.toString().match(FILTER_RE);
 	return match ? match[1] : null;
 }
 
-/**
- * Builds a PdfXObject from a raw PDF stream.
- * Returns null if the stream is not a supported image XObject.
- */
 export function buildPdfXObjectFromStream(
+	pdfLib: PdfLib,
 	stream: PDFRawStream,
 	name: string,
 ): PdfXObject | null {
+	const { PDFName, decodePDFRawStream } = pdfLib;
 	const dict = stream.dict;
 	if (dict.get(PDFName.of("Subtype"))?.toString() !== "/Image") return null;
 
@@ -32,9 +26,7 @@ export function buildPdfXObjectFromStream(
 	const heightObj = dict.get(PDFName.of("Height"));
 	if (!widthObj || !heightObj) return null;
 
-	const filterName = getFilterName(dict);
-	// DCT/JPX: contents are already encoded image bytes — use directly
-	// FlateDecode/raw: zlib-compressed pixels — decode to raw pixel bytes
+	const filterName = getFilterName(pdfLib, dict);
 	const rawBytes =
 		filterName === "DCTDecode" || filterName === "JPXDecode"
 			? stream.contents
@@ -54,7 +46,11 @@ export function buildPdfXObjectFromStream(
 	};
 }
 
-export function extractImageXObjects(page: PDFPage): PdfXObject[] {
+export function extractImageXObjects(
+	pdfLib: PdfLib,
+	page: PDFPage,
+): PdfXObject[] {
+	const { PDFName, PDFDict, PDFRawStream } = pdfLib;
 	const results: PdfXObject[] = [];
 
 	const resources = page.node.Resources();
@@ -67,9 +63,8 @@ export function extractImageXObjects(page: PDFPage): PdfXObject[] {
 		const stream = page.doc.context.lookup(ref);
 		if (!(stream instanceof PDFRawStream)) continue;
 
-		// key.toString() returns "/Name" — strip leading slash for consistent lookup
 		const name = key.toString().replace(/^\//, "");
-		const xobj = buildPdfXObjectFromStream(stream, name);
+		const xobj = buildPdfXObjectFromStream(pdfLib, stream, name);
 		if (xobj) results.push(xobj);
 	}
 
