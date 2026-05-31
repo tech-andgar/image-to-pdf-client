@@ -1,6 +1,4 @@
-/**
- * Utilities for sanitizing filenames to be compatible with various browsers and filesystems
- */
+import { APP_FILENAME_PREFIX } from "../config/app";
 
 /**
  * Sanitize filename to be compatible with Android Chrome and other mobile browsers.
@@ -34,7 +32,7 @@ export function sanitizeFilename(
 
 	// Ensure we have a name after sanitization
 	if (hyphenated.length === 0) {
-		return `documerge${extension}`;
+		return `${APP_FILENAME_PREFIX}${extension}`;
 	}
 
 	// Add extension only if not already present (case insensitive)
@@ -59,7 +57,7 @@ export function generateFallbackFilename(): string {
 	const hour = String(now.getHours()).padStart(2, "0");
 	const minute = String(now.getMinutes()).padStart(2, "0");
 
-	return `imagenes-a-pdf-${year}-${month}-${day}-${hour}-${minute}.pdf`;
+	return `${APP_FILENAME_PREFIX}-${year}-${month}-${day}-${hour}-${minute}.pdf`;
 }
 
 /**
