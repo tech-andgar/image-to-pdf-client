@@ -1,5 +1,9 @@
 import { useRef, useCallback } from "react";
-import type { ImageFile, CompressionResult, CompressionPreset } from "../types/image";
+import type {
+	ImageFile,
+	CompressionResult,
+	CompressionPreset,
+} from "../types/image";
 
 type CacheEntry = { imageFile: ImageFile; result: CompressionResult };
 type Cache = Map<string, CacheEntry>;

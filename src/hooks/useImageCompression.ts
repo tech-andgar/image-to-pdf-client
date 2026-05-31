@@ -16,9 +16,11 @@ import { useCompressionCache } from "./useCompressionCache";
 export function useImageCompression() {
 	const [isCompressing, setIsCompressing] = useState(false);
 	const [compressionError, setCompressionError] = useState<string | null>(null);
-	const [currentPreset, setCurrentPreset] = useState<CompressionPreset>("medium");
+	const [currentPreset, setCurrentPreset] =
+		useState<CompressionPreset>("medium");
 	const [compressionProgress, setCompressionProgress] = useState(0);
-	const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
+	const [compressionStats, setCompressionStats] =
+		useState<CompressionStats | null>(null);
 	const cache = useCompressionCache();
 
 	const resetState = useCallback(() => {
@@ -33,7 +35,8 @@ export function useImageCompression() {
 			images: ImageFile[],
 			presetOverride?: CompressionPreset,
 		): Promise<ImageFile[]> => {
-			if (images.length === 0) throw new Error("No hay imágenes para comprimir");
+			if (images.length === 0)
+				throw new Error("No hay imágenes para comprimir");
 			const activePreset = presetOverride ?? currentPreset;
 			const baseImages = cache.mergeOriginals(images);
 
@@ -135,7 +138,8 @@ export function useImageCompression() {
 			originalSize: formatFileSize(compressionStats.originalSize),
 			compressedSize: formatFileSize(compressionStats.compressedSize),
 			savingsPercentage: (
-				(1 - compressionStats.compressionRatio) * 100
+				(1 - compressionStats.compressionRatio) *
+				100
 			).toFixed(1),
 			timeElapsed: `${compressionStats.time_elapsed}ms`,
 		};
