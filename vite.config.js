@@ -151,7 +151,7 @@ export default defineConfig({
 						return "pdf";
 					}
 					if (id.includes("pdfjs-dist")) {
-						return "pdfjs";
+						return undefined; // let rolldown split naturally — don't force into vendor-libs
 					}
 					if (id.includes("web-streams-polyfill")) {
 						return "streams-polyfill";
