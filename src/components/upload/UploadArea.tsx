@@ -3,6 +3,7 @@ import { type ChangeEvent, type DragEvent, useRef } from "react";
 import {
 	ALLOWED_EXTENSIONS,
 	ALLOWED_IMAGE_TYPES,
+	ALLOWED_PDF_TYPE,
 	MAX_FILE_SIZE,
 } from "../../types/image";
 
@@ -62,7 +63,7 @@ export function UploadArea({
 				ref={fileInputRef}
 				type="file"
 				multiple
-				accept={ALLOWED_IMAGE_TYPES.join(",")}
+				accept={[...ALLOWED_IMAGE_TYPES, ALLOWED_PDF_TYPE].join(",")}
 				onChange={onFileSelect}
 				className="hidden"
 			/>

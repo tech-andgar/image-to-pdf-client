@@ -5,10 +5,12 @@ import {
 	getFileSignaturesFromImages,
 	revokeImagePreview,
 	createImagePreview,
+	isPdf,
 } from "../services/fileService";
 import { createFileSignature } from "../types/image";
 import { logger } from "../services/logger";
 import { storageService } from "../services/storageService";
+import { pdfToImageFiles } from "../services/pdfImportService";
 
 /**
  * Generates a unique ID for an image
@@ -38,18 +40,34 @@ export function useImageUpload() {
 	 */
 	const processUploadedFiles = useCallback(
 		async (fileList: FileList) => {
-			// Convert to array for processing
 			const filesArray = Array.from(fileList);
 			logger.trackFileOperation("upload started", filesArray.length, 0);
+
+			const pdfFiles = filesArray.filter(isPdf);
+			const imageFiles = filesArray.filter((f) => !isPdf(f));
+
+			if (pdfFiles.length > 0) {
+				const pdfImageArrays = await Promise.all(
+					pdfFiles.map((pdf) => pdfToImageFiles(pdf)),
+				);
+				const pdfImages = pdfImageArrays.flat();
+				setUploadedImages((prev) => [...prev, ...pdfImages]);
+			}
+
+			if (imageFiles.length === 0) return;
+
+			const imageFileList = (() => {
+				const dt = new DataTransfer();
+				for (const f of imageFiles) dt.items.add(f);
+				return dt.files;
+			})();
 
 			setUploadedImages((currentImages: ImageFile[]) => {
 				// Get signatures of existing images for duplicate checking
 				const existingSignatures = getFileSignaturesFromImages(currentImages);
 
-				// Process files with duplicate checking
-				// Note: processFilesWithDuplicateCheck returns plain objects, not ImageFile
 				const processedResults = processFilesWithDuplicateCheck(
-					fileList,
+					imageFileList,
 					existingSignatures,
 					allowDuplicates,
 				);

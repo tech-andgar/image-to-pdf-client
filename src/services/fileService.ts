@@ -1,5 +1,7 @@
 import {
 	ALLOWED_IMAGE_TYPES,
+	ALLOWED_EXTENSIONS,
+	ALLOWED_PDF_TYPE,
 	MAX_FILE_SIZE,
 	type FileValidationResult,
 	type FileSignature,
@@ -8,16 +10,22 @@ import {
 	areFilesIdentical,
 } from "../types/image";
 
+export function isPdf(file: File): boolean {
+	return file.type === ALLOWED_PDF_TYPE;
+}
+
 /**
  * Validates a single file
  */
 export function validateFile(file: File): FileValidationResult {
 	// Check file type
-	if (!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageTypes)) {
+	if (
+		!ALLOWED_IMAGE_TYPES.includes(file.type as AllowedImageTypes) &&
+		file.type !== ALLOWED_PDF_TYPE
+	) {
 		return {
 			isValid: false,
-			errorMessage:
-				"Tipo de archivo no válido. Solo se aceptan JPEG, PNG, BMP y GIF.",
+			errorMessage: `Tipo de archivo no válido. Solo se aceptan ${ALLOWED_EXTENSIONS.join(", ")}.`,
 		};
 	}
 
@@ -25,7 +33,7 @@ export function validateFile(file: File): FileValidationResult {
 	if (file.size > MAX_FILE_SIZE) {
 		return {
 			isValid: false,
-			errorMessage: "El archivo es demasiado grande. El límite es 10MB.",
+			errorMessage: `El archivo es demasiado grande. El límite es ${MAX_FILE_SIZE / 1024 / 1024}MB.`,
 		};
 	}
 
