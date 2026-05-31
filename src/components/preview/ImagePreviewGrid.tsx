@@ -47,17 +47,15 @@ function SortableImageItem({
 		transition,
 	};
 
+	let itemClass = "relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border";
+	if (isDragging) itemClass += " opacity-50 scale-95 z-50";
+	else if (image.error) itemClass = "relative group rounded-lg overflow-hidden transition-all duration-200 touch-none border bg-destructive/10 border-destructive/20";
+
 	return (
 		<div
 			ref={setNodeRef}
 			style={style}
-			className={
-				isDragging
-					? "relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border opacity-50 scale-95 z-50"
-					: image.error
-						? "relative group rounded-lg overflow-hidden transition-all duration-200 touch-none border bg-destructive/10 border-destructive/20"
-						: "relative group rounded-lg overflow-hidden bg-muted transition-all duration-200 touch-none border border-border"
-			}
+			className={itemClass}
 			{...attributes}
 		>
 			{/* Drag handle - always visible on mobile, more visible on desktop */}
@@ -158,30 +156,17 @@ export function ImagePreviewGrid({
 		return null;
 	}
 
-	const handleDragStart = (event: DragEndEvent) => {
-		console.log("Drag started:", event.active.id);
-	};
-
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
-
-		if (!over) {
-			console.log("Drag ended without drop target");
-			return;
-		}
+		if (!over) return;
 
 		const activeId = active.id as string;
 		const overId = over.id as string;
 
 		if (activeId !== overId) {
-			const oldIndex = uploadedImages.findIndex(
-				(image) => image.id === activeId,
-			);
+			const oldIndex = uploadedImages.findIndex((image) => image.id === activeId);
 			const newIndex = uploadedImages.findIndex((image) => image.id === overId);
-
 			if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-				console.log(`Reordering image from ${oldIndex} to ${newIndex}`);
-				// Note: onReorderImages should handle the arrayMove logic internally
 				onReorderImages(oldIndex, newIndex);
 			}
 		}
@@ -190,8 +175,7 @@ export function ImagePreviewGrid({
 	return (
 		<DndContext
 			sensors={sensors}
-			collisionDetection={rectIntersection} // Better for grid layouts
-			onDragStart={handleDragStart}
+			collisionDetection={rectIntersection}
 			onDragEnd={handleDragEnd}
 		>
 			<SortableContext
