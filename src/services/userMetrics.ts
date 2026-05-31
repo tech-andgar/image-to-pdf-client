@@ -24,7 +24,7 @@ export interface UserMetric {
 	userAgent: string;
 }
 
-import { MAX_METRIC_ENTRIES } from "../config/limits";
+import { MAX_METRIC_ENTRIES, STORAGE_KEYS } from "../config/limits";
 
 class UserMetricsService {
 	private metrics: UserMetric[] = [];
@@ -50,7 +50,7 @@ class UserMetricsService {
 
 	private loadMetricsFromStorage() {
 		try {
-			const storedMetrics = localStorage.getItem("user_metrics");
+			const storedMetrics = localStorage.getItem(STORAGE_KEYS.METRICS);
 			if (storedMetrics) {
 				this.metrics = JSON.parse(storedMetrics);
 			}
@@ -61,7 +61,7 @@ class UserMetricsService {
 
 	private saveMetricsToStorage() {
 		try {
-			localStorage.setItem("user_metrics", JSON.stringify(this.metrics));
+			localStorage.setItem(STORAGE_KEYS.METRICS, JSON.stringify(this.metrics));
 		} catch (error) {
 			console.warn("Failed to save metrics to storage:", error);
 		}
