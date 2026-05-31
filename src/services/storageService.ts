@@ -47,14 +47,13 @@ class StorageService {
 	async saveImage(file: File, id: string): Promise<void> {
 		try {
 			const db = await this.getDB();
+			// Safari rejects Blob/File in IndexedDB — store as {buffer, type} instead
+			const buffer = await file.arrayBuffer();
+			const record = { buffer, type: file.type };
 			return new Promise((resolve, reject) => {
 				const transaction = db.transaction([STORE_NAME], "readwrite");
 				const store = transaction.objectStore(STORE_NAME);
-
-				// We store the file blob directly
-				// We could also store metadata if needed
-				const request = store.put(file, id);
-
+				const request = store.put(record, id);
 				request.onsuccess = () => resolve();
 				request.onerror = () => reject(request.error);
 			});
@@ -67,17 +66,24 @@ class StorageService {
 	/**
 	 * Retrieves an image file from IndexedDB by ID
 	 */
-	async getImage(id: string): Promise<File | Blob | undefined> {
+	async getImage(id: string): Promise<Blob | undefined> {
 		try {
 			const db = await this.getDB();
-			return new Promise((resolve, reject) => {
+			const record = await new Promise<
+				{ buffer: ArrayBuffer; type: string } | Blob | File | undefined
+			>((resolve, reject) => {
 				const transaction = db.transaction([STORE_NAME], "readonly");
 				const store = transaction.objectStore(STORE_NAME);
 				const request = store.get(id);
-
 				request.onsuccess = () => resolve(request.result);
 				request.onerror = () => reject(request.error);
 			});
+			if (!record) return undefined;
+			// Handle legacy Blob/File records and new {buffer, type} records
+			if (record instanceof Blob) return record;
+			if ("buffer" in record)
+				return new Blob([record.buffer], { type: record.type });
+			return undefined;
 		} catch (error) {
 			logger.error("Failed to get image from storage", { id, error });
 			return undefined;
