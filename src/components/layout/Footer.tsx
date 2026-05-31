@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ExternalLink, ShieldCheck, Cookie } from "lucide-react";
-import { PrivacyModal } from "./PrivacyModal";
+import { PrivacyModal } from "../privacy/PrivacyModal";
 
 export function Footer() {
 	const [privacyOpen, setPrivacyOpen] = useState(false);

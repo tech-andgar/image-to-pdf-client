@@ -1,8 +1,8 @@
-import { useTheme } from "../../hooks/ui/useTheme";
+import { useTheme } from "../../hooks/theme/useTheme";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PwaRenameBanner } from "./PwaRenameBanner";
-import { CookieConsent } from "./CookieConsent";
+import { CookieConsent } from "../privacy/CookieConsent";
 
 interface MainLayoutProps {
 	children: React.ReactNode;
