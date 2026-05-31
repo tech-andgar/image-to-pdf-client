@@ -1,7 +1,7 @@
 import { FileDown, AlertCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilenameInput } from "./FilenameInput";
-import { formatFileSize } from "../../services/imageCompressionService";
+import { formatFileSize } from "../../lib/image/compression";
 
 interface ShareResult {
 	success: boolean;
