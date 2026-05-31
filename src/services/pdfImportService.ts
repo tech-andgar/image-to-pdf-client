@@ -3,7 +3,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import type { ImageFile } from "../types/image";
 import { blobToUint8Array, bitmapToBlob } from "../lib/image/canvas-utils";
 
-// Safari lacks ReadableStream[Symbol.asyncIterator] which pdfjs requires
+// Safari lacks ReadableStream[Symbol.asyncIterator] which pdfjs v6 requires internally
 if (
 	typeof ReadableStream !== "undefined" &&
 	!ReadableStream.prototype[Symbol.asyncIterator]
@@ -15,6 +15,7 @@ if (
 	];
 }
 
+// Use fake worker src — pdfjs will fall back to main-thread if worker fails to load
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
 	"pdfjs-dist/build/pdf.worker.min.mjs",
 	import.meta.url,
