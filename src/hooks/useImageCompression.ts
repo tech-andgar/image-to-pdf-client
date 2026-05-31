@@ -23,6 +23,7 @@ export function useImageCompression() {
 	const [compressionStats, setCompressionStats] =
 		useState<CompressionStats | null>(null);
 	const originalImagesRef = useRef<ImageFile[] | null>(null);
+	const compressionCacheRef = useRef<Map<string, ImageFile>>(new Map());
 
 	const currentOptions = useMemo(
 		() => COMPRESSION_PRESETS[currentPreset],
@@ -38,6 +39,13 @@ export function useImageCompression() {
 				throw new Error("No hay imágenes para comprimir");
 
 			originalImagesRef.current ??= images;
+			// Merge any new originals not yet tracked (images added after first compression)
+			const knownIds = new Set(originalImagesRef.current.map((i) => i.id));
+			for (const img of images) {
+				if (!knownIds.has(img.id)) {
+					originalImagesRef.current.push(img);
+				}
+			}
 			const baseImages = originalImagesRef.current;
 
 			setIsCompressing(true);
@@ -47,32 +55,59 @@ export function useImageCompression() {
 
 			try {
 				const startTime = Date.now();
-				const imageFiles = baseImages.map((img) => img.file);
 
-				// Compress images in batch
-				const compressedResults = await compressImagesBatch(
-					imageFiles,
-					currentOptions,
-					(progress) => setCompressionProgress(progress),
+				// Split: cached vs needs compression
+				const cache = compressionCacheRef.current;
+				const toCompress = baseImages.filter(
+					(img) => !cache.has(`${img.id}:${currentPreset}`),
 				);
 
-				const stats = calculateCompressionStats(imageFiles, compressedResults);
+				let compressedResults: Awaited<ReturnType<typeof compressImagesBatch>> =
+					[];
+				if (toCompress.length > 0) {
+					const imageFiles = toCompress.map((img) => img.file);
+					compressedResults = await compressImagesBatch(
+						imageFiles,
+						currentOptions,
+						(progress) => setCompressionProgress(progress),
+					);
+
+					// Store new results in cache
+					toCompress.forEach((originalImg, i) => {
+						const compressed = compressedResults[i];
+						if (compressed) {
+							cache.set(`${originalImg.id}:${currentPreset}`, {
+								...originalImg,
+								file: compressed.file,
+								preview: URL.createObjectURL(compressed.file),
+								storageId: undefined,
+							});
+						}
+					});
+				}
+
+				// Stats: combine all images (new + cached)
+				const allOriginalFiles = baseImages.map((img) => img.file);
+				const allCompressedFiles = baseImages.map((img) => {
+					const cached = cache.get(`${img.id}:${currentPreset}`);
+					return cached
+						? { file: cached.file }
+						: compressedResults.find((r) =>
+								r.file.name.includes(img.file.name.split(".")[0]),
+							) ?? { file: img.file };
+				});
+				const stats = calculateCompressionStats(
+					allOriginalFiles,
+					allCompressedFiles,
+				);
 				stats.time_elapsed = Date.now() - startTime;
 				setCompressionStats(stats);
 
-				// Create updated ImageFile objects with compressed files
-				const updatedImages = baseImages.map((originalImg) => {
-					const compressed = compressedResults.find((result) =>
-						result.file.name.includes(originalImg.file.name.split(".")[0]),
-					);
-					if (!compressed) return originalImg;
-					return {
-						...originalImg,
-						file: compressed.file,
-						preview: URL.createObjectURL(compressed.file),
-						storageId: undefined,
-					};
-				});
+				// Build final image list from cache (all should be cached now)
+				const updatedImages = baseImages.map(
+					(originalImg) =>
+						cache.get(`${originalImg.id}:${currentPreset}`) ?? originalImg,
+				);
 
 				setCompressionProgress(1);
 				return updatedImages;
@@ -111,6 +146,7 @@ export function useImageCompression() {
 		setCompressionProgress(0);
 		setCompressionStats(null);
 		originalImagesRef.current = null;
+		compressionCacheRef.current = new Map();
 	}, []);
 
 	/**
