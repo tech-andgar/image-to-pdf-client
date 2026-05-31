@@ -23,11 +23,12 @@ export class PdfGenerator {
 			throw new Error("No images provided for PDF generation");
 
 		try {
-			const { PDFDocument } = await import("pdf-lib");
-			const pdfDoc = await PDFDocument.create();
+			const pdfLib = await import("pdf-lib");
+			const pdfDoc = await pdfLib.PDFDocument.create();
 			const validImages = images.filter((img) => !img.error);
 
 			const copiedPageCache = await this.preparePdfSources(
+				pdfLib,
 				pdfDoc,
 				validImages,
 				preset,
@@ -53,11 +54,11 @@ export class PdfGenerator {
 	}
 
 	private async preparePdfSources(
+		pdfLib: typeof import("pdf-lib"),
 		pdfDoc: PDFDocumentType,
 		images: ImageFile[],
 		preset?: CompressionPreset,
 	): Promise<Map<Uint8Array, Map<number, PDFPage>>> {
-		const { PDFDocument } = await import("pdf-lib");
 		const copiedPageCache = new Map<Uint8Array, Map<number, PDFPage>>();
 
 		const sourcePageIndices = new Map<Uint8Array, Set<number>>();
@@ -77,7 +78,7 @@ export class PdfGenerator {
 					})
 				: pdfBytes;
 
-			const srcDoc = await PDFDocument.load(sourceBytesToLoad);
+			const srcDoc = await pdfLib.PDFDocument.load(sourceBytesToLoad);
 			const indices = Array.from(pageIndices);
 			const copiedPages = await pdfDoc.copyPages(srcDoc, indices);
 
