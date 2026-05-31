@@ -12,6 +12,10 @@ declare global {
 }
 
 class AppLoggerService extends LoggerService {
+	private rejectionHandler: ((event: PromiseRejectionEvent) => void) | null =
+		null;
+	private errorHandler: ((event: ErrorEvent) => void) | null = null;
+
 	constructor() {
 		super({ storageKey: STORAGE_KEYS.LOGS });
 		this.attachGlobalHandlers();
@@ -27,18 +31,28 @@ class AppLoggerService extends LoggerService {
 		});
 	}
 
-	private attachGlobalHandlers() {
-		window.addEventListener("unhandledrejection", (event) => {
-			this.error("Unhandled promise rejection", { reason: event.reason });
-		});
+	destroy() {
+		if (this.rejectionHandler) {
+			window.removeEventListener("unhandledrejection", this.rejectionHandler);
+		}
+		if (this.errorHandler) {
+			window.removeEventListener("error", this.errorHandler);
+		}
+	}
 
-		window.addEventListener("error", (event) => {
+	private attachGlobalHandlers() {
+		this.rejectionHandler = (event) => {
+			this.error("Unhandled promise rejection", { reason: event.reason });
+		};
+		this.errorHandler = (event) => {
 			this.error("Global error", {
 				message: event.message,
 				source: event.filename,
 				line: event.lineno,
 			});
-		});
+		};
+		window.addEventListener("unhandledrejection", this.rejectionHandler);
+		window.addEventListener("error", this.errorHandler);
 	}
 }
 
