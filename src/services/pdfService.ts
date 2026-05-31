@@ -1,7 +1,7 @@
 import type { PDFImage } from "pdf-lib";
 import type { ImageFile, CompressionPreset } from "../types/image";
 import { COMPRESSION_PRESETS } from "../types/image";
-import { compressAllPdfImages } from "../lib/pdf/pdf-page-compressor";
+import { compressAllPdfImages } from "../lib/pdf/pdf-compressor";
 import { sanitizeFilename, generateFallbackFilename } from "./fileSanitizer";
 import type { IUniversalShareService, ShareResult } from "./shareService";
 import { createBestShareService } from "./shareService";
