@@ -1,13 +1,10 @@
-/** Max log entries kept in localStorage */
-export const MAX_LOG_ENTRIES = 100;
+export {
+	MAX_LOG_ENTRIES,
+	LOG_FLUSH_DEBOUNCE_MS,
+} from "../core/logger/config";
 
-/** Max user metric entries kept in localStorage */
 export const MAX_METRIC_ENTRIES = 200;
 
-/** Logger flush debounce in ms */
-export const LOG_FLUSH_DEBOUNCE_MS = 1000;
-
-/** localStorage keys */
 export const STORAGE_KEYS = {
 	LOGS: "app_logs",
 	METRICS: "user_metrics",
