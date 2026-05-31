@@ -37,6 +37,44 @@ export function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
 	});
 }
 
+/**
+ * Extracts RGB as JPEG bytes and alpha channel as raw grayscale bytes from a bitmap.
+ * Used for PDF images with transparency — RGB goes to DCTDecode, alpha to a FlateDecode SMask.
+ */
+export async function extractRgbAndAlpha(
+	bitmap: ImageBitmap,
+	quality: number,
+): Promise<{ rgbJpeg: Uint8Array; alphaRaw: Uint8Array }> {
+	const { width, height } = bitmap;
+	const canvas = document.createElement("canvas");
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext("2d");
+	if (!ctx) throw new Error("No 2d canvas context");
+	ctx.drawImage(bitmap, 0, 0);
+
+	const imageData = ctx.getImageData(0, 0, width, height);
+	const pixels = imageData.data; // RGBA interleaved
+
+	// Extract alpha as grayscale bytes (1 byte per pixel)
+	const alphaRaw = new Uint8Array(width * height);
+	for (let i = 0; i < width * height; i++) {
+		alphaRaw[i] = pixels[i * 4 + 3];
+	}
+
+	// Encode RGB as JPEG (alpha ignored by toBlob)
+	const rgbBlob = await new Promise<Blob>((resolve, reject) =>
+		canvas.toBlob(
+			(b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
+			"image/jpeg",
+			quality,
+		),
+	);
+	const rgbJpeg = new Uint8Array(await rgbBlob.arrayBuffer());
+
+	return { rgbJpeg, alphaRaw };
+}
+
 export async function imageToBlobViaCanvas(
 	source: HTMLImageElement | ImageBitmap,
 	mimeType: "image/jpeg" | "image/webp",
