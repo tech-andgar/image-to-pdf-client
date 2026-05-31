@@ -5,16 +5,21 @@ import type {
 } from "pdf-lib";
 import type { ImageFile, CompressionPreset } from "../../types/image";
 import { COMPRESSION_PRESETS } from "../../types/image";
-import { clampDimensions, DEFAULT_JPEG_QUALITY } from "../../config/limits";
-import {
-	loadImageFromUrl,
-	blobToUint8Array,
-} from "../../lib/image/canvas-utils";
+import { toEmbeddableImageBytes } from "../../lib/image/canvas-utils";
 import { compressAllPdfImages } from "../../lib/pdf/pdf-compressor";
 import { logger } from "../logger";
 import { storageService } from "../storage/storageService";
 
+type PdfLib = typeof import("pdf-lib");
+
 export class PdfGenerator {
+	private pdfLib: PdfLib | null = null;
+
+	private async getPdfLib(): Promise<PdfLib> {
+		this.pdfLib ??= await import("pdf-lib");
+		return this.pdfLib;
+	}
+
 	async generate(
 		images: ImageFile[],
 		preset?: CompressionPreset,
@@ -23,7 +28,7 @@ export class PdfGenerator {
 			throw new Error("No images provided for PDF generation");
 
 		try {
-			const pdfLib = await import("pdf-lib");
+			const pdfLib = await this.getPdfLib();
 			const pdfDoc = await pdfLib.PDFDocument.create();
 			const validImages = images.filter((img) => !img.error);
 
@@ -54,7 +59,7 @@ export class PdfGenerator {
 	}
 
 	private async preparePdfSources(
-		pdfLib: typeof import("pdf-lib"),
+		pdfLib: PdfLib,
 		pdfDoc: PDFDocumentType,
 		images: ImageFile[],
 		preset?: CompressionPreset,
@@ -110,9 +115,11 @@ export class PdfGenerator {
 		pdfDoc: PDFDocumentType,
 		image: ImageFile,
 	): Promise<void> {
-		const imageBytes = await this.resolveImageBytes(image);
-		const { bytes: embedBytes, type: embedType } =
-			await this.ensureEmbeddableFormat(imageBytes, image.file.type);
+		const rawBytes = await this.resolveImageBytes(image);
+		const { bytes: embedBytes, type: embedType } = await toEmbeddableImageBytes(
+			rawBytes,
+			image.file.type,
+		);
 
 		let embeddedImage: PDFImage;
 		if (embedType === "image/jpeg") {
@@ -139,65 +146,12 @@ export class PdfGenerator {
 			}
 		}
 
-		if (!(await this.isFileAccessible(image.file))) {
+		if (image.file.size === 0) {
 			throw new Error(
 				`Archivo "${image.file.name}" inválido. Reinicie la aplicación y cargue las imágenes nuevamente.`,
 			);
 		}
 
 		return new Uint8Array(await image.file.arrayBuffer());
-	}
-
-	private async ensureEmbeddableFormat(
-		bytes: Uint8Array,
-		mimeType: string,
-	): Promise<{ bytes: Uint8Array; type: string }> {
-		if (
-			mimeType === "image/jpeg" ||
-			mimeType === "image/jpg" ||
-			mimeType === "image/png"
-		) {
-			return {
-				bytes,
-				type: mimeType === "image/jpg" ? "image/jpeg" : mimeType,
-			};
-		}
-
-		const blobUrl = URL.createObjectURL(
-			new Blob([bytes.buffer as ArrayBuffer], { type: mimeType }),
-		);
-		try {
-			const img = await loadImageFromUrl(blobUrl);
-			const { width, height } = clampDimensions(
-				img.naturalWidth,
-				img.naturalHeight,
-			);
-
-			const canvas = document.createElement("canvas");
-			canvas.width = width;
-			canvas.height = height;
-			const ctx = canvas.getContext("2d");
-			if (!ctx) throw new Error("No canvas context");
-			ctx.drawImage(img, 0, 0, width, height);
-
-			const blob = await new Promise<Blob>((resolve, reject) =>
-				canvas.toBlob(
-					(b) => (b ? resolve(b) : reject(new Error("toBlob failed"))),
-					"image/jpeg",
-					DEFAULT_JPEG_QUALITY,
-				),
-			);
-			return { bytes: await blobToUint8Array(blob), type: "image/jpeg" };
-		} finally {
-			URL.revokeObjectURL(blobUrl);
-		}
-	}
-
-	private async isFileAccessible(file: File): Promise<boolean> {
-		try {
-			return file.size !== undefined && file.size >= 0;
-		} catch {
-			return false;
-		}
 	}
 }
