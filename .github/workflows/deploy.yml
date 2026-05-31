@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 2
+        fetch-depth: 0
     - name: Check for changes
       id: filter
       shell: bash
@@ -26,7 +26,10 @@ jobs:
         fi
 
         if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-          if git diff --quiet HEAD~1 -- src/ public/ package.json tsconfig.json vite.config.js biome.json tailwind.config.js postcss.config.js components.json index.html '*.config.js' '*.config.ts'; then
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "source-changed=true" >> $GITHUB_OUTPUT
+          elif git diff --quiet "$BEFORE" HEAD -- src/ public/ package.json tsconfig.json vite.config.js biome.json tailwind.config.js postcss.config.js components.json index.html '*.config.js' '*.config.ts'; then
             echo "source-changed=false" >> $GITHUB_OUTPUT
           else
             echo "source-changed=true" >> $GITHUB_OUTPUT
