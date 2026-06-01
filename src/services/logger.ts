@@ -25,7 +25,7 @@ class AppLoggerService extends LoggerService {
 	override error(message: string, data?: unknown) {
 		super.error(message, data);
 		analytics.track({
-			action: "exception",
+			action: "app_exception",
 			category: "error",
 			params: { description: message, fatal: false },
 		});

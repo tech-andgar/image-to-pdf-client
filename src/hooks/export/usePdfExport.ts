@@ -64,10 +64,6 @@ export function usePdfExport() {
 					userMetrics.trackPdfExported(images.length, pdfBytes.length);
 				},
 				(error) => {
-					userMetrics.trackError(
-						"pdf_export",
-						error instanceof Error ? error.message : "unknown",
-					);
 					setExportError(
 						error instanceof Error ? error.message : "Error al exportar PDF",
 					);
@@ -101,10 +97,6 @@ export function usePdfExport() {
 					}
 				},
 				(error) => {
-					userMetrics.trackError(
-						"pdf_share",
-						error instanceof Error ? error.message : "unknown",
-					);
 					setShareResult({
 						success: false,
 						method: "none",

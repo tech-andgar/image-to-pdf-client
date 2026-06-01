@@ -97,12 +97,13 @@ export class AnalyticsService {
 		const start = this.timers.get(label);
 		if (start === undefined) return;
 		this.timers.delete(label);
-		const duration = Math.round(performance.now() - start);
+		const duration_ms = Math.round(performance.now() - start);
+		const duration_s = Math.round(duration_ms / 100) / 10; // 1 decimal second
 		this.track({
-			action: label,
+			action: `app_${label}`,
 			category: "performance",
-			value: duration,
-			params: { duration_ms: duration },
+			value: duration_s,
+			params: { duration_ms },
 		});
 	}
 
