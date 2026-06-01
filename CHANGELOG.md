@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.4] - 2026-06-01
+
+### Changed
+
+- Completed design token migration across all components
+- Removed hard-coded color classes in favor of design tokens
+- Simplified conditional styling with unified token palette
+
 ## [0.4.3] - 2026-06-01
 
 ### Changed
