@@ -111,7 +111,7 @@ export function ImagePreviewModal({
 						<Button
 							variant="ghost"
 							size="icon"
-							className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50 bg-black/20 text-white hover:bg-black/40 rounded-full w-12 h-12"
+							className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50 bg-background/70 text-foreground hover:bg-background/90 rounded-full w-12 h-12 border shadow-sm"
 							onClick={navigateToPrevious}
 						>
 							<ChevronLeft className="h-6 w-6" />
@@ -119,7 +119,7 @@ export function ImagePreviewModal({
 						<Button
 							variant="ghost"
 							size="icon"
-							className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50 bg-black/20 text-white hover:bg-black/40 rounded-full w-12 h-12"
+							className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50 bg-background/70 text-foreground hover:bg-background/90 rounded-full w-12 h-12 border shadow-sm"
 							onClick={navigateToNext}
 						>
 							<ChevronRight className="h-6 w-6" />
@@ -129,7 +129,7 @@ export function ImagePreviewModal({
 
 				<div className="flex flex-col flex-1 min-h-0">
 					<div
-						className="flex-1 min-h-0 flex items-center justify-center overflow-auto"
+						className="flex-1 min-h-0 flex items-center justify-center overflow-auto bg-muted/30"
 						style={{ touchAction: "pinch-zoom" }}
 					>
 						{currentImage.preview ? (

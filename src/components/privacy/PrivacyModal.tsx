@@ -2,6 +2,13 @@ import { useState } from "react";
 import { Bug, Shield, BarChart3, Lock } from "lucide-react";
 import { consentService } from "../../services/privacy/consent";
 import { logger } from "../../services/logger";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogDescription,
+} from "../ui/dialog";
 
 interface PrivacyModalProps {
 	open: boolean;
@@ -10,8 +17,6 @@ interface PrivacyModalProps {
 
 export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 	const [analytics, setAnalytics] = useState(consentService.analytics);
-
-	if (!open) return null;
 
 	const handleSave = () => {
 		consentService.accept({ analytics });
@@ -24,31 +29,25 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = url;
-		a.download = `documergepdf-logs-${new Date().toISOString().slice(0, 10)}.json`;
+		a.download = `logs-${new Date().toISOString().slice(0, 10)}.json`;
 		a.click();
 		URL.revokeObjectURL(url);
 		window.open(
-			"mailto:dev@tech-andgar.me?subject=Bug%20Report%20-%20DocuMergePDF&body=Adjunta%20el%20archivo%20de%20logs%20descargado%20y%20describe%20el%20problema.",
+			"mailto:dev@tech-andgar.me?subject=Bug%20Report%20-%20Image%20to%20PDF&body=Adjunta%20el%20archivo%20de%20logs%20descargado%20y%20describe%20el%20problema.",
 		);
 	};
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-			role="dialog"
-			aria-modal="true"
-			aria-label="Privacidad"
-			onClick={onClose}
-			onKeyDown={(e) => e.key === "Escape" && onClose()}
-		>
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: handled on parent */}
-			<div
-				className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-2xl"
-				onClick={(e) => e.stopPropagation()}
-			>
-				<h2 className="text-lg font-semibold">Privacidad</h2>
+		<Dialog open={open} onOpenChange={onClose}>
+			<DialogContent className="mx-4 w-full max-w-md p-6">
+				<DialogHeader>
+					<DialogTitle>Privacidad</DialogTitle>
+					<DialogDescription className="sr-only">
+						Configuración de privacidad y cookies
+					</DialogDescription>
+				</DialogHeader>
 
-				<div className="mt-5 space-y-4">
+				<div className="mt-1 space-y-4">
 					<div className="flex gap-3">
 						<Lock className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
 						<div>
@@ -122,7 +121,7 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 						</button>
 					</div>
 				</div>
-			</div>
-		</div>
+			</DialogContent>
+		</Dialog>
 	);
 }
