@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import type { ImageFile } from "../../types/image";
+import { useTouchSwipe } from "../../hooks/useTouchSwipe";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -78,6 +79,8 @@ export function ImagePreviewModal({
 		navigateToNext,
 	]);
 
+	const swipe = useTouchSwipe(navigateToNext, navigateToPrevious);
+
 	if (!currentImage) return null;
 
 	const validImages = images.filter((img) => img.preview && !img.error);
@@ -86,7 +89,10 @@ export function ImagePreviewModal({
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="max-w-4xl w-full h-full max-h-[90vh] p-0 overflow-hidden">
+			<DialogContent
+				className="max-w-4xl w-full h-full max-h-[90vh] p-0 overflow-hidden"
+				{...swipe}
+			>
 				<DialogHeader className="sr-only">
 					<DialogTitle>Preview de imagen</DialogTitle>
 					<DialogDescription>
