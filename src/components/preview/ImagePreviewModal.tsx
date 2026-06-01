@@ -1,7 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect } from "react";
-
-import type { ImageFile } from "../types/image";
+import type { ImageFile } from "../../types/image";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -12,11 +11,11 @@ import {
 } from "../ui/dialog";
 
 interface ImagePreviewModalProps {
-	images: ImageFile[];
-	currentIndex: number | null;
-	isOpen: boolean;
-	onClose: () => void;
-	onImageSelect?: (index: number) => void;
+	readonly images: ImageFile[];
+	readonly currentIndex: number | null;
+	readonly isOpen: boolean;
+	readonly onClose: () => void;
+	readonly onImageSelect?: (index: number) => void;
 }
 
 export function ImagePreviewModal({
@@ -25,34 +24,25 @@ export function ImagePreviewModal({
 	isOpen,
 	onClose,
 	onImageSelect,
-}: Readonly<ImagePreviewModalProps>) {
+}: ImagePreviewModalProps) {
 	const currentImage = currentIndex !== null ? images[currentIndex] : null;
 	const hasMultipleImages = images.length > 1;
 
-	// Navigation functions
 	const navigateToPrevious = useCallback(() => {
 		if (currentIndex === null || images.length === 0) return;
-
 		const prevIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-		if (onImageSelect) {
-			onImageSelect(prevIndex);
-		}
+		onImageSelect?.(prevIndex);
 	}, [currentIndex, images.length, onImageSelect]);
 
 	const navigateToNext = useCallback(() => {
 		if (currentIndex === null || images.length === 0) return;
-
 		const nextIndex = (currentIndex + 1) % images.length;
-		if (onImageSelect) {
-			onImageSelect(nextIndex);
-		}
+		onImageSelect?.(nextIndex);
 	}, [currentIndex, images.length, onImageSelect]);
 
-	// Handle keyboard navigation
 	useEffect(() => {
 		const handleKeyPress = (event: KeyboardEvent) => {
 			if (!isOpen || currentIndex === null) return;
-
 			switch (event.key) {
 				case "ArrowLeft":
 				case "ArrowUp":
@@ -71,13 +61,10 @@ export function ImagePreviewModal({
 				case "Enter":
 				case " ":
 					event.preventDefault();
-					if (onImageSelect) {
-						onImageSelect(currentIndex);
-					}
+					onImageSelect?.(currentIndex);
 					break;
 			}
 		};
-
 		if (isOpen) {
 			document.addEventListener("keydown", handleKeyPress);
 			return () => document.removeEventListener("keydown", handleKeyPress);
@@ -107,7 +94,6 @@ export function ImagePreviewModal({
 					</DialogDescription>
 				</DialogHeader>
 
-				{/* Navigation buttons */}
 				{hasMultipleImages && (
 					<>
 						<Button
@@ -129,9 +115,7 @@ export function ImagePreviewModal({
 					</>
 				)}
 
-				{/* Main content - Full screen image */}
 				<div className="flex flex-col h-full">
-					{/* Full screen image container - no padding, no background */}
 					<div className="flex-1 flex items-center justify-center">
 						{currentImage.preview ? (
 							<img
@@ -146,7 +130,6 @@ export function ImagePreviewModal({
 						)}
 					</div>
 
-					{/* Footer with image info */}
 					<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-6 py-4 space-y-2">
 						{currentImage.pdfSource && (
 							<p className="text-xs text-muted-foreground text-center">

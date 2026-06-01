@@ -8,12 +8,12 @@ import {
 } from "../../types/image";
 
 interface UploadAreaProps {
-	isDragOver: boolean;
-	isProcessing: boolean;
-	onDragOver: (e: DragEvent<HTMLDivElement>) => void;
-	onDragLeave: (e: DragEvent<HTMLDivElement>) => void;
-	onDrop: (e: DragEvent<HTMLDivElement>) => void;
-	onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void;
+	readonly isDragOver: boolean;
+	readonly isProcessing: boolean;
+	readonly onDragOver: (e: DragEvent<HTMLDivElement>) => void;
+	readonly onDragLeave: (e: DragEvent<HTMLDivElement>) => void;
+	readonly onDrop: (e: DragEvent<HTMLDivElement>) => void;
+	readonly onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function UploadArea({
@@ -23,7 +23,7 @@ export function UploadArea({
 	onDragLeave,
 	onDrop,
 	onFileSelect,
-}: Readonly<UploadAreaProps>) {
+}: UploadAreaProps) {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const baseClass =
