@@ -64,12 +64,9 @@ export function useImageCompression() {
 						COMPRESSION_PRESETS[activePreset],
 						(progress) => setCompressionProgress(progress),
 					);
-					// Build id→result map for O(1) lookup (toCompress and freshResults are index-aligned)
-					const freshById = new Map<string, CompressionResult>();
 					toCompress.forEach((originalImg, i) => {
 						const compressed = freshResults[i];
 						if (!compressed) return;
-						freshById.set(originalImg.id, compressed);
 						cache.set(originalImg.id, activePreset, {
 							imageFile: {
 								...originalImg,
@@ -104,10 +101,8 @@ export function useImageCompression() {
 				analytics.timeEnd("image_compression");
 
 				const reductionPercent =
-					stats.totalOriginalSize > 0
-						? Math.round(
-								(1 - stats.totalCompressedSize / stats.totalOriginalSize) * 100,
-							)
+					stats.originalSize > 0
+						? Math.round((1 - stats.compressedSize / stats.originalSize) * 100)
 						: 0;
 				userMetrics.trackCompressionUsed(activePreset, reductionPercent);
 
