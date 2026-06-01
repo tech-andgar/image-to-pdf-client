@@ -110,8 +110,26 @@ export class LoggerService {
 			timestamp: new Date().toISOString(),
 			level,
 			message,
-			...(data === undefined ? {} : { data }),
+			...(data === undefined ? {} : { data: this.safeSerialize(data) }),
 		};
+	}
+
+	private safeSerialize(data: unknown): unknown {
+		if (data instanceof Error) {
+			return { name: data.name, message: data.message, stack: data.stack };
+		}
+		// Handle pdfjs-style exceptions and other non-standard error objects
+		if (data !== null && typeof data === "object") {
+			const obj = data as Record<string, unknown>;
+			if (typeof obj.message === "string" || typeof obj.name === "string") {
+				return { name: obj.name, message: obj.message, code: obj.code };
+			}
+		}
+		try {
+			return JSON.parse(JSON.stringify(data));
+		} catch {
+			return String(data);
+		}
 	}
 
 	private persist(entry: LogEntry) {
