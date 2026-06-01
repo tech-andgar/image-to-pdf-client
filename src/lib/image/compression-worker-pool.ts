@@ -1,4 +1,5 @@
 import type { CompressionOptions, CompressionResult } from "../../types/image";
+import { compressImageFile } from "./compression";
 import { MAX_IMAGE_PIXELS } from "../../config/limits";
 
 interface WorkerResponse {
@@ -69,8 +70,6 @@ export async function compressInWorker(
 ): Promise<CompressionResult> {
 	const w = getWorker();
 	if (!w) {
-		// Fall back to main-thread compression
-		const { compressImageFile } = await import("./compression");
 		return compressImageFile(file, options);
 	}
 

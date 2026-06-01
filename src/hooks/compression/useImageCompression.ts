@@ -10,6 +10,7 @@ import {
 	compressImagesBatch,
 	calculateCompressionStats,
 } from "../../lib/image/compression";
+import { terminateCompressionWorker } from "../../lib/image/compression-worker-pool";
 import { userMetrics } from "../../services/privacy/userMetrics";
 import { analytics } from "../../core/analytics";
 import { useCompressionCache } from "./useCompressionCache";
@@ -135,11 +136,7 @@ export function useImageCompression() {
 	const resetCompression = useCallback(() => {
 		resetState();
 		cache.reset();
-		import("../../lib/image/compression-worker-pool").then(
-			({ terminateCompressionWorker }) => {
-				terminateCompressionWorker();
-			},
-		);
+		terminateCompressionWorker();
 	}, [resetState, cache]);
 
 	return {
