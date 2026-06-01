@@ -68,12 +68,25 @@ function collectUniqueImageRefs(
 		const resources = page.node.Resources();
 		if (!resources) continue;
 
-		const xObjectDict = resources.lookup(PDFName.of("XObject"), PDFDict);
-		if (!xObjectDict) continue;
+		// lookup throws when XObject value isn't a PDFDict (malformed PDF)
+		let xObjectDict: unknown;
+		try {
+			xObjectDict = resources.lookup(PDFName.of("XObject"), PDFDict);
+		} catch {
+			continue;
+		}
+		if (
+			!xObjectDict ||
+			typeof (xObjectDict as Record<string, unknown>).entries !== "function"
+		)
+			continue;
+		const dictEntries = (
+			xObjectDict as { entries(): [unknown, unknown][] }
+		).entries();
 
-		for (const [key, ref] of xObjectDict.entries()) {
+		for (const [key, ref] of dictEntries) {
 			if (!refToName.has(ref as PDFRef)) {
-				refToName.set(ref as PDFRef, key.toString().replace(/^\//, ""));
+				refToName.set(ref as PDFRef, String(key).replace(/^\//, ""));
 			}
 		}
 	}

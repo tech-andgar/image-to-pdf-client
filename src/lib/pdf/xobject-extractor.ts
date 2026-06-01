@@ -56,14 +56,28 @@ export function extractImageXObjects(
 	const resources = page.node.Resources();
 	if (!resources) return results;
 
-	const xObjects = resources.lookup(PDFName.of("XObject"), PDFDict);
-	if (!xObjects) return results;
+	let xObjects: unknown;
+	try {
+		xObjects = resources.lookup(PDFName.of("XObject"), PDFDict);
+	} catch {
+		return results;
+	}
+	if (
+		!xObjects ||
+		typeof (xObjects as Record<string, unknown>).entries !== "function"
+	)
+		return results;
+	const xObjEntries = (
+		xObjects as { entries(): [unknown, unknown][] }
+	).entries();
 
-	for (const [key, ref] of xObjects.entries()) {
-		const stream = page.doc.context.lookup(ref);
+	for (const [key, ref] of xObjEntries) {
+		const stream = page.doc.context.lookup(
+			ref as Parameters<typeof page.doc.context.lookup>[0],
+		);
 		if (!(stream instanceof PDFRawStream)) continue;
 
-		const name = key.toString().replace(/^\//, "");
+		const name = String(key).replace(/^\//, "");
 		const xobj = buildPdfXObjectFromStream(pdfLib, stream, name);
 		if (xobj) results.push(xobj);
 	}

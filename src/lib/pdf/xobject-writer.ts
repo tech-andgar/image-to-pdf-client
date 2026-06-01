@@ -18,21 +18,31 @@ export async function writeCompressedXObject(
 	const dict = originalStream.dict;
 	type LiteralDict = Parameters<typeof pdfDoc.context.stream>[1];
 
-	const streamDict = {
+	// Build dict omitting undefined entries — pdf-lib throws on undefined values
+	const entries: Record<string, unknown> = {
 		Type: "XObject",
 		Subtype: "Image",
 		Width: result.width,
 		Height: result.height,
-		ColorSpace: dict.get(PDFName.of("ColorSpace")),
-		BitsPerComponent: dict.get(PDFName.of("BitsPerComponent")),
 		Filter: PDFName.of("DCTDecode"),
-	} as LiteralDict;
+	};
+
+	const colorSpace = dict.get(PDFName.of("ColorSpace"));
+	if (colorSpace !== undefined) entries.ColorSpace = colorSpace;
+
+	const bitsPerComponent = dict.get(PDFName.of("BitsPerComponent"));
+	if (bitsPerComponent !== undefined)
+		entries.BitsPerComponent = bitsPerComponent;
 
 	const sMaskRef = dict.get(PDFName.of("SMask"));
-	const maskRef = dict.get(PDFName.of("Mask"));
-	if (sMaskRef) (streamDict as Record<string, unknown>).SMask = sMaskRef;
-	if (maskRef) (streamDict as Record<string, unknown>).Mask = maskRef;
+	if (sMaskRef !== undefined) entries.SMask = sMaskRef;
 
-	pdfDoc.context.assign(ref, pdfDoc.context.stream(result.bytes, streamDict));
+	const maskRef = dict.get(PDFName.of("Mask"));
+	if (maskRef !== undefined) entries.Mask = maskRef;
+
+	pdfDoc.context.assign(
+		ref,
+		pdfDoc.context.stream(result.bytes, entries as LiteralDict),
+	);
 	return true;
 }
