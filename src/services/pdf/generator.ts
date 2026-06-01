@@ -7,6 +7,7 @@ import type { ImageFile, CompressionPreset } from "../../types/image";
 import { COMPRESSION_PRESETS } from "../../types/image";
 import { toEmbeddableImageBytes } from "../../lib/image/canvas-utils";
 import { compressAllPdfImages } from "../../lib/pdf/pdf-compressor";
+import { loadPdfDoc } from "../../lib/pdf/types";
 import { MAX_PAGE_POINTS } from "../../config/limits";
 import { logger } from "../logger";
 import { storageService } from "../storage/storageService";
@@ -15,17 +16,11 @@ type PdfLib = typeof import("pdf-lib");
 
 export class PdfGenerator {
 	private pdfLib: PdfLib | null = null;
-	// Key: `${pdfBytes object identity via WeakMap index}:${preset}` → compressed bytes
-	private readonly compressCache = new Map<string, Uint8Array>();
-	private readonly bytesKeyMap = new WeakMap<Uint8Array, number>();
-	private bytesKeyCounter = 0;
-
-	private getBytesKey(pdfBytes: Uint8Array): string {
-		if (!this.bytesKeyMap.has(pdfBytes)) {
-			this.bytesKeyMap.set(pdfBytes, this.bytesKeyCounter++);
-		}
-		return String(this.bytesKeyMap.get(pdfBytes));
-	}
+	// WeakMap<originalBytes, Map<preset, compressedBytes>>
+	private readonly compressCache = new WeakMap<
+		Uint8Array,
+		Map<string, Uint8Array>
+	>();
 
 	private async getPdfLib(): Promise<PdfLib> {
 		this.pdfLib ??= await import("pdf-lib");
@@ -88,24 +83,27 @@ export class PdfGenerator {
 		}
 
 		for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
-			const cacheKey = `${this.getBytesKey(pdfBytes)}:${preset ?? "none"}`;
 			let sourceBytesToLoad: Uint8Array;
 			if (preset) {
-				const cached = this.compressCache.get(cacheKey);
-				if (cached) {
-					sourceBytesToLoad = cached;
-				} else {
-					sourceBytesToLoad = await compressAllPdfImages(pdfLib, pdfBytes, {
+				let presetCache = this.compressCache.get(pdfBytes);
+				if (!presetCache) {
+					presetCache = new Map();
+					this.compressCache.set(pdfBytes, presetCache);
+				}
+				let compressed = presetCache.get(preset);
+				if (!compressed) {
+					compressed = await compressAllPdfImages(pdfLib, pdfBytes, {
 						quality: COMPRESSION_PRESETS[preset].quality,
 						mimeType: "image/jpeg",
 					});
-					this.compressCache.set(cacheKey, sourceBytesToLoad);
+					presetCache.set(preset, compressed);
 				}
+				sourceBytesToLoad = compressed;
 			} else {
 				sourceBytesToLoad = pdfBytes;
 			}
 
-			const srcDoc = await pdfLib.PDFDocument.load(sourceBytesToLoad);
+			const srcDoc = await loadPdfDoc(pdfLib, sourceBytesToLoad);
 			const indices = Array.from(pageIndices);
 			const copiedPages = await pdfDoc.copyPages(srcDoc, indices);
 
@@ -143,12 +141,10 @@ export class PdfGenerator {
 			image.file.type,
 		);
 
-		let embeddedImage: PDFImage;
-		if (embedType === "image/jpeg") {
-			embeddedImage = await pdfDoc.embedJpg(embedBytes);
-		} else {
-			embeddedImage = await pdfDoc.embedPng(embedBytes);
-		}
+		const embeddedImage: PDFImage =
+			embedType === "image/jpeg"
+				? await pdfDoc.embedJpg(embedBytes)
+				: await pdfDoc.embedPng(embedBytes);
 
 		const { width: imgW, height: imgH } = embeddedImage;
 		// Scale pixel dimensions to PDF points capped at MAX_PAGE_POINTS

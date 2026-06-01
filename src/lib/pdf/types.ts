@@ -1,3 +1,9 @@
+type PdfLib = typeof import("pdf-lib");
+
+export function loadPdfDoc(pdfLib: PdfLib, bytes: Uint8Array) {
+	return pdfLib.PDFDocument.load(bytes, { ignoreEncryption: true });
+}
+
 export interface PdfXObject {
 	name: string;
 	width: number;
