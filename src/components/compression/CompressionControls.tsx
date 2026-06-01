@@ -17,19 +17,20 @@ const PRESET_LABELS: Record<
 };
 
 export function CompressionControls() {
+	const { compression } = useWorkflow();
 	const {
 		isCompressing,
-		compressionError,
+		error: compressionError,
+		clearError: onClearError,
 		currentPreset,
-		compressionProgress,
+		progress: compressionProgress,
 		formattedStats,
 		hasSignificantSavings,
 		currentPresetCached: isPresetCached,
 		allPdfSourced,
 		handleCompress: onCompress,
 		handlePresetChange: onPresetChange,
-		clearCompressionError: onClearError,
-	} = useWorkflow();
+	} = compression;
 	const [open, setOpen] = useState(false);
 
 	return (

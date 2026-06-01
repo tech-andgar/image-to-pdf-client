@@ -50,21 +50,22 @@ function ShareResultBanner({
 }
 
 export function ExportSection() {
+	const { export: exp } = useWorkflow();
 	const {
 		isGenerating,
 		isLoadingLibrary,
 		isSharing,
-		exportError,
+		error: exportError,
+		clearError: onClearError,
 		shareResult,
+		clearShareResult: onClearShareResult,
 		filename,
+		setFilename,
 		previewFilename,
 		lastPdfSize,
-		setFilename,
 		exportToPDF: onExport,
 		shareToPDF: onShare,
-		clearExportError: onClearError,
-		clearShareResult: onClearShareResult,
-	} = useWorkflow();
+	} = exp;
 
 	return (
 		<div className="rounded-xl border bg-card p-4 space-y-3">

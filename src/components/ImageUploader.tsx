@@ -1,4 +1,4 @@
-import { AlertCircle, X } from "lucide-react";
+import { AlertCircle, Trash2, X } from "lucide-react";
 import { useWorkflow, WorkflowProvider } from "../context/WorkflowContext";
 import { UploadArea } from "./upload/UploadArea";
 import { ImagePreviewGrid } from "./preview/ImagePreviewGrid";
@@ -7,7 +7,8 @@ import { CompressionControls } from "./compression/CompressionControls";
 import { ExportSection } from "./export/ExportSection";
 
 function UploadErrorBanner() {
-	const { uploadError, clearUploadError } = useWorkflow();
+	const { upload } = useWorkflow();
+	const { uploadError, clearUploadError } = upload;
 	if (!uploadError) return null;
 	return (
 		<div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2.5 text-sm text-destructive">
@@ -26,25 +27,25 @@ function UploadErrorBanner() {
 }
 
 function AllowDuplicatesToggle() {
-	const { allowDuplicates, setAllowDuplicates } = useWorkflow();
+	const { upload } = useWorkflow();
+	const { allowDuplicates, setAllowDuplicates } = upload;
 	return (
-		<div className="flex items-center justify-end">
-			<label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-				<input
-					type="checkbox"
-					checked={allowDuplicates}
-					onChange={(e) => setAllowDuplicates(e.target.checked)}
-					className="rounded border-border focus:ring-2 focus:ring-ring focus:ring-offset-2"
-				/>
-				Permitir duplicadas
-			</label>
-		</div>
+		<label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+			<input
+				type="checkbox"
+				checked={allowDuplicates}
+				onChange={(e) => setAllowDuplicates(e.target.checked)}
+				className="rounded border-border focus:ring-2 focus:ring-ring focus:ring-offset-2"
+			/>
+			Permitir duplicadas
+		</label>
 	);
 }
 
 function ImageUploaderContent() {
+	const { upload, preview } = useWorkflow();
 	const {
-		uploadedImages,
+		images,
 		isDragOver,
 		isProcessing,
 		handleDragOver,
@@ -53,13 +54,16 @@ function ImageUploaderContent() {
 		handleFileSelect,
 		reorderImages,
 		handleRemoveImage,
-		previewModal,
-		openPreviewModal,
-		closePreviewModal,
-		setPreviewImage,
-	} = useWorkflow();
+		clearAllImages,
+	} = upload;
+	const {
+		modal: previewModal,
+		open: openPreviewModal,
+		close: closePreviewModal,
+		setImage: setPreviewImage,
+	} = preview;
 
-	const hasImages = uploadedImages.length > 0;
+	const hasImages = images.length > 0;
 
 	return (
 		<div className="w-full space-y-4">
@@ -73,11 +77,24 @@ function ImageUploaderContent() {
 			/>
 
 			<UploadErrorBanner />
-			<AllowDuplicatesToggle />
+
+			<div className="flex items-center justify-between">
+				<AllowDuplicatesToggle />
+				{hasImages && (
+					<button
+						type="button"
+						onClick={clearAllImages}
+						className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+					>
+						<Trash2 className="h-3.5 w-3.5" />
+						Limpiar todo
+					</button>
+				)}
+			</div>
 
 			{hasImages && (
 				<ImagePreviewGrid
-					uploadedImages={uploadedImages}
+					uploadedImages={images}
 					onRemoveImage={handleRemoveImage}
 					onReorderImages={reorderImages}
 					onPreviewImage={openPreviewModal}
@@ -89,7 +106,7 @@ function ImageUploaderContent() {
 			{hasImages && <ExportSection />}
 
 			<ImagePreviewModal
-				images={uploadedImages}
+				images={images}
 				currentIndex={previewModal.currentIndex}
 				isOpen={previewModal.isOpen}
 				onClose={closePreviewModal}

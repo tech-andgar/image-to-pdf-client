@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useImageUpload } from "./upload/useImageUpload";
 import { usePdfExport } from "./export/usePdfExport";
 import { useImageCompression } from "./compression/useImageCompression";
@@ -10,41 +11,62 @@ export function useImageWorkflow() {
 	const compression = useImageCompression();
 	const modal = usePreviewModal();
 
-	async function handleCompress() {
+	const handleCompress = useCallback(async () => {
 		const compressed = await compression.compressImages(upload.uploadedImages);
 		upload.updateImages(compressed);
-	}
+	}, [compression, upload]);
 
-	async function handlePresetChange(preset: CompressionPreset) {
-		const originals = compression.originalImages ?? upload.uploadedImages;
-		compression.changePreset(preset);
-		compression.resetCompressionState();
-		upload.updateImages(originals);
+	const handlePresetChange = useCallback(
+		async (preset: CompressionPreset) => {
+			const originals = compression.originalImages ?? upload.uploadedImages;
+			compression.changePreset(preset);
+			compression.resetCompressionState();
+			upload.updateImages(originals);
+			if (compression.isPresetCached(originals, preset)) {
+				const compressed = await compression.compressImages(originals, preset);
+				upload.updateImages(compressed);
+			}
+		},
+		[compression, upload],
+	);
 
-		if (compression.isPresetCached(originals, preset)) {
-			const compressed = await compression.compressImages(originals, preset);
-			upload.updateImages(compressed);
-		}
-	}
+	const handleDrop = useCallback(
+		(files: FileList) => {
+			upload.handleDrop(files);
+			compression.resetCompression();
+		},
+		[upload, compression],
+	);
 
-	function handleDrop(files: FileList) {
-		upload.handleDrop(files);
+	const handleFileSelect = useCallback(
+		(files: FileList | null) => {
+			upload.handleFileSelect(files);
+			compression.resetCompression();
+		},
+		[upload, compression],
+	);
+
+	const handleRemoveImage = useCallback(
+		(id: string) => {
+			upload.removeImage(id);
+			compression.resetCompression();
+		},
+		[upload, compression],
+	);
+
+	const clearAllImages = useCallback(() => {
+		upload.clearAllImages();
 		compression.resetCompression();
-	}
+	}, [upload, compression]);
 
-	function handleFileSelect(files: FileList | null) {
-		upload.handleFileSelect(files);
-		compression.resetCompression();
-	}
+	const exportToPDF = useCallback(
+		() => export_.exportToPDF(upload.uploadedImages, compression.currentPreset),
+		[export_, upload.uploadedImages, compression.currentPreset],
+	);
 
-	function handleRemoveImage(id: string) {
-		upload.removeImage(id);
-		compression.resetCompression();
-	}
-
-	const currentPresetCached = compression.isPresetCached(
-		upload.uploadedImages,
-		compression.currentPreset,
+	const shareToPDF = useCallback(
+		() => export_.shareToPDF(upload.uploadedImages, compression.currentPreset),
+		[export_, upload.uploadedImages, compression.currentPreset],
 	);
 
 	const allPdfSourced =
@@ -52,48 +74,60 @@ export function useImageWorkflow() {
 		upload.uploadedImages.every((img) => !!img.pdfSource);
 
 	return {
-		uploadedImages: upload.uploadedImages,
-		isDragOver: upload.isDragOver,
-		allowDuplicates: upload.allowDuplicates,
-		setAllowDuplicates: upload.setAllowDuplicates,
-		uploadError: upload.uploadError,
-		clearUploadError: upload.clearUploadError,
-		isProcessing: upload.isProcessing,
-		reorderImages: upload.reorderImages,
-		handleDragOver: upload.handleDragOver,
-		handleDragLeave: upload.handleDragLeave,
-		handleDrop,
-		handleFileSelect,
-		handleRemoveImage,
-		previewModal: modal.previewModal,
-		openPreviewModal: modal.openPreviewModal,
-		closePreviewModal: modal.closePreviewModal,
-		setPreviewImage: modal.setPreviewImage,
-		isCompressing: compression.isCompressing,
-		compressionError: compression.compressionError,
-		currentPreset: compression.currentPreset,
-		compressionProgress: compression.compressionProgress,
-		formattedStats: compression.formattedStats,
-		hasSignificantSavings: compression.hasSignificantSavings,
-		clearCompressionError: compression.clearError,
-		currentPresetCached,
-		allPdfSourced,
-		handleCompress,
-		handlePresetChange,
-		isGenerating: export_.isGenerating,
-		isLoadingLibrary: export_.isLoadingLibrary,
-		isSharing: export_.isSharing,
-		exportError: export_.exportError,
-		clearExportError: export_.clearExportError,
-		shareResult: export_.shareResult,
-		clearShareResult: export_.clearShareResult,
-		filename: export_.filename,
-		setFilename: export_.setFilename,
-		previewFilename: export_.previewFilename,
-		lastPdfSize: export_.lastPdfSize,
-		exportToPDF: () =>
-			export_.exportToPDF(upload.uploadedImages, compression.currentPreset),
-		shareToPDF: () =>
-			export_.shareToPDF(upload.uploadedImages, compression.currentPreset),
+		upload: {
+			images: upload.uploadedImages,
+			isDragOver: upload.isDragOver,
+			isProcessing: upload.isProcessing,
+			allowDuplicates: upload.allowDuplicates,
+			setAllowDuplicates: upload.setAllowDuplicates,
+			uploadError: upload.uploadError,
+			clearUploadError: upload.clearUploadError,
+			reorderImages: upload.reorderImages,
+			handleDragOver: upload.handleDragOver,
+			handleDragLeave: upload.handleDragLeave,
+			handleDrop,
+			handleFileSelect,
+			handleRemoveImage,
+			clearAllImages,
+		},
+		preview: {
+			modal: modal.previewModal,
+			open: modal.openPreviewModal,
+			close: modal.closePreviewModal,
+			setImage: modal.setPreviewImage,
+		},
+		compression: {
+			isCompressing: compression.isCompressing,
+			error: compression.compressionError,
+			clearError: compression.clearError,
+			currentPreset: compression.currentPreset,
+			progress: compression.compressionProgress,
+			formattedStats: compression.formattedStats,
+			hasSignificantSavings: compression.hasSignificantSavings,
+			currentPresetCached: compression.isPresetCached(
+				upload.uploadedImages,
+				compression.currentPreset,
+			),
+			allPdfSourced,
+			handleCompress,
+			handlePresetChange,
+		},
+		export: {
+			isGenerating: export_.isGenerating,
+			isLoadingLibrary: export_.isLoadingLibrary,
+			isSharing: export_.isSharing,
+			error: export_.exportError,
+			clearError: export_.clearExportError,
+			shareResult: export_.shareResult,
+			clearShareResult: export_.clearShareResult,
+			filename: export_.filename,
+			setFilename: export_.setFilename,
+			previewFilename: export_.previewFilename,
+			lastPdfSize: export_.lastPdfSize,
+			exportToPDF,
+			shareToPDF,
+		},
 	};
 }
+
+export type WorkflowState = ReturnType<typeof useImageWorkflow>;
