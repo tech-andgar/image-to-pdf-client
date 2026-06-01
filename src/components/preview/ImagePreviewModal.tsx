@@ -1,6 +1,7 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckSquare, Square } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import type { ImageFile } from "../../types/image";
+import { useWorkflow } from "../../context/WorkflowContext";
 import { useTouchSwipe } from "../../hooks/useTouchSwipe";
 import { Button } from "../ui/button";
 import {
@@ -81,6 +82,11 @@ export function ImagePreviewModal({
 
 	const swipe = useTouchSwipe(navigateToNext, navigateToPrevious);
 
+	const { selection } = useWorkflow();
+	const isSelected = currentImage
+		? selection.selectedIds.has(currentImage.id)
+		: false;
+
 	if (!currentImage) return null;
 
 	const validImages = images.filter((img) => img.preview && !img.error);
@@ -121,13 +127,13 @@ export function ImagePreviewModal({
 					</>
 				)}
 
-				<div className="flex flex-col h-full">
-					<div className="flex-1 flex items-center justify-center">
+				<div className="flex flex-col h-full min-h-0">
+					<div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
 						{currentImage.preview ? (
 							<img
 								src={currentImage.preview}
 								alt={`${currentImage.file.name} - Preview ${currentDisplayIndex} de ${validImages.length}`}
-								className="w-full h-full object-contain"
+								className="max-w-full max-h-full object-contain"
 							/>
 						) : (
 							<div className="text-center text-white">
@@ -136,22 +142,36 @@ export function ImagePreviewModal({
 						)}
 					</div>
 
-					<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-6 py-4 space-y-2">
+					<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-4 py-3 space-y-1.5">
 						{currentImage.pdfSource && (
-							<p className="text-xs text-muted-foreground text-center">
-								Vista previa aproximada — el PDF exportado preserva la calidad y
-								fuentes originales
+							<p className="text-[10px] text-muted-foreground/70 text-center truncate">
+								Vista previa aproximada — el PDF exportado preserva fuentes
+								originales
 							</p>
 						)}
 						<div className="flex items-center justify-between text-sm text-muted-foreground">
 							<span className="font-medium truncate max-w-xs">
 								{currentImage.file.name}
 							</span>
-							{hasMultipleImages && (
-								<span>
-									{currentDisplayIndex} de {validImages.length}
-								</span>
-							)}
+							<div className="flex items-center gap-3 shrink-0">
+								{hasMultipleImages && (
+									<span>
+										{currentDisplayIndex} de {validImages.length}
+									</span>
+								)}
+								<button
+									type="button"
+									onClick={() => selection.toggle(currentImage.id)}
+									className={`flex items-center gap-1.5 text-xs transition-colors ${isSelected ? "text-primary" : "hover:text-foreground"}`}
+								>
+									{isSelected ? (
+										<CheckSquare className="h-4 w-4" />
+									) : (
+										<Square className="h-4 w-4" />
+									)}
+									{isSelected ? "Seleccionada" : "Seleccionar"}
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
