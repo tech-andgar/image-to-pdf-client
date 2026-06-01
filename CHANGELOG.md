@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2026-05-31
+
+### Changed
+
+- Update PDF share text to include deployed app URL
+
 ## [0.4.0] - 2026-05-31
 
 ### Added
