@@ -147,7 +147,13 @@ export function ImagePreviewModal({
 					</div>
 
 					{/* Footer with image info */}
-					<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-6 py-4">
+					<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-6 py-4 space-y-2">
+						{currentImage.pdfSource && (
+							<p className="text-xs text-muted-foreground text-center">
+								Vista previa aproximada — el PDF exportado preserva la calidad y
+								fuentes originales
+							</p>
+						)}
 						<div className="flex items-center justify-between text-sm text-muted-foreground">
 							<span className="font-medium truncate max-w-xs">
 								{currentImage.file.name}

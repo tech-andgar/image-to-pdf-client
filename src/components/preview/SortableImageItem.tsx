@@ -77,12 +77,19 @@ export function SortableImageItem({
 						if (!e.currentTarget.contains(e.target as Node)) return;
 					}}
 				>
-					<div className="aspect-square">
+					<div className="aspect-square relative">
 						<img
 							src={image.preview}
 							alt={image.file.name}
 							className="w-full h-full object-cover"
 						/>
+						{image.pdfSource && (
+							<div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1 py-0.5 text-center">
+								<span className="text-[9px] text-white/80 leading-none">
+									vista previa aprox.
+								</span>
+							</div>
+						)}
 					</div>
 				</button>
 			) : (
