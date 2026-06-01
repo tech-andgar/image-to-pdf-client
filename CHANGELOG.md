@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2026-05-31
+
+### Fixed
+
+- Enable pinch-zoom on mobile (removed maximum-scale=1.0 from viewport)
+- Prevent iOS auto-zoom when focusing filename input (use 16px font on mobile)
+- Preview modal: enable touch panning and image zoom with touchAction: pinch-zoom
+
 ## [0.4.1] - 2026-05-31
 
 ### Changed
