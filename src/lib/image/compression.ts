@@ -5,6 +5,7 @@ import type {
 } from "../../types/image";
 import { MAX_IMAGE_PIXELS } from "../../config/limits";
 import { loadImageFromUrl } from "./canvas-utils";
+import { compressInWorker } from "./compression-worker-pool";
 
 function loadImageFromFile(file: File): Promise<HTMLImageElement> {
 	const url = URL.createObjectURL(file);
@@ -99,7 +100,7 @@ export async function compressImagesBatch(
 	const results: CompressionResult[] = [];
 	for (let i = 0; i < files.length; i++) {
 		try {
-			results.push(await compressImageFile(files[i], options));
+			results.push(await compressInWorker(files[i], options));
 		} catch {
 			// skip failed, continue
 		}

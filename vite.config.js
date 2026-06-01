@@ -79,6 +79,8 @@ export default defineConfig({
 			},
 			workbox: {
 				globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+				globIgnores: ["wasm/**", "iccs/**", "cmaps/**", "standard_fonts/**"],
+				maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MiB
 				// Optimize cache strategies for better performance
 				runtimeCaching: [
 					{

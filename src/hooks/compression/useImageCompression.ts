@@ -140,6 +140,11 @@ export function useImageCompression() {
 	const resetCompression = useCallback(() => {
 		resetState();
 		cache.reset();
+		import("../../lib/image/compression-worker-pool").then(
+			({ terminateCompressionWorker }) => {
+				terminateCompressionWorker();
+			},
+		);
 	}, [resetState, cache]);
 
 	return {
