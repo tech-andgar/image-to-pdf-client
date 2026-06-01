@@ -128,12 +128,16 @@ export function ImagePreviewModal({
 				)}
 
 				<div className="flex flex-col flex-1 min-h-0">
-					<div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+					<div
+						className="flex-1 min-h-0 flex items-center justify-center overflow-auto"
+						style={{ touchAction: "pinch-zoom" }}
+					>
 						{currentImage.preview ? (
 							<img
 								src={currentImage.preview}
 								alt={`${currentImage.file.name} - Preview ${currentDisplayIndex} de ${validImages.length}`}
-								className="max-w-full max-h-full object-contain"
+								className="max-w-full max-h-full object-contain select-none"
+								draggable={false}
 							/>
 						) : (
 							<div className="text-center text-white">

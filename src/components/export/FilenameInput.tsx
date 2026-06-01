@@ -42,7 +42,7 @@ export function FilenameInput({
 					value={filename}
 					onChange={(e) => setFilename(e.target.value)}
 					placeholder={previewFilename}
-					className="w-full px-3 py-2 pr-10 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+					className="w-full px-3 py-2 pr-10 text-[16px] md:text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
 					maxLength={100}
 					aria-describedby={previewIdSelector}
 				/>
