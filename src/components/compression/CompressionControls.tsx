@@ -17,9 +17,9 @@ const PRESET_LABELS: Record<
 };
 
 const ACTIVE_BTN =
-	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100";
+	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-primary text-primary-foreground border-primary";
 const INACTIVE_BTN =
-	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-white text-zinc-900 border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 dark:bg-zinc-950 dark:text-zinc-100 dark:border-zinc-700 dark:hover:border-zinc-500";
+	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-background text-foreground border-border hover:border-muted-foreground hover:bg-muted";
 
 function PresetGrid({
 	currentPreset,
@@ -49,13 +49,7 @@ function PresetGrid({
 							<span className="font-medium leading-tight">
 								{PRESET_LABELS[preset].label}
 							</span>
-							<span
-								className={
-									active
-										? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-500"
-										: "text-[10px] leading-tight mt-0.5 text-zinc-500 dark:text-zinc-400"
-								}
-							>
+							<span className="text-[10px] leading-tight mt-0.5 text-muted-foreground">
 								{PRESET_LABELS[preset].description}
 							</span>
 						</button>

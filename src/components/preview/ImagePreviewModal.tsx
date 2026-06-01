@@ -140,7 +140,7 @@ export function ImagePreviewModal({
 								draggable={false}
 							/>
 						) : (
-							<div className="text-center text-white">
+							<div className="text-center text-foreground">
 								<p className="text-lg">Error: {currentImage.error}</p>
 							</div>
 						)}

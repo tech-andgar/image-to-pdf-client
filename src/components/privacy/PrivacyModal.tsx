@@ -68,10 +68,10 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 									role="switch"
 									aria-checked={analytics}
 									onClick={() => setAnalytics(!analytics)}
-									className={`relative inline-flex h-6 w-10 shrink-0 cursor-pointer rounded-full transition-colors ${analytics ? "bg-green-500" : "bg-zinc-300 dark:bg-zinc-600"}`}
+									className={`relative inline-flex h-6 w-10 shrink-0 cursor-pointer rounded-full transition-colors ${analytics ? "bg-green-500" : "bg-muted-foreground/30"}`}
 								>
 									<span
-										className={`inline-block h-5 w-5 translate-y-0.5 transform rounded-full bg-white shadow transition-transform ${analytics ? "translate-x-[18px]" : "translate-x-0.5"}`}
+										className={`inline-block h-5 w-5 translate-y-0.5 transform rounded-full bg-background shadow transition-transform ${analytics ? "translate-x-[18px]" : "translate-x-0.5"}`}
 									/>
 								</button>
 							</div>
