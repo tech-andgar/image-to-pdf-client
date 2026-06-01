@@ -14,6 +14,17 @@ type PdfLib = typeof import("pdf-lib");
 
 export class PdfGenerator {
 	private pdfLib: PdfLib | null = null;
+	// Key: `${pdfBytes object identity via WeakMap index}:${preset}` → compressed bytes
+	private readonly compressCache = new Map<string, Uint8Array>();
+	private readonly bytesKeyMap = new WeakMap<Uint8Array, number>();
+	private bytesKeyCounter = 0;
+
+	private getBytesKey(pdfBytes: Uint8Array): string {
+		if (!this.bytesKeyMap.has(pdfBytes)) {
+			this.bytesKeyMap.set(pdfBytes, this.bytesKeyCounter++);
+		}
+		return String(this.bytesKeyMap.get(pdfBytes));
+	}
 
 	private async getPdfLib(): Promise<PdfLib> {
 		this.pdfLib ??= await import("pdf-lib");
@@ -76,12 +87,22 @@ export class PdfGenerator {
 		}
 
 		for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
-			const sourceBytesToLoad = preset
-				? await compressAllPdfImages(pdfLib, pdfBytes, {
+			const cacheKey = `${this.getBytesKey(pdfBytes)}:${preset ?? "none"}`;
+			let sourceBytesToLoad: Uint8Array;
+			if (preset) {
+				const cached = this.compressCache.get(cacheKey);
+				if (cached) {
+					sourceBytesToLoad = cached;
+				} else {
+					sourceBytesToLoad = await compressAllPdfImages(pdfLib, pdfBytes, {
 						quality: COMPRESSION_PRESETS[preset].quality,
 						mimeType: "image/jpeg",
-					})
-				: pdfBytes;
+					});
+					this.compressCache.set(cacheKey, sourceBytesToLoad);
+				}
+			} else {
+				sourceBytesToLoad = pdfBytes;
+			}
 
 			const srcDoc = await pdfLib.PDFDocument.load(sourceBytesToLoad);
 			const indices = Array.from(pageIndices);
