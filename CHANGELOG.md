@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-05-31
+
+### Added
+
+- mupdf-based PDF decryption for password-protected PDFs (in-browser, client-side only)
+- Better password-protected PDF handling: decrypt before processing to enable vector text preservation
+
+### Changed
+
+- Extracted PDF page rendering logic into pdf-page-renderer module
+- Extracted password handling helpers into pdf-password-handler module
+- Generator now decrypts password-protected PDFs before creating pdfSource references
+- Improved PDF service modularity for better code organization
+
+### Fixed
+
+- Blank pages from encrypted PDF text layers (now decrypts before reading streams)
+
 ## [0.3.3] - 2026-05-31
 
 ### Fixed
