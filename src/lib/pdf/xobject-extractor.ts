@@ -6,6 +6,8 @@ type PdfLib = typeof import("pdf-lib");
 const FILTER_RE =
 	/\/(DCTDecode|JPXDecode|FlateDecode|LZWDecode|CCITTFaxDecode)/;
 
+const UNSUPPORTED_DECODE_FILTERS = new Set(["CCITTFaxDecode", "LZWDecode"]);
+
 function getFilterName(pdfLib: PdfLib, streamDict: PDFDict): string | null {
 	const filter = streamDict.get(pdfLib.PDFName.of("Filter"));
 	if (!filter) return null;
@@ -27,10 +29,17 @@ export function buildPdfXObjectFromStream(
 	if (!widthObj || !heightObj) return null;
 
 	const filterName = getFilterName(pdfLib, dict);
-	const rawBytes =
-		filterName === "DCTDecode" || filterName === "JPXDecode"
-			? stream.contents
-			: decodePDFRawStream(stream).decode();
+	if (filterName && UNSUPPORTED_DECODE_FILTERS.has(filterName)) return null;
+
+	let rawBytes: Uint8Array;
+	try {
+		rawBytes =
+			filterName === "DCTDecode" || filterName === "JPXDecode"
+				? stream.contents
+				: decodePDFRawStream(stream).decode();
+	} catch {
+		return null;
+	}
 
 	const hasMask =
 		dict.get(PDFName.of("SMask")) != null ||
