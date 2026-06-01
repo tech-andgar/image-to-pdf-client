@@ -22,28 +22,37 @@ export function useImageUpload() {
 	const [uploadedImages, setUploadedImages] = useState<ImageFile[]>([]);
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [allowDuplicates, setAllowDuplicates] = useState(false);
+	const [uploadError, setUploadError] = useState<string | null>(null);
 	const { processFiles } = useFileProcessor(allowDuplicates);
 
 	const addFiles = useCallback(
 		async (fileList: FileList) => {
+			setUploadError(null);
 			let currentSnapshot: ImageFile[] = [];
 			setUploadedImages((c) => {
 				currentSnapshot = c;
 				return c;
 			});
 
-			analytics.timeStart("file_processing");
-			const { pdfImages, regularImages } = await processFiles(
-				fileList,
-				currentSnapshot,
-			);
-			analytics.timeEnd("file_processing");
+			try {
+				analytics.timeStart("file_processing");
+				const { pdfImages, regularImages } = await processFiles(
+					fileList,
+					currentSnapshot,
+				);
+				analytics.timeEnd("file_processing");
 
-			const newImages = [...pdfImages, ...regularImages];
-			if (newImages.length > 0) {
-				setUploadedImages((prev) => [...prev, ...newImages]);
-				const totalSize = newImages.reduce((s, img) => s + img.file.size, 0);
-				userMetrics.trackFileUploaded(newImages.length, totalSize);
+				const newImages = [...pdfImages, ...regularImages];
+				if (newImages.length > 0) {
+					setUploadedImages((prev) => [...prev, ...newImages]);
+					const totalSize = newImages.reduce((s, img) => s + img.file.size, 0);
+					userMetrics.trackFileUploaded(newImages.length, totalSize);
+				}
+			} catch (err) {
+				logger.error("File processing failed", err);
+				setUploadError(
+					err instanceof Error ? err.message : "Error al procesar el archivo",
+				);
 			}
 		},
 		[processFiles],
@@ -107,6 +116,8 @@ export function useImageUpload() {
 		isDragOver,
 		allowDuplicates,
 		setAllowDuplicates,
+		uploadError,
+		clearUploadError: useCallback(() => setUploadError(null), []),
 		removeImage,
 		reorderImages,
 		clearAllImages,
