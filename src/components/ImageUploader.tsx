@@ -1,4 +1,4 @@
-import { AlertCircle, Trash2, X } from "lucide-react";
+import { AlertCircle, CheckSquare, Square, Trash2, X } from "lucide-react";
 import { useWorkflow, WorkflowProvider } from "../context/WorkflowContext";
 import { UploadArea } from "./upload/UploadArea";
 import { ImagePreviewGrid } from "./preview/ImagePreviewGrid";
@@ -43,7 +43,7 @@ function AllowDuplicatesToggle() {
 }
 
 function ImageUploaderContent() {
-	const { upload, preview } = useWorkflow();
+	const { upload, preview, selection } = useWorkflow();
 	const {
 		images,
 		isDragOver,
@@ -62,8 +62,11 @@ function ImageUploaderContent() {
 		close: closePreviewModal,
 		setImage: setPreviewImage,
 	} = preview;
+	const { selectedIds, toggle, selectAll, selectNone } = selection;
 
 	const hasImages = images.length > 0;
+	const selectedCount = selectedIds.size;
+	const allSelected = selectedCount === images.length && images.length > 0;
 
 	return (
 		<div className="w-full space-y-4">
@@ -93,8 +96,32 @@ function ImageUploaderContent() {
 			</div>
 
 			{hasImages && (
+				<div className="flex items-center justify-between text-xs text-muted-foreground">
+					<button
+						type="button"
+						onClick={allSelected ? selectNone : selectAll}
+						className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+					>
+						{allSelected ? (
+							<CheckSquare className="h-3.5 w-3.5" />
+						) : (
+							<Square className="h-3.5 w-3.5" />
+						)}
+						{allSelected ? "Deseleccionar todo" : "Seleccionar todo"}
+					</button>
+					{selectedCount > 0 && (
+						<span className="text-primary font-medium">
+							{selectedCount} de {images.length} seleccionadas → exportar
+						</span>
+					)}
+				</div>
+			)}
+
+			{hasImages && (
 				<ImagePreviewGrid
 					uploadedImages={images}
+					selectedIds={selectedIds}
+					onToggleSelect={toggle}
 					onRemoveImage={handleRemoveImage}
 					onReorderImages={reorderImages}
 					onPreviewImage={openPreviewModal}

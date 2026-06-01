@@ -12,18 +12,22 @@ import type { ImageFile } from "../../types/image";
 import { SortableImageItem } from "./SortableImageItem";
 
 interface ImagePreviewGridProps {
-	uploadedImages: ImageFile[];
-	onRemoveImage: (imageId: string) => void;
-	onReorderImages: (oldIndex: number, newIndex: number) => void;
-	onPreviewImage: (imageIndex: number) => void;
+	readonly uploadedImages: ImageFile[];
+	readonly selectedIds: Set<string>;
+	readonly onToggleSelect: (id: string) => void;
+	readonly onRemoveImage: (imageId: string) => void;
+	readonly onReorderImages: (oldIndex: number, newIndex: number) => void;
+	readonly onPreviewImage: (imageIndex: number) => void;
 }
 
 export function ImagePreviewGrid({
 	uploadedImages,
+	selectedIds,
+	onToggleSelect,
 	onRemoveImage,
 	onReorderImages,
 	onPreviewImage,
-}: Readonly<ImagePreviewGridProps>) {
+}: ImagePreviewGridProps) {
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
 		useSensor(TouchSensor, {
@@ -36,10 +40,8 @@ export function ImagePreviewGrid({
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
 		if (!over) return;
-
 		const activeId = active.id as string;
 		const overId = over.id as string;
-
 		if (activeId !== overId) {
 			const oldIndex = uploadedImages.findIndex((img) => img.id === activeId);
 			const newIndex = uploadedImages.findIndex((img) => img.id === overId);
@@ -65,6 +67,8 @@ export function ImagePreviewGrid({
 							key={image.id}
 							image={image}
 							index={index}
+							isSelected={selectedIds.has(image.id)}
+							onToggleSelect={onToggleSelect}
 							onRemoveImage={onRemoveImage}
 							onPreviewImage={onPreviewImage}
 						/>

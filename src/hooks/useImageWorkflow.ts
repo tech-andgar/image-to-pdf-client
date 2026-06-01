@@ -1,8 +1,9 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useImageUpload } from "./upload/useImageUpload";
 import { usePdfExport } from "./export/usePdfExport";
 import { useImageCompression } from "./compression/useImageCompression";
 import { usePreviewModal } from "./preview/usePreviewModal";
+import { useImageSelection } from "./useImageSelection";
 import type { CompressionPreset } from "../types/image";
 
 export function useImageWorkflow() {
@@ -10,6 +11,12 @@ export function useImageWorkflow() {
 	const export_ = usePdfExport();
 	const compression = useImageCompression();
 	const modal = usePreviewModal();
+	const selection = useImageSelection();
+
+	// Keep selection in sync when images are removed
+	useEffect(() => {
+		selection.syncWithImages(upload.uploadedImages);
+	}, [upload.uploadedImages, selection]);
 
 	const handleCompress = useCallback(async () => {
 		const compressed = await compression.compressImages(upload.uploadedImages);
@@ -59,14 +66,16 @@ export function useImageWorkflow() {
 		compression.resetCompression();
 	}, [upload, compression]);
 
+	const selectedImages = selection.getSelected(upload.uploadedImages);
+
 	const exportToPDF = useCallback(
-		() => export_.exportToPDF(upload.uploadedImages, compression.currentPreset),
-		[export_, upload.uploadedImages, compression.currentPreset],
+		() => export_.exportToPDF(selectedImages, compression.currentPreset),
+		[export_, selectedImages, compression.currentPreset],
 	);
 
 	const shareToPDF = useCallback(
-		() => export_.shareToPDF(upload.uploadedImages, compression.currentPreset),
-		[export_, upload.uploadedImages, compression.currentPreset],
+		() => export_.shareToPDF(selectedImages, compression.currentPreset),
+		[export_, selectedImages, compression.currentPreset],
 	);
 
 	const allPdfSourced =
@@ -89,6 +98,13 @@ export function useImageWorkflow() {
 			handleFileSelect,
 			handleRemoveImage,
 			clearAllImages,
+		},
+		selection: {
+			selectedIds: selection.selectedIds,
+			selectedImages,
+			toggle: selection.toggle,
+			selectAll: () => selection.selectAll(upload.uploadedImages),
+			selectNone: selection.selectNone,
 		},
 		preview: {
 			modal: modal.previewModal,
