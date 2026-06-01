@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.3] - 2026-05-31
+
+### Fixed
+
+- Skip vector text detection for password-protected PDFs (pdf-lib can't decrypt streams, causes blank pages)
+
 ## [0.3.2] - 2026-05-31
 
 ### Fixed
@@ -23,6 +29,7 @@ All notable changes to this project will be documented in this file.
 ## [0.3.0] - 2026-05-31
 
 ### Added
+
 - Password-protected PDF support with retry prompt
 - Touch swipe navigation in image preview modal (mobile-friendly)
 - Web Worker offloading for image compression (non-blocking main thread)
@@ -33,6 +40,7 @@ All notable changes to this project will be documented in this file.
 - Upload area disabled state during file processing
 
 ### Changed
+
 - Restructured workflow hook into organized namespaces (upload, preview, compression, export)
 - Extracted upload components (UploadErrorBanner, AllowDuplicatesToggle) for better organization
 - Standardized analytics naming with `app_` prefix
@@ -44,6 +52,7 @@ All notable changes to this project will be documented in this file.
 - Absolute URLs for pdfjs assets (cmaps, fonts, wasm, icc)
 
 ### Fixed
+
 - PDF dict lookup error handling for malformed PDFs
 - Undefined value handling in PDF compression
 - Removed URL from Web Share API to improve app compatibility (WhatsApp, etc.)
@@ -52,6 +61,7 @@ All notable changes to this project will be documented in this file.
 - Cache key generation for PDF compression
 
 ### Removed
+
 - Hardcoded Google Analytics ID from HTML
 - Partytown script tags and configuration
 - Unnecessary dynamic imports in compression worker pool
@@ -60,6 +70,7 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0] - 2026-01-15
 
 ### Initial release
+
 - Image to PDF conversion with drag-and-drop upload
 - Batch image compression with presets (high, medium, low, minimal)
 - Preview modal with keyboard navigation
