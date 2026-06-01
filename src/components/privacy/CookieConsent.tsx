@@ -31,14 +31,16 @@ export function CookieConsent() {
 			role="dialog"
 			aria-label="Consentimiento de cookies"
 		>
-			<div className="mx-auto flex max-w-2xl items-center gap-3">
-				<Shield className="h-5 w-5 shrink-0 text-muted-foreground" />
-				<p className="flex-1 text-xs text-muted-foreground">
-					Recopilamos datos anónimos de uso para mejorar la app. Con tu permiso,
-					también usamos cookies para análisis detallado. Tus archivos nunca
-					salen del dispositivo.
-				</p>
-				<div className="flex shrink-0 gap-2">
+			<div className="mx-auto flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center">
+				<div className="flex items-start gap-3 sm:items-center">
+					<Shield className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground sm:mt-0" />
+					<p className="flex-1 text-xs text-muted-foreground">
+						Recopilamos datos anónimos de uso para mejorar la app. Con tu
+						permiso, también usamos cookies para análisis detallado. Tus
+						archivos nunca salen del dispositivo.
+					</p>
+				</div>
+				<div className="flex shrink-0 justify-end gap-2">
 					<button
 						type="button"
 						onClick={handleReject}
