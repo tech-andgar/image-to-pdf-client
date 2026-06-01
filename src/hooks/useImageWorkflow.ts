@@ -58,6 +58,7 @@ export function useImageWorkflow() {
 		setAllowDuplicates: upload.setAllowDuplicates,
 		uploadError: upload.uploadError,
 		clearUploadError: upload.clearUploadError,
+		isProcessing: upload.isProcessing,
 		reorderImages: upload.reorderImages,
 		handleDragOver: upload.handleDragOver,
 		handleDragLeave: upload.handleDragLeave,

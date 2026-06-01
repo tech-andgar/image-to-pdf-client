@@ -23,11 +23,13 @@ export function useImageUpload() {
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [allowDuplicates, setAllowDuplicates] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
+	const [isProcessing, setIsProcessing] = useState(false);
 	const { processFiles } = useFileProcessor(allowDuplicates);
 
 	const addFiles = useCallback(
 		async (fileList: FileList) => {
 			setUploadError(null);
+			setIsProcessing(true);
 			let currentSnapshot: ImageFile[] = [];
 			setUploadedImages((c) => {
 				currentSnapshot = c;
@@ -53,6 +55,8 @@ export function useImageUpload() {
 				setUploadError(
 					err instanceof Error ? err.message : "Error al procesar el archivo",
 				);
+			} finally {
+				setIsProcessing(false);
 			}
 		},
 		[processFiles],
@@ -118,6 +122,7 @@ export function useImageUpload() {
 		setAllowDuplicates,
 		uploadError,
 		clearUploadError: useCallback(() => setUploadError(null), []),
+		isProcessing,
 		removeImage,
 		reorderImages,
 		clearAllImages,

@@ -10,6 +10,7 @@ function ImageUploaderContent() {
 	const {
 		uploadedImages,
 		isDragOver,
+		isProcessing,
 		allowDuplicates,
 		setAllowDuplicates,
 		uploadError,
@@ -32,6 +33,7 @@ function ImageUploaderContent() {
 		<div className="w-full space-y-4">
 			<UploadArea
 				isDragOver={isDragOver}
+				isProcessing={isProcessing}
 				onDragOver={(_e) => handleDragOver()}
 				onDragLeave={(_e) => handleDragLeave()}
 				onDrop={(e) => {
