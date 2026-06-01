@@ -1,4 +1,4 @@
-import { FileDown, AlertCircle, Share2 } from "lucide-react";
+import { FileDown, AlertCircle, Share2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilenameInput } from "./FilenameInput";
 import { formatFileSize } from "../../lib/image/compression";
@@ -52,6 +52,7 @@ function ShareResultBanner({
 export function ExportSection() {
 	const {
 		isGenerating,
+		isLoadingLibrary,
 		isSharing,
 		exportError,
 		shareResult,
@@ -96,7 +97,10 @@ export function ExportSection() {
 			<div className="grid grid-cols-2 gap-2">
 				<Button onClick={onExport} disabled={isGenerating} className="w-full">
 					{isGenerating ? (
-						"Generando…"
+						<>
+							<Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+							{isLoadingLibrary ? "Cargando…" : "Generando…"}
+						</>
 					) : (
 						<>
 							<FileDown className="h-4 w-4 mr-1.5" />
@@ -112,7 +116,10 @@ export function ExportSection() {
 					className="w-full"
 				>
 					{isSharing ? (
-						"Compartiendo…"
+						<>
+							<Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+							Compartiendo…
+						</>
 					) : (
 						<>
 							<Share2 className="h-4 w-4 mr-1.5" />

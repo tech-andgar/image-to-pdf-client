@@ -81,6 +81,7 @@ export function useImageWorkflow() {
 		handleCompress,
 		handlePresetChange,
 		isGenerating: export_.isGenerating,
+		isLoadingLibrary: export_.isLoadingLibrary,
 		isSharing: export_.isSharing,
 		exportError: export_.exportError,
 		clearExportError: export_.clearExportError,
