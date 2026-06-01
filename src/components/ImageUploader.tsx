@@ -1,12 +1,12 @@
 import { AlertCircle, X } from "lucide-react";
-import { useImageWorkflow } from "../hooks/useImageWorkflow";
+import { useWorkflow, WorkflowProvider } from "../context/WorkflowContext";
 import { UploadArea } from "./upload/UploadArea";
 import { ImagePreviewGrid } from "./preview/ImagePreviewGrid";
 import { ImagePreviewModal } from "./preview/ImagePreviewModal";
 import { CompressionControls } from "./compression/CompressionControls";
 import { ExportSection } from "./export/ExportSection";
 
-export function ImageUploader() {
+function ImageUploaderContent() {
 	const {
 		uploadedImages,
 		isDragOver,
@@ -24,30 +24,7 @@ export function ImageUploader() {
 		openPreviewModal,
 		closePreviewModal,
 		setPreviewImage,
-		isCompressing,
-		compressionError,
-		currentPreset,
-		compressionProgress,
-		formattedStats,
-		hasSignificantSavings,
-		clearCompressionError,
-		currentPresetCached,
-		allPdfSourced,
-		handleCompress,
-		handlePresetChange,
-		isGenerating,
-		isSharing,
-		exportError,
-		clearExportError,
-		shareResult,
-		clearShareResult,
-		filename,
-		setFilename,
-		previewFilename,
-		lastPdfSize,
-		exportToPDF,
-		shareToPDF,
-	} = useImageWorkflow();
+	} = useWorkflow();
 
 	const hasImages = uploadedImages.length > 0;
 
@@ -100,38 +77,9 @@ export function ImageUploader() {
 				/>
 			)}
 
-			{hasImages && (
-				<CompressionControls
-					isCompressing={isCompressing}
-					compressionError={compressionError}
-					currentPreset={currentPreset}
-					compressionProgress={compressionProgress}
-					formattedStats={formattedStats}
-					hasSignificantSavings={hasSignificantSavings}
-					isPresetCached={currentPresetCached}
-					allPdfSourced={allPdfSourced}
-					onCompress={handleCompress}
-					onPresetChange={handlePresetChange}
-					onClearError={clearCompressionError}
-				/>
-			)}
+			{hasImages && <CompressionControls />}
 
-			{hasImages && (
-				<ExportSection
-					isGenerating={isGenerating}
-					isSharing={isSharing}
-					exportError={exportError}
-					shareResult={shareResult}
-					filename={filename}
-					previewFilename={previewFilename}
-					lastPdfSize={lastPdfSize}
-					setFilename={setFilename}
-					onExport={exportToPDF}
-					onShare={shareToPDF}
-					onClearError={clearExportError}
-					onClearShareResult={clearShareResult}
-				/>
-			)}
+			{hasImages && <ExportSection />}
 
 			<ImagePreviewModal
 				images={uploadedImages}
@@ -141,5 +89,13 @@ export function ImageUploader() {
 				onImageSelect={setPreviewImage}
 			/>
 		</div>
+	);
+}
+
+export function ImageUploader() {
+	return (
+		<WorkflowProvider>
+			<ImageUploaderContent />
+		</WorkflowProvider>
 	);
 }

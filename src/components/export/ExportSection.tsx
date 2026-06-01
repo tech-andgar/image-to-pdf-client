@@ -2,6 +2,7 @@ import { FileDown, AlertCircle, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FilenameInput } from "./FilenameInput";
 import { formatFileSize } from "../../lib/image/compression";
+import { useWorkflow } from "@/context/WorkflowContext";
 
 interface ShareResult {
 	success: boolean;
@@ -9,35 +10,61 @@ interface ShareResult {
 	error?: string;
 }
 
-interface ExportSectionProps {
-	readonly isGenerating: boolean;
-	readonly isSharing: boolean;
-	readonly exportError: string | null;
-	readonly shareResult: ShareResult | null;
-	readonly filename: string;
-	readonly previewFilename: string;
-	readonly lastPdfSize: number | null;
-	readonly setFilename: (name: string) => void;
-	readonly onExport: () => void;
-	readonly onShare: () => void;
-	readonly onClearError: () => void;
-	readonly onClearShareResult: () => void;
+function shareSuccessLabel(method?: string): string {
+	if (method === "file") return "Compartido exitosamente (archivo)";
+	if (method === "url") return "Compartido exitosamente (enlace)";
+	return "Compartido exitosamente";
 }
 
-export function ExportSection({
-	isGenerating,
-	isSharing,
-	exportError,
-	shareResult,
-	filename,
-	previewFilename,
-	lastPdfSize,
-	setFilename,
-	onExport,
-	onShare,
-	onClearError,
-	onClearShareResult,
-}: ExportSectionProps) {
+function ShareResultBanner({
+	result,
+	onClose,
+}: {
+	readonly result: ShareResult;
+	readonly onClose: () => void;
+}) {
+	const text = result.success
+		? shareSuccessLabel(result.method)
+		: (result.error ?? "");
+
+	return (
+		<div
+			className={
+				result.success
+					? "p-2.5 rounded-lg flex items-start gap-2 text-sm border bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400"
+					: "p-2.5 rounded-lg flex items-start gap-2 text-sm border bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400"
+			}
+		>
+			<AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+			<span className="flex-1">{text}</span>
+			<button
+				type="button"
+				onClick={onClose}
+				className="opacity-60 hover:opacity-100 leading-none"
+				aria-label="Cerrar"
+			>
+				✕
+			</button>
+		</div>
+	);
+}
+
+export function ExportSection() {
+	const {
+		isGenerating,
+		isSharing,
+		exportError,
+		shareResult,
+		filename,
+		previewFilename,
+		lastPdfSize,
+		setFilename,
+		exportToPDF: onExport,
+		shareToPDF: onShare,
+		clearExportError: onClearError,
+		clearShareResult: onClearShareResult,
+	} = useWorkflow();
+
 	return (
 		<div className="rounded-xl border bg-card p-4 space-y-3">
 			<h2 className="text-sm font-medium flex items-center gap-2 text-foreground">
@@ -96,28 +123,7 @@ export function ExportSection({
 			</div>
 
 			{shareResult && (
-				<div
-					className={
-						shareResult.success
-							? "p-2.5 rounded-lg flex items-start gap-2 text-sm border bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-400"
-							: "p-2.5 rounded-lg flex items-start gap-2 text-sm border bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-400"
-					}
-				>
-					<AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-					<span className="flex-1">
-						{shareResult.success
-							? `Compartido exitosamente${shareResult.method === "file" ? " (archivo)" : shareResult.method === "url" ? " (enlace)" : ""}`
-							: shareResult.error}
-					</span>
-					<button
-						type="button"
-						onClick={onClearShareResult}
-						className="opacity-60 hover:opacity-100 leading-none"
-						aria-label="Cerrar"
-					>
-						✕
-					</button>
-				</div>
+				<ShareResultBanner result={shareResult} onClose={onClearShareResult} />
 			)}
 
 			<p className="text-xs text-muted-foreground flex items-center justify-between">

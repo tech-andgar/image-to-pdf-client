@@ -4,25 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import type { CompressionPreset } from "@/types/image";
-
-interface CompressionControlsProps {
-	readonly isCompressing: boolean;
-	readonly compressionError: string | null;
-	readonly currentPreset: CompressionPreset;
-	readonly compressionProgress: number;
-	readonly formattedStats: {
-		readonly originalSize: string;
-		readonly compressedSize: string;
-		readonly savingsPercentage: string;
-		readonly timeElapsed: string;
-	} | null;
-	readonly hasSignificantSavings: boolean;
-	readonly isPresetCached: boolean;
-	readonly allPdfSourced: boolean;
-	readonly onCompress: () => void;
-	readonly onPresetChange: (preset: CompressionPreset) => void;
-	readonly onClearError: () => void;
-}
+import { useWorkflow } from "@/context/WorkflowContext";
 
 const PRESET_LABELS: Record<
 	CompressionPreset,
@@ -34,19 +16,20 @@ const PRESET_LABELS: Record<
 	minimal: { label: "Mínima", description: "800px · 40%" },
 };
 
-export function CompressionControls({
-	isCompressing,
-	compressionError,
-	currentPreset,
-	compressionProgress,
-	formattedStats,
-	hasSignificantSavings,
-	isPresetCached,
-	allPdfSourced,
-	onCompress,
-	onPresetChange,
-	onClearError,
-}: CompressionControlsProps) {
+export function CompressionControls() {
+	const {
+		isCompressing,
+		compressionError,
+		currentPreset,
+		compressionProgress,
+		formattedStats,
+		hasSignificantSavings,
+		currentPresetCached: isPresetCached,
+		allPdfSourced,
+		handleCompress: onCompress,
+		handlePresetChange: onPresetChange,
+		clearCompressionError: onClearError,
+	} = useWorkflow();
 	const [open, setOpen] = useState(false);
 
 	return (
@@ -221,17 +204,19 @@ export function CompressionControls({
 						className="w-full"
 						size="sm"
 					>
-						{isCompressing ? (
+						{isCompressing && (
 							<>
 								<Zap className="h-3.5 w-3.5 mr-1.5 animate-spin" />
 								Comprimiendo…
 							</>
-						) : isPresetCached ? (
+						)}
+						{!isCompressing && isPresetCached && (
 							<>
 								<Zap className="h-3.5 w-3.5 mr-1.5" />
 								Aplicar preset
 							</>
-						) : (
+						)}
+						{!isCompressing && !isPresetCached && (
 							<>
 								<Zap className="h-3.5 w-3.5 mr-1.5" />
 								Comprimir imágenes
