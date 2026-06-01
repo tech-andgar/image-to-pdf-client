@@ -7,6 +7,7 @@ import type { ImageFile, CompressionPreset } from "../../types/image";
 import { COMPRESSION_PRESETS } from "../../types/image";
 import { toEmbeddableImageBytes } from "../../lib/image/canvas-utils";
 import { compressAllPdfImages } from "../../lib/pdf/pdf-compressor";
+import { MAX_PAGE_POINTS } from "../../config/limits";
 import { logger } from "../logger";
 import { storageService } from "../storage/storageService";
 
@@ -149,7 +150,11 @@ export class PdfGenerator {
 			embeddedImage = await pdfDoc.embedPng(embedBytes);
 		}
 
-		const { width, height } = embeddedImage;
+		const { width: imgW, height: imgH } = embeddedImage;
+		// Scale pixel dimensions to PDF points capped at MAX_PAGE_POINTS
+		const scale = Math.min(1, MAX_PAGE_POINTS / Math.max(imgW, imgH));
+		const width = Math.round(imgW * scale);
+		const height = Math.round(imgH * scale);
 		const page = pdfDoc.addPage([width, height]);
 		page.drawImage(embeddedImage, { x: 0, y: 0, width, height });
 	}

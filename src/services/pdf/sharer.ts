@@ -40,7 +40,7 @@ export class PdfSharer {
 				files: [fileToShare],
 				title: filename,
 				text: "PDF generado con imágenes convertidas",
-				url: window.location.href,
+				// Omit url — apps like WhatsApp reject file shares that include a url
 			});
 		} catch (error) {
 			logger.error("Error sharing PDF", error);
