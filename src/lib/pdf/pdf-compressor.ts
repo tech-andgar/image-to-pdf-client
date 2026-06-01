@@ -1,5 +1,6 @@
 import type { PDFDocument, PDFRef } from "pdf-lib";
 import type { CompressOptions } from "./types";
+import { loadPdfDoc } from "./types";
 import { buildPdfXObjectFromStream } from "./xobject-extractor";
 import { compressXObject } from "./xobject-compressor";
 import { writeCompressedXObject } from "./xobject-writer";
@@ -12,8 +13,8 @@ export async function compressAllPdfImages(
 	pdfBytes: Uint8Array,
 	options: CompressOptions,
 ): Promise<Uint8Array> {
-	const { PDFDocument, PDFRawStream } = pdfLib;
-	const pdfDoc = await PDFDocument.load(pdfBytes);
+	const { PDFRawStream } = pdfLib;
+	const pdfDoc = await loadPdfDoc(pdfLib, pdfBytes);
 
 	const uniqueRefs = collectUniqueImageRefs(pdfLib, pdfDoc);
 	const stats = { replaced: 0, skipped: 0, masked: 0 };
