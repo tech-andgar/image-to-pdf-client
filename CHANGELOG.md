@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2026-05-31
+
+### Fixed
+
+- Handle unsupported PDF decode filters (CCITTFaxDecode, LZWDecode) gracefully
+- Modal layout improvements: use dynamic viewport height (dvh) for mobile, flex sizing fixes
+- Update PDF share message to mention app name
+
 ## [0.3.1] - 2026-05-31
 
 ### Changed
