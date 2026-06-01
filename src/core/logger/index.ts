@@ -15,9 +15,13 @@ export interface LogEntry {
 	level: LogLevel;
 	message: string;
 	data?: unknown;
-	userAgent?: string;
-	url?: string;
-	sessionId?: string;
+}
+
+export interface LogSession {
+	sessionId: string;
+	userAgent: string;
+	startedAt: string;
+	entries: LogEntry[];
 }
 
 export interface LoggerConfig {
@@ -70,7 +74,13 @@ export class LoggerService {
 	}
 
 	exportLogs(): string {
-		return JSON.stringify(this.logs, null, 2);
+		const session: LogSession = {
+			sessionId: this.sessionId,
+			userAgent: navigator.userAgent,
+			startedAt: new Date().toISOString(),
+			entries: this.logs,
+		};
+		return JSON.stringify(session, null, 2);
 	}
 
 	time(label: string) {
@@ -82,24 +92,32 @@ export class LoggerService {
 	}
 
 	private append(level: LogLevel, message: string, data?: unknown) {
-		const entry: LogEntry = {
-			timestamp: new Date().toISOString(),
-			level,
-			message,
-			data,
-			userAgent: navigator.userAgent,
-			url: window.location.href,
-			sessionId: this.sessionId,
-		};
+		const entry = this.toEntry(level, message, data);
 
-		this.logs.push(entry);
-		if (this.logs.length > this.maxEntries) this.logs.shift();
+		// Only persist warn/error — info is operational noise not needed for bug reports
+		if (level !== LogLevel.INFO) {
+			this.persist(entry);
+		}
 
-		this.scheduleFlush();
 		console[CONSOLE_METHOD[level]](
 			`[${level.toUpperCase()}] ${message}`,
 			data ?? "",
 		);
+	}
+
+	private toEntry(level: LogLevel, message: string, data?: unknown): LogEntry {
+		return {
+			timestamp: new Date().toISOString(),
+			level,
+			message,
+			...(data === undefined ? {} : { data }),
+		};
+	}
+
+	private persist(entry: LogEntry) {
+		this.logs.push(entry);
+		if (this.logs.length > this.maxEntries) this.logs.shift();
+		this.scheduleFlush();
 	}
 
 	private scheduleFlush() {
@@ -121,7 +139,23 @@ export class LoggerService {
 	private loadFromStorage() {
 		try {
 			const stored = localStorage.getItem(this.storageKey);
-			if (stored) this.logs = JSON.parse(stored);
+			if (!stored) return;
+			const parsed: unknown[] = JSON.parse(stored);
+			// Strip legacy per-entry userAgent/url/sessionId; drop info noise
+			this.logs = parsed
+				.map((raw) => {
+					const { timestamp, level, message, data } = raw as Record<
+						string,
+						unknown
+					>;
+					return {
+						timestamp,
+						level,
+						message,
+						...(data === undefined ? {} : { data }),
+					} as LogEntry;
+				})
+				.filter((e) => e.level !== LogLevel.INFO);
 		} catch {
 			// Corrupted — start fresh
 		}
