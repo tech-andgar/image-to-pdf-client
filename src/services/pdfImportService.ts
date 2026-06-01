@@ -69,10 +69,18 @@ export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 	const arrayBuffer = await file.arrayBuffer();
 	// Keep original bytes for pdfSource; pass a copy to pdfjs since it transfers the buffer to the worker
 	const pdfBytes = new Uint8Array(arrayBuffer);
+	const base = import.meta.env.BASE_URL;
+	const cMapUrl = `${base}cmaps/`;
+	const standardFontDataUrl = `${base}standard_fonts/`;
+
 	const pdf = await pdfjsLib.getDocument({
 		data: pdfBytes.slice(),
 		disableStream: true,
 		disableAutoFetch: true,
+		cMapUrl,
+		cMapPacked: true,
+		standardFontDataUrl,
+		useSystemFonts: true,
 	}).promise;
 
 	if (pdf.numPages > MAX_PDF_PAGES) {

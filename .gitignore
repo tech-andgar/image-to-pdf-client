@@ -77,3 +77,9 @@ dist-ssr
 /opencode.json.bak
 # END Ruler Generated Files
 .envrc
+
+# pdfjs assets — auto-copied from node_modules by postinstall
+public/cmaps/
+public/standard_fonts/
+public/wasm/
+public/iccs/
