@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2026-06-01
+
+### Changed
+
+- Refactored theme system from class-based to media query-based (automatic system preference detection)
+- CSS: Replaced light-dark() with @media (prefers-color-scheme) for broader browser support
+- Dialog and modal components now use design tokens instead of hard-coded colors
+- PrivacyModal refactored to use Dialog component for consistency
+- Updated app branding text in bug report links
+
 ## [0.4.2] - 2026-05-31
 
 ### Fixed
