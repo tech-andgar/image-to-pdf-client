@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -42,8 +43,14 @@ function htmlAppMetaPlugin() {
 }
 
 // https://vite.dev/config/
+const require = createRequire(import.meta.url);
+const { version } = require("./package.json");
+
 export default defineConfig({
 	base: process.env.GITHUB_PAGES ? "/image-to-pdf-client-public/" : "/",
+	define: {
+		__APP_VERSION__: JSON.stringify(version),
+	},
 	plugins: [
 		htmlAppMetaPlugin(),
 		react(),

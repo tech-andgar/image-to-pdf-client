@@ -3,7 +3,7 @@ import "../../core/analytics/setup";
 
 analytics.configure({
 	debug: import.meta.env.DEV,
-	globalParams: { app_version: "1.0.0" },
+	globalParams: { app_version: __APP_VERSION__ },
 });
 analytics.init();
 
