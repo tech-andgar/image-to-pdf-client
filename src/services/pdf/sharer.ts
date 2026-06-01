@@ -39,8 +39,8 @@ export class PdfSharer {
 			return await this.shareService.shareFile({
 				files: [fileToShare],
 				title: filename,
-				text: "PDF generado con imágenes convertidas",
-				// Omit url — apps like WhatsApp reject file shares that include a url
+				text: "Creado con image-to-pdf.app 🖼→📄",
+				// Omit url — WhatsApp rejects file shares that include a url
 			});
 		} catch (error) {
 			logger.error("Error sharing PDF", error);

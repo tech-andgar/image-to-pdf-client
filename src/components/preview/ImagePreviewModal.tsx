@@ -96,7 +96,7 @@ export function ImagePreviewModal({
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogContent
-				className="max-w-4xl w-full h-full max-h-[90vh] p-0 overflow-hidden"
+				className="max-w-4xl w-[calc(100vw-2rem)] h-[90dvh] p-0 overflow-hidden flex flex-col"
 				{...swipe}
 			>
 				<DialogHeader className="sr-only">
@@ -127,7 +127,7 @@ export function ImagePreviewModal({
 					</>
 				)}
 
-				<div className="flex flex-col h-full min-h-0">
+				<div className="flex flex-col flex-1 min-h-0">
 					<div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
 						{currentImage.preview ? (
 							<img
