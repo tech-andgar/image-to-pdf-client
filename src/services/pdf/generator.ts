@@ -65,6 +65,41 @@ export class PdfGenerator {
 		}
 	}
 
+	private collectSourceIndices(
+		images: ImageFile[],
+	): Map<Uint8Array, Set<number>> {
+		const map = new Map<Uint8Array, Set<number>>();
+		for (const image of images) {
+			if (!image.pdfSource) continue;
+			const { pdfBytes, pageIndex } = image.pdfSource;
+			if (!map.has(pdfBytes)) map.set(pdfBytes, new Set());
+			map.get(pdfBytes)?.add(pageIndex);
+		}
+		return map;
+	}
+
+	private async resolveSourceBytes(
+		pdfLib: PdfLib,
+		pdfBytes: Uint8Array,
+		preset?: CompressionPreset,
+	): Promise<Uint8Array> {
+		if (!preset) return pdfBytes;
+		let presetCache = this.compressCache.get(pdfBytes);
+		if (!presetCache) {
+			presetCache = new Map();
+			this.compressCache.set(pdfBytes, presetCache);
+		}
+		let compressed = presetCache.get(preset);
+		if (!compressed) {
+			compressed = await compressAllPdfImages(pdfLib, pdfBytes, {
+				quality: COMPRESSION_PRESETS[preset].quality,
+				mimeType: "image/jpeg",
+			});
+			presetCache.set(preset, compressed);
+		}
+		return compressed;
+	}
+
 	private async preparePdfSources(
 		pdfLib: PdfLib,
 		pdfDoc: PDFDocumentType,
@@ -72,38 +107,15 @@ export class PdfGenerator {
 		preset?: CompressionPreset,
 	): Promise<Map<Uint8Array, Map<number, PDFPage>>> {
 		const copiedPageCache = new Map<Uint8Array, Map<number, PDFPage>>();
-
-		const sourcePageIndices = new Map<Uint8Array, Set<number>>();
-		for (const image of images) {
-			if (!image.pdfSource) continue;
-			const { pdfBytes, pageIndex } = image.pdfSource;
-			if (!sourcePageIndices.has(pdfBytes))
-				sourcePageIndices.set(pdfBytes, new Set());
-			sourcePageIndices.get(pdfBytes)?.add(pageIndex);
-		}
+		const sourcePageIndices = this.collectSourceIndices(images);
 
 		for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
-			let sourceBytesToLoad: Uint8Array;
-			if (preset) {
-				let presetCache = this.compressCache.get(pdfBytes);
-				if (!presetCache) {
-					presetCache = new Map();
-					this.compressCache.set(pdfBytes, presetCache);
-				}
-				let compressed = presetCache.get(preset);
-				if (!compressed) {
-					compressed = await compressAllPdfImages(pdfLib, pdfBytes, {
-						quality: COMPRESSION_PRESETS[preset].quality,
-						mimeType: "image/jpeg",
-					});
-					presetCache.set(preset, compressed);
-				}
-				sourceBytesToLoad = compressed;
-			} else {
-				sourceBytesToLoad = pdfBytes;
-			}
-
-			const srcDoc = await loadPdfDoc(pdfLib, sourceBytesToLoad);
+			const bytesToLoad = await this.resolveSourceBytes(
+				pdfLib,
+				pdfBytes,
+				preset,
+			);
+			const srcDoc = await loadPdfDoc(pdfLib, bytesToLoad);
 			const indices = Array.from(pageIndices);
 			const copiedPages = await pdfDoc.copyPages(srcDoc, indices);
 
