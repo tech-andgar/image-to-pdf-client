@@ -11,9 +11,32 @@ function htmlAppMetaPlugin() {
 	return {
 		name: "html-app-meta",
 		transformIndexHtml(html) {
+			const gaId = process.env.VITE_GA_ID ?? "";
+			const gaBlock = gaId
+				? `<script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        wait_for_update: 500
+      });
+      gtag('js', new Date());
+      gtag('config', '${gaId}', {
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+    </script>`
+				: "<!-- GA disabled (no VITE_GA_ID) -->";
 			return html
-				.replace(/__APP_NAME__/g, APP_NAME)
-				.replace(/__APP_DESCRIPTION__/g, APP_DESCRIPTION);
+				.replaceAll(/__APP_NAME__/g, APP_NAME)
+				.replaceAll(/__APP_DESCRIPTION__/g, APP_DESCRIPTION)
+				.replaceAll(/__GA_BLOCK__/g, gaBlock);
 		},
 	};
 }

@@ -81,6 +81,8 @@ jobs:
     - name: Build application
       if: needs.check-changes.outputs.source-changed == 'true'
       run: GITHUB_PAGES=true pnpm run build
+      env:
+        VITE_GA_ID: ${{ secrets.VITE_GA_ID }}
 
     - name: Run linting
       if: needs.check-changes.outputs.source-changed == 'true'

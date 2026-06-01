@@ -6,25 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>__APP_NAME__</title>
     <meta name="description" content="__APP_DESCRIPTION__" />
-    <!-- Google Analytics + Consent Mode v2 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4N51HKGYV5"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('consent', 'default', {
-        analytics_storage: 'denied',
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        wait_for_update: 500
-      });
-      gtag('js', new Date());
-      gtag('config', 'G-4N51HKGYV5', {
-        anonymize_ip: true,
-        allow_google_signals: false,
-        allow_ad_personalization_signals: false
-      });
-    </script>
+    <!-- Google Analytics + Consent Mode v2 (ID injected at build time) -->
+    __GA_BLOCK__
   </head>
   <body>
     <div id="root"></div>

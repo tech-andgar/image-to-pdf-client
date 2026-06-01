@@ -83,3 +83,7 @@ public/cmaps/
 public/standard_fonts/
 public/wasm/
 public/iccs/
+
+# env files with secrets
+.env.production
+.env.local
