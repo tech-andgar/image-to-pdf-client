@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-05-31
+
+### Changed
+
+- Refactored PDF compression cache from string-based keys to WeakMap for cleaner identity tracking
+- Extracted `loadPdfDoc()` helper in lib/pdf/types.ts for consistent PDF document loading
+- Extracted `useImageSelection()` hook for image selection state management
+- Extracted `PresetGrid` sub-component from CompressionControls
+- Improved SVG accessibility (added title element to selection checkbox)
+
 ## [0.3.0] - 2026-05-31
 
 ### Added
