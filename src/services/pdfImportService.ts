@@ -74,12 +74,13 @@ async function openPdf(
 	pdfjsLib: typeof PdfjsLib,
 	pdfBytes: Uint8Array,
 	filename: string,
-): Promise<PdfjsLib.PDFDocumentProxy> {
+): Promise<{ doc: PdfjsLib.PDFDocumentProxy; wasPasswordProtected: boolean }> {
 	let password: string | undefined;
 	while (true) {
 		try {
-			return await pdfjsLib.getDocument(buildDocParams(pdfBytes, password))
+			const doc = await pdfjsLib.getDocument(buildDocParams(pdfBytes, password))
 				.promise;
+			return { doc, wasPasswordProtected: password !== undefined };
 		} catch (err) {
 			if (!isPasswordError(err, password !== undefined)) throw err;
 			password = await promptPassword(filename, password !== undefined);
@@ -124,6 +125,7 @@ async function buildImageFile(
 	pageNum: number,
 	file: File,
 	pdfBytes: Uint8Array,
+	wasPasswordProtected: boolean,
 ): Promise<ImageFile> {
 	const blob = await renderPageToBlob(page);
 	const bytes = await blobToUint8Array(blob);
@@ -134,7 +136,8 @@ async function buildImageFile(
 		`${baseName}_p${String(pageNum).padStart(3, "0")}.jpg`,
 		{ type: "image/jpeg" },
 	);
-	const hasText = await pageHasVectorText(page);
+	// pdf-lib can't decrypt password-protected streams — use raster-only to avoid blank pages
+	const hasText = !wasPasswordProtected && (await pageHasVectorText(page));
 	return {
 		id: `pdf-${safeName}-p${pageNum}-${Date.now()}`,
 		file: pageFile,
@@ -146,7 +149,11 @@ async function buildImageFile(
 export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 	const pdfjsLib = await loadPdfjs();
 	const pdfBytes = new Uint8Array(await file.arrayBuffer());
-	const pdf = await openPdf(pdfjsLib, pdfBytes, file.name);
+	const { doc: pdf, wasPasswordProtected } = await openPdf(
+		pdfjsLib,
+		pdfBytes,
+		file.name,
+	);
 
 	if (pdf.numPages > MAX_PDF_PAGES) {
 		throw new Error(
@@ -157,7 +164,9 @@ export async function pdfToImageFiles(file: File): Promise<ImageFile[]> {
 	const results: ImageFile[] = [];
 	for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
 		const page = await pdf.getPage(pageNum);
-		results.push(await buildImageFile(page, pageNum, file, pdfBytes));
+		results.push(
+			await buildImageFile(page, pageNum, file, pdfBytes, wasPasswordProtected),
+		);
 	}
 	return results;
 }
