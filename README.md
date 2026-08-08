@@ -1,9 +1,8 @@
 # DocuMergePDF
 
-[![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=flat-square&logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-7.1.14-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.14-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![React](https://img.shields.io/badge/React-19.2.8-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.2.1-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3.3-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 
 **Convert and merge images and PDFs into a single PDF file — entirely in the browser. No files are ever sent to a server.**
 
@@ -18,8 +17,8 @@
 
 ### Phase 1: Project Setup & Modern Stack
 - ✅ **React 19.2.0** with TypeScript 5.6.3
-- ✅ **Vite 7.1.14** development server & build optimization
-- ✅ **shadcn/ui v2.1.3** + Tailwind CSS 3.4.14 for responsive design
+- ✅ **Vite 8.2.1** development server & build optimization
+- ✅ **shadcn/ui** + Tailwind CSS 4.3.3 for responsive design
 - ✅ **PWA support** with Vite PWA plugin for offline functionality
 
 ### Phase 2: Clean Architecture & File Management
@@ -277,7 +276,7 @@ analytics.init(); // Only activates providers whose SDK is loaded
 ### **Frontend Stack**
 - **React 19.2.0**: Latest React with concurrent features
 - **TypeScript 5.6.3**: Full type coverage with strict mode
-- **Vite 7.1.14**: Lightning-fast dev server and optimized builds
+- **Vite 8.2.1**: Lightning-fast dev server and optimized builds
 - **shadcn/ui + Tailwind**: Modern, accessible UI components
 
 ### **Key Libraries**
@@ -286,8 +285,8 @@ analytics.init(); // Only activates providers whose SDK is loaded
 - **pdfjs-dist v6**: PDF import — renders pages and extracts metadata
 - **fflate v0.8**: zlib compression for alpha mask streams
 - **web-streams-polyfill**: Safari ReadableStream compatibility for pdfjs
-- **lucide-react v0.545**: Consistent iconography
-- **Biome v1.9.4**: Fast linting and code formatting
+- **lucide-react v1.30**: Consistent iconography
+- **Biome v2.5.7**: Fast linting and code formatting
 
 ### **Quality Assurance**
 - **Biome linting**: Automated code quality with 0 errors/warnings
@@ -603,9 +602,9 @@ class NewShareService implements IFileShareService {
 ## 🎯 **Project Architecture Evolution**
 
 ### **Technical Stack Excellence** ✨
-- **React 19.2** + **TypeScript 5.6.3** + **Vite 7.1.14** + **Pyodide 0.26**
-- **shadcn/ui 2.1.3** + **Tailwind CSS 3.4.14** + **DND Kit 6.17.0**
-- **PDF-lib 1.17.1** + **@Partytown 0.11.2** + **Biome 1.9.4**
+- **React 19.2.8** + **Vite 8.2.1**
+- **shadcn/ui** + **Tailwind CSS 4.3.3** + **DND Kit 6.3.1**
+- **PDF-lib 1.17.1** + **Biome 2.5.7**
 - **Flutter Integration** + **Android Emulation** + **Cross-Platform Testing**
 
 ### **Quality Assurance Framework** 🛡️
