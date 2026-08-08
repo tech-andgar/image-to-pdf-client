@@ -16,6 +16,7 @@ export async function decryptPdf(
   }
 
   const pdfDoc = doc.asPDF();
+  if (!pdfDoc) throw new Error('No se pudo abrir el PDF');
   const buf = pdfDoc.saveToBuffer({ decrypt: true });
   return new Uint8Array(buf.asUint8Array());
 }

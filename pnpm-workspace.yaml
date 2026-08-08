@@ -11,3 +11,4 @@ minimumReleaseAgeExclude:
   - '@biomejs/biome'
   - '@biomejs/*'
   - '@rolldown/*'
+  - terser

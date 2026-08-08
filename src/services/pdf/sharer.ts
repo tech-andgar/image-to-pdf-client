@@ -62,7 +62,7 @@ export class PdfSharer {
     return new Promise((resolve) => {
       const reader = new FileReader();
       let done = false;
-      let timeoutId: number | undefined;
+      let timeoutId: ReturnType<typeof globalThis.setTimeout> | undefined;
 
       const finish = (result: boolean) => {
         if (done) return;

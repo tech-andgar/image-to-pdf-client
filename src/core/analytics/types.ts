@@ -14,7 +14,7 @@ export interface AnalyticsEvent<
   params?: Record<string, unknown>;
 }
 
-export interface UserProperties {
+export interface UserProperties extends Record<string, unknown> {
   device_type: 'mobile' | 'tablet' | 'desktop';
   app_mode: 'pwa' | 'browser';
   returning_user: boolean;
