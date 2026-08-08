@@ -1,0 +1,6 @@
+allowBuilds:
+  '0': esbuild
+  '1': vite
+  '2': '@biomejs/biome'
+blockExoticSubdeps: true
+strictDepBuilds: true

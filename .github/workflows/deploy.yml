@@ -76,7 +76,7 @@ jobs:
 
     - name: Install dependencies
       if: needs.check-changes.outputs.source-changed == 'true'
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
 
     - name: Build application
       if: needs.check-changes.outputs.source-changed == 'true'
