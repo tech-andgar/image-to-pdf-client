@@ -111,7 +111,7 @@ export function ImagePreviewModal({
 						<Button
 							variant="ghost"
 							size="icon"
-							className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50 bg-background/70 text-foreground hover:bg-background/90 rounded-full w-12 h-12 border shadow-sm"
+							className="absolute left-4 top-1/2 transform -translate-y-1/2 z-50 bg-background/70 text-foreground hover:bg-background/90 rounded-full w-12 h-12 border shadow-xs"
 							onClick={navigateToPrevious}
 						>
 							<ChevronLeft className="h-6 w-6" />
@@ -119,7 +119,7 @@ export function ImagePreviewModal({
 						<Button
 							variant="ghost"
 							size="icon"
-							className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50 bg-background/70 text-foreground hover:bg-background/90 rounded-full w-12 h-12 border shadow-sm"
+							className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50 bg-background/70 text-foreground hover:bg-background/90 rounded-full w-12 h-12 border shadow-xs"
 							onClick={navigateToNext}
 						>
 							<ChevronRight className="h-6 w-6" />
@@ -146,7 +146,7 @@ export function ImagePreviewModal({
 						)}
 					</div>
 
-					<div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-4 py-3 space-y-1.5">
+					<div className="bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 border-t px-4 py-3 space-y-1.5">
 						{currentImage.pdfSource && (
 							<p className="text-[10px] text-muted-foreground/70 text-center truncate">
 								Vista previa aproximada — el PDF exportado preserva fuentes
