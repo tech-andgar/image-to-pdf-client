@@ -1,6 +1,11 @@
-import { useId, useMemo } from "react";
+import { useId, useMemo, useRef } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DateTokenBadges } from "./DateTokenBadges";
+import {
+	formatDateToken,
+	type DateTokenLabel,
+} from "@/services/file/dateTokens";
 
 interface FilenameInputProps {
 	filename: string;
@@ -20,12 +25,27 @@ export function FilenameInput({
 }: Readonly<FilenameInputProps>) {
 	const inputId = useId();
 	const previewId = useId();
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const inputIdSelector = useMemo(() => `pdf-filename-${inputId}`, [inputId]);
 	const previewIdSelector = useMemo(
 		() => `pdf-filename-preview-${previewId}`,
 		[previewId],
 	);
+
+	function handleTokenSelect(label: DateTokenLabel) {
+		const el = inputRef.current;
+		const tokenValue = formatDateToken(label);
+		const pos = el?.selectionStart ?? filename.length;
+		const newFilename =
+			filename.slice(0, pos) + tokenValue + filename.slice(pos);
+		setFilename(newFilename);
+		const nextPos = pos + tokenValue.length;
+		setTimeout(() => {
+			el?.focus();
+			el?.setSelectionRange(nextPos, nextPos);
+		}, 0);
+	}
 
 	return (
 		<div className="mb-3">
@@ -37,6 +57,7 @@ export function FilenameInput({
 			</label>
 			<div className="relative">
 				<input
+					ref={inputRef}
 					id={inputIdSelector}
 					type="text"
 					value={filename}
@@ -60,6 +81,7 @@ export function FilenameInput({
 				)}
 			</div>
 			{/* Show preview only when user provides custom filename (always show the sanitized version) */}
+			<DateTokenBadges onSelect={handleTokenSelect} />
 			{filename.trim() && (
 				<div
 					id={previewIdSelector}
