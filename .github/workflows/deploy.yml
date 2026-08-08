@@ -26,7 +26,7 @@ jobs:
         fi
 
         if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-          if git diff --quiet HEAD~1 -- src/ public/ package.json tsconfig.json vite.config.js biome.json tailwind.config.js postcss.config.js components.json index.html '*.config.js' '*.config.ts'; then
+          if git diff --quiet HEAD~1 -- src/ public/ package.json tsconfig.json vite.config.ts biome.json postcss.config.js components.json index.html '*.config.js' '*.config.ts'; then
             echo "source-changed=false" >> $GITHUB_OUTPUT
           else
             echo "source-changed=true" >> $GITHUB_OUTPUT
@@ -49,7 +49,7 @@ jobs:
       if: needs.check-changes.outputs.source-changed == 'true'
       uses: actions/setup-node@v7
       with:
-        node-version: '22'
+        node-version: '24'
 
     - name: Setup pnpm
       if: needs.check-changes.outputs.source-changed == 'true'
@@ -108,7 +108,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v7
       with:
-        node-version: '22'
+        node-version: '24'
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
@@ -135,3 +135,47 @@ jobs:
 
     - name: Run E2E smoke tests
       run: pnpm test:e2e --reporter=list
+
+  release:
+    name: Tag & GitHub Release
+    needs: [check-changes, build-and-deploy, e2e]
+    if: github.ref == 'refs/heads/main' && needs.check-changes.outputs.source-changed == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Read version from package.json
+      id: pkg
+      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+    - name: Check if tag already exists
+      id: tag_check
+      run: |
+        if git rev-parse "v${{ steps.pkg.outputs.version }}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Extract changelog entry
+      if: steps.tag_check.outputs.exists == 'false'
+      id: changelog
+      run: |
+        VERSION="${{ steps.pkg.outputs.version }}"
+        NOTES=$(awk "/^## \[$VERSION\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        echo "$NOTES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Create tag and GitHub Release
+      if: steps.tag_check.outputs.exists == 'false'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ steps.pkg.outputs.version }}
+        name: v${{ steps.pkg.outputs.version }}
+        body: ${{ steps.changelog.outputs.notes }}
