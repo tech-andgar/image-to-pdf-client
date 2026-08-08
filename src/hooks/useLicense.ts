@@ -1,8 +1,6 @@
 import { useState, useCallback } from "react";
-import {
-	licenseService,
-	type LicenseInfo,
-} from "../services/license/licenseService";
+import { licenseService } from "../services/license/licenseService";
+import type { LicenseInfo } from "../core/license";
 
 export interface LicenseDomain {
 	info: LicenseInfo;
