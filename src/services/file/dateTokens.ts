@@ -63,7 +63,7 @@ function buildDateParts(): DateParts {
 
 export function formatDateToken(
   label: DateTokenLabel,
-  locale = navigator.language,
+  locale = navigator.language || 'en',
 ): string {
   const token = DATE_TOKENS.find((t) => t.label === label);
   if (!token) return label;
