@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-08-07
+
+### Added
+
+- Date token insertion in filename input: clickable badges (`{date}`, `{year}`, `{month}`, `{day}`, `{time}`) insert formatted date parts at cursor position via new `DateTokenBadges` component and `dateTokens` service
+
+### Security
+
+- Applied npm security best practices (lirantal/npm-security-best-practices)
+- Added `pnpm-workspace.yaml` with `blockExoticSubdeps: true` and `strictDepBuilds: true` to block transitive git/tarball URLs and unreviewed build scripts
+- CI: use `pnpm install --frozen-lockfile` to enforce exact lockfile adherence and prevent lockfile injection
+
+### Changed
+
+- **`react` / `react-dom`** 19.2.6 → 19.2.8: patch fixes for Server Actions (`FormData` regression in 19.2.7), RSC decode performance improvement in 19.2.8; no breaking changes
+- **`mupdf`** 1.27.0 → 1.28.0: fixed compilation of optional formats in mutool run; maintenance release
+- **`pdfjs-dist`** 6.0.227 → 6.2.108: sound annotation support, digital signature & certificate verification, improved SMask handling, enhanced text selection via `Intl.Segmenter`, extended Unicode support, performance optimizations
+- **`@radix-ui/react-dialog`** 1.1.15 → 1.1.23: prop spreading improvements, test infrastructure hardening
+- **`@radix-ui/react-progress`** 1.1.8 → 1.1.16: prop spreading improvements, test infrastructure hardening
+- **`@radix-ui/react-slot`** 1.2.4 → 1.3.3: prop spreading improvements, test infrastructure hardening
+- **`vite`** 8.0.14 → 8.2.1: extended `server.fs.deny`, worker HMR support, `input` option for `server.fs.allow`, config error reporting with columns, network URL resolution, CSS minification optimizations, random port assignment fixes
+- **`@biomejs/biome`** 2.4.16 → 2.5.7: new rules (`noExtendNative`, `noTailwindArbitraryValue`, `noJsRestrictedProperties`), ~7% formatter performance gain, BigInt literal support, Svelte/Vue improvements; migrated config with `biome migrate`
+- **`tailwindcss`** 3.4.19 → 4.3.3: CSS-first config (`@import "tailwindcss"` replaces `@tailwind` directives), PostCSS plugin moved to `@tailwindcss/postcss`, `autoprefixer` now built-in and removed; renamed utilities (`shadow-sm`→`shadow-xs`, `rounded-sm`→`rounded-xs`, `outline-none`→`outline-hidden`), ring default changed from 3px to 1px; migrated via `@tailwindcss/upgrade`
+- **`@vitejs/plugin-react`** 5.2.0 → 6.0.5: Babel removed as bundled dependency (no impact — project uses no Babel plugins); requires Vite 8+ (already met)
+- **`lucide-react`** 0.545.0 → 1.30.0: brand icons removed (GitHub, Slack, Figma, etc.); no impact — project only uses UI icons
+- **`globals`** 16.5.0 → 17.9.0: `audioWorklet` split from `browser` env, added `bun`/`deno`/`sharedWorker` environments; no direct usage in project
+- **`autoprefixer`** removed: now built-in to Tailwind CSS v4
+- **`postcss`** 8.5.15 → 8.5.26: fixed `list.split()` regression, improved symlink tracking in source maps, prototype hijacking vulnerability fixes, stack overflow prevention
+- **`@types/react`** 19.2.15 → 19.2.18: type definition updates matching React 19.2.8
+- **`@types/react-dom`** 19.2.3 → 19.2.4: type definition updates matching react-dom 19.2.8
+
+### Fixed
+
+- Added `<title>Documerge PDF</title>` to all SVG icon files for accessibility (biome `noSvgWithoutTitle`)
+- Enhanced dark mode styling: active button colors in CompressionControls, drag handle and overlay styles in SortableImageItem, icon colors and analytics toggle background in PrivacyModal
+
 ## [0.4.4] - 2026-06-01
 
 ### Changed
