@@ -1,0 +1,44 @@
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+[log] [INFO] Application started 
+[timeStamp] Blocking Track
+[timeStamp] Transition Track
+[timeStamp] Suspense Track
+[timeStamp] Idle Track
+[timeStamp] Render
+[timeStamp] Presence
+[timeStamp] Commit
+[timeStamp] ErrorBoundary
+[timeStamp] App
+[timeStamp] MainLayout
+[timeStamp] PwaRenameBanner
+[timeStamp] Header
+[timeStamp] FileImage
+[timeStamp] ForwardRef
+[timeStamp] ImageUploader
+[timeStamp] WorkflowProvider
+[timeStamp] ImageUploaderContent
+[timeStamp] UploadArea
+[timeStamp] ImagePlus
+[timeStamp] ForwardRef
+[timeStamp] UploadErrorBanner
+[timeStamp] ImagePreviewModal
+[timeStamp] CookieConsent
+[timeStamp] Footer
+[timeStamp] ShieldCheck
+[timeStamp] PrivacyModal
+[timeStamp] Dialog
+[timeStamp] DialogProvider
+[timeStamp] ForwardRef(_c3)
+[timeStamp] DialogPortal
+[timeStamp] DialogPortalProvider
+[timeStamp] Presence
+[timeStamp] Presence
+[timeStamp] Remaining Effects
+[timeStamp] Blocking Track
+[timeStamp] Transition Track
+[timeStamp] Suspense Track
+[timeStamp] Idle Track
+[log] React Grab v0.1.50 
+https://react-grab.com

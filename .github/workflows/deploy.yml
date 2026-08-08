@@ -95,3 +95,41 @@ jobs:
         personal_token: ${{ secrets.PERSONAL_TOKEN }}
         publish_dir: ./dist
         external_repository: tech-andgar/image-to-pdf-client-public
+
+  e2e:
+    name: Post-deploy E2E smoke tests
+    needs: build-and-deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 10
+        run_install: false
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile --config.minimumReleaseAge=0
+
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium firefox webkit
+
+    - name: Wait for GitHub Pages to propagate
+      run: |
+        for i in $(seq 1 12); do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://tech-andgar.github.io/image-to-pdf-client-public/")
+          if [ "$STATUS" = "200" ]; then echo "Pages ready"; break; fi
+          echo "Attempt $i: status $STATUS, waiting 10s..."
+          sleep 10
+        done
+
+    - name: Run E2E smoke tests
+      run: pnpm test:e2e --reporter=list

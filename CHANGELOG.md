@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.5.2] - 2026-08-08
+## [0.5.3] - 2026-08-08
+
+### Added
+
+- Playwright E2E smoke tests (`e2e/app.spec.ts`) covering: no JS errors on load, no 404s, `mupdf-wasm.wasm` HTTP 200, image upload → thumbnail + export section, filename placeholder with date; runs against the live GitHub Pages deployment on all three browsers (Chromium, Firefox, WebKit)
+- CI post-deploy job `e2e` in `deploy.yml`: runs after every deploy to `main`, waits for GitHub Pages propagation, then runs all smoke tests
 
 ### Fixed
 

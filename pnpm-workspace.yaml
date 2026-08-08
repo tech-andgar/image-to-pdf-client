@@ -5,3 +5,9 @@ allowBuilds:
 blockExoticSubdeps: true
 strictDepBuilds: true
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - '@playwright/test'
+  - playwright-core
+  - '@biomejs/biome'
+  - '@biomejs/*'
+  - '@rolldown/*'
