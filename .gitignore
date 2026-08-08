@@ -87,3 +87,9 @@ public/iccs/
 # env files with secrets
 .env.production
 .env.local
+
+# Playwright
+test-results/
+playwright-report/
+final_runs/
+webwright_workspace/
