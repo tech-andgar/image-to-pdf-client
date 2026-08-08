@@ -1,29 +1,29 @@
-import { useCallback, useState } from "react";
-import { userMetrics } from "../../services/privacy/userMetrics";
+import { useCallback, useState } from 'react';
+import { userMetrics } from '../../services/privacy/userMetrics';
 
 interface PreviewModalState {
-	isOpen: boolean;
-	currentIndex: number | null;
+  isOpen: boolean;
+  currentIndex: number | null;
 }
 
 export function usePreviewModal() {
-	const [previewModal, setPreviewModal] = useState<PreviewModalState>({
-		isOpen: false,
-		currentIndex: null,
-	});
+  const [previewModal, setPreviewModal] = useState<PreviewModalState>({
+    isOpen: false,
+    currentIndex: null,
+  });
 
-	const openPreviewModal = useCallback((imageIndex: number) => {
-		setPreviewModal({ isOpen: true, currentIndex: imageIndex });
-		userMetrics.trackImagePreviewed();
-	}, []);
+  const openPreviewModal = useCallback((imageIndex: number) => {
+    setPreviewModal({ isOpen: true, currentIndex: imageIndex });
+    userMetrics.trackImagePreviewed();
+  }, []);
 
-	const closePreviewModal = useCallback(() => {
-		setPreviewModal({ isOpen: false, currentIndex: null });
-	}, []);
+  const closePreviewModal = useCallback(() => {
+    setPreviewModal({ isOpen: false, currentIndex: null });
+  }, []);
 
-	const setPreviewImage = useCallback((imageIndex: number) => {
-		setPreviewModal((prev) => ({ ...prev, currentIndex: imageIndex }));
-	}, []);
+  const setPreviewImage = useCallback((imageIndex: number) => {
+    setPreviewModal((prev) => ({ ...prev, currentIndex: imageIndex }));
+  }, []);
 
-	return { previewModal, openPreviewModal, closePreviewModal, setPreviewImage };
+  return { previewModal, openPreviewModal, closePreviewModal, setPreviewImage };
 }

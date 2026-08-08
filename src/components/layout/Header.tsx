@@ -1,15 +1,15 @@
-import { FileImage } from "lucide-react";
-import { APP_NAME } from "../../config/app";
+import { FileImage } from 'lucide-react';
+import { APP_NAME } from '../../config/app';
 
 export function Header() {
-	return (
-		<header className="border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 sticky top-0 z-30">
-			<div className="max-w-2xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-center gap-2">
-				<FileImage className="h-5 w-5 text-foreground shrink-0" />
-				<h1 className="text-base font-semibold text-foreground tracking-tight">
-					{APP_NAME}
-				</h1>
-			</div>
-		</header>
-	);
+  return (
+    <header className="border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 sticky top-0 z-30">
+      <div className="max-w-2xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-center gap-2">
+        <FileImage className="h-5 w-5 text-foreground shrink-0" />
+        <h1 className="text-base font-semibold text-foreground tracking-tight">
+          {APP_NAME}
+        </h1>
+      </div>
+    </header>
+  );
 }

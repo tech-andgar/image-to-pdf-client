@@ -1,16 +1,16 @@
-import { useId, useMemo, useRef } from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DateTokenBadges } from "./DateTokenBadges";
+import { useId, useMemo, useRef } from 'react';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DateTokenBadges } from './DateTokenBadges';
 import {
-	formatDateToken,
-	type DateTokenLabel,
-} from "@/services/file/dateTokens";
+  formatDateToken,
+  type DateTokenLabel,
+} from '@/services/file/dateTokens';
 
 interface FilenameInputProps {
-	filename: string;
-	setFilename: (filename: string) => void;
-	previewFilename: string;
+  filename: string;
+  setFilename: (filename: string) => void;
+  previewFilename: string;
 }
 
 /**
@@ -19,77 +19,77 @@ interface FilenameInputProps {
  * Uses shadcn/ui design patterns for consistency
  */
 export function FilenameInput({
-	filename,
-	setFilename,
-	previewFilename,
+  filename,
+  setFilename,
+  previewFilename,
 }: Readonly<FilenameInputProps>) {
-	const inputId = useId();
-	const previewId = useId();
-	const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
+  const previewId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-	const inputIdSelector = useMemo(() => `pdf-filename-${inputId}`, [inputId]);
-	const previewIdSelector = useMemo(
-		() => `pdf-filename-preview-${previewId}`,
-		[previewId],
-	);
+  const inputIdSelector = useMemo(() => `pdf-filename-${inputId}`, [inputId]);
+  const previewIdSelector = useMemo(
+    () => `pdf-filename-preview-${previewId}`,
+    [previewId],
+  );
 
-	function handleTokenSelect(label: DateTokenLabel) {
-		const el = inputRef.current;
-		const tokenValue = formatDateToken(label);
-		const pos = el?.selectionStart ?? filename.length;
-		const newFilename =
-			filename.slice(0, pos) + tokenValue + filename.slice(pos);
-		setFilename(newFilename);
-		const nextPos = pos + tokenValue.length;
-		setTimeout(() => {
-			el?.focus();
-			el?.setSelectionRange(nextPos, nextPos);
-		}, 0);
-	}
+  function handleTokenSelect(label: DateTokenLabel) {
+    const el = inputRef.current;
+    const tokenValue = formatDateToken(label);
+    const pos = el?.selectionStart ?? filename.length;
+    const newFilename =
+      filename.slice(0, pos) + tokenValue + filename.slice(pos);
+    setFilename(newFilename);
+    const nextPos = pos + tokenValue.length;
+    setTimeout(() => {
+      el?.focus();
+      el?.setSelectionRange(nextPos, nextPos);
+    }, 0);
+  }
 
-	return (
-		<div className="mb-3">
-			<label
-				htmlFor={inputIdSelector}
-				className="block text-xs font-medium mb-1"
-			>
-				Nombre del archivo
-			</label>
-			<div className="relative">
-				<input
-					ref={inputRef}
-					id={inputIdSelector}
-					type="text"
-					value={filename}
-					onChange={(e) => setFilename(e.target.value)}
-					placeholder={previewFilename}
-					className="w-full px-3 py-2 pr-10 text-[16px] md:text-sm border rounded-md focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent"
-					maxLength={100}
-					aria-describedby={previewIdSelector}
-				/>
-				{filename.trim() && (
-					<Button
-						type="button"
-						variant="ghost"
-						size="sm"
-						onClick={() => setFilename("")}
-						className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted text-red-500 hover:text-red-600"
-						aria-label="Limpiar nombre del archivo"
-					>
-						<X className="h-4 w-4" />
-					</Button>
-				)}
-			</div>
-			{/* Show preview only when user provides custom filename (always show the sanitized version) */}
-			<DateTokenBadges onSelect={handleTokenSelect} />
-			{filename.trim() && (
-				<div
-					id={previewIdSelector}
-					className="mt-1 text-xs text-muted-foreground"
-				>
-					Archivo se guardará como: <code>{previewFilename}</code>
-				</div>
-			)}
-		</div>
-	);
+  return (
+    <div className="mb-3">
+      <label
+        htmlFor={inputIdSelector}
+        className="block text-xs font-medium mb-1"
+      >
+        Nombre del archivo
+      </label>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          id={inputIdSelector}
+          type="text"
+          value={filename}
+          onChange={(e) => setFilename(e.target.value)}
+          placeholder={previewFilename}
+          className="w-full px-3 py-2 pr-10 text-[16px] md:text-sm border rounded-md focus:outline-hidden focus:ring-2 focus:ring-primary focus:border-transparent"
+          maxLength={100}
+          aria-describedby={previewIdSelector}
+        />
+        {filename.trim() && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setFilename('')}
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted text-red-500 hover:text-red-600"
+            aria-label="Limpiar nombre del archivo"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      {/* Show preview only when user provides custom filename (always show the sanitized version) */}
+      <DateTokenBadges onSelect={handleTokenSelect} />
+      {filename.trim() && (
+        <div
+          id={previewIdSelector}
+          className="mt-1 text-xs text-muted-foreground"
+        >
+          Archivo se guardará como: <code>{previewFilename}</code>
+        </div>
+      )}
+    </div>
+  );
 }

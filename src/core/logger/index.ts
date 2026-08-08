@@ -1,183 +1,183 @@
 import {
-	MAX_LOG_ENTRIES,
-	LOG_FLUSH_DEBOUNCE_MS,
-	DEFAULT_LOG_STORAGE_KEY,
-} from "./config";
+  MAX_LOG_ENTRIES,
+  LOG_FLUSH_DEBOUNCE_MS,
+  DEFAULT_LOG_STORAGE_KEY,
+} from './config';
 
 export enum LogLevel {
-	INFO = "info",
-	WARN = "warn",
-	ERROR = "error",
+  INFO = 'info',
+  WARN = 'warn',
+  ERROR = 'error',
 }
 
 export interface LogEntry {
-	timestamp: string;
-	level: LogLevel;
-	message: string;
-	data?: unknown;
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  data?: unknown;
 }
 
 export interface LogSession {
-	sessionId: string;
-	userAgent: string;
-	startedAt: string;
-	entries: LogEntry[];
+  sessionId: string;
+  userAgent: string;
+  startedAt: string;
+  entries: LogEntry[];
 }
 
 export interface LoggerConfig {
-	maxEntries?: number;
-	flushDebounceMs?: number;
-	storageKey?: string;
+  maxEntries?: number;
+  flushDebounceMs?: number;
+  storageKey?: string;
 }
 
-const CONSOLE_METHOD: Record<LogLevel, "log" | "warn" | "error"> = {
-	[LogLevel.INFO]: "log",
-	[LogLevel.WARN]: "warn",
-	[LogLevel.ERROR]: "error",
+const CONSOLE_METHOD: Record<LogLevel, 'log' | 'warn' | 'error'> = {
+  [LogLevel.INFO]: 'log',
+  [LogLevel.WARN]: 'warn',
+  [LogLevel.ERROR]: 'error',
 };
 
 export class LoggerService {
-	private logs: LogEntry[] = [];
-	private flushTimer: ReturnType<typeof setTimeout> | null = null;
-	readonly sessionId: string;
-	private readonly maxEntries: number;
-	private readonly flushDebounceMs: number;
-	private readonly storageKey: string;
+  private logs: LogEntry[] = [];
+  private flushTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly sessionId: string;
+  private readonly maxEntries: number;
+  private readonly flushDebounceMs: number;
+  private readonly storageKey: string;
 
-	constructor(config: LoggerConfig = {}) {
-		this.maxEntries = config.maxEntries ?? MAX_LOG_ENTRIES;
-		this.flushDebounceMs = config.flushDebounceMs ?? LOG_FLUSH_DEBOUNCE_MS;
-		this.storageKey = config.storageKey ?? DEFAULT_LOG_STORAGE_KEY;
-		this.sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-		this.loadFromStorage();
-	}
+  constructor(config: LoggerConfig = {}) {
+    this.maxEntries = config.maxEntries ?? MAX_LOG_ENTRIES;
+    this.flushDebounceMs = config.flushDebounceMs ?? LOG_FLUSH_DEBOUNCE_MS;
+    this.storageKey = config.storageKey ?? DEFAULT_LOG_STORAGE_KEY;
+    this.sessionId = `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    this.loadFromStorage();
+  }
 
-	info(message: string, data?: unknown) {
-		this.append(LogLevel.INFO, message, data);
-	}
+  info(message: string, data?: unknown) {
+    this.append(LogLevel.INFO, message, data);
+  }
 
-	warn(message: string, data?: unknown) {
-		this.append(LogLevel.WARN, message, data);
-	}
+  warn(message: string, data?: unknown) {
+    this.append(LogLevel.WARN, message, data);
+  }
 
-	error(message: string, data?: unknown) {
-		this.append(LogLevel.ERROR, message, data);
-	}
+  error(message: string, data?: unknown) {
+    this.append(LogLevel.ERROR, message, data);
+  }
 
-	getLogs(): LogEntry[] {
-		return [...this.logs];
-	}
+  getLogs(): LogEntry[] {
+    return [...this.logs];
+  }
 
-	clearLogs() {
-		this.logs = [];
-		this.flushToStorage();
-	}
+  clearLogs() {
+    this.logs = [];
+    this.flushToStorage();
+  }
 
-	exportLogs(): string {
-		const session: LogSession = {
-			sessionId: this.sessionId,
-			userAgent: navigator.userAgent,
-			startedAt: new Date().toISOString(),
-			entries: this.logs,
-		};
-		return JSON.stringify(session, null, 2);
-	}
+  exportLogs(): string {
+    const session: LogSession = {
+      sessionId: this.sessionId,
+      userAgent: navigator.userAgent,
+      startedAt: new Date().toISOString(),
+      entries: this.logs,
+    };
+    return JSON.stringify(session, null, 2);
+  }
 
-	time(label: string) {
-		console.time(label);
-	}
+  time(label: string) {
+    console.time(label);
+  }
 
-	timeEnd(label: string) {
-		console.timeEnd(label);
-	}
+  timeEnd(label: string) {
+    console.timeEnd(label);
+  }
 
-	private append(level: LogLevel, message: string, data?: unknown) {
-		const entry = this.toEntry(level, message, data);
+  private append(level: LogLevel, message: string, data?: unknown) {
+    const entry = this.toEntry(level, message, data);
 
-		// Only persist warn/error — info is operational noise not needed for bug reports
-		if (level !== LogLevel.INFO) {
-			this.persist(entry);
-		}
+    // Only persist warn/error — info is operational noise not needed for bug reports
+    if (level !== LogLevel.INFO) {
+      this.persist(entry);
+    }
 
-		console[CONSOLE_METHOD[level]](
-			`[${level.toUpperCase()}] ${message}`,
-			data ?? "",
-		);
-	}
+    console[CONSOLE_METHOD[level]](
+      `[${level.toUpperCase()}] ${message}`,
+      data ?? '',
+    );
+  }
 
-	private toEntry(level: LogLevel, message: string, data?: unknown): LogEntry {
-		return {
-			timestamp: new Date().toISOString(),
-			level,
-			message,
-			...(data === undefined ? {} : { data: this.safeSerialize(data) }),
-		};
-	}
+  private toEntry(level: LogLevel, message: string, data?: unknown): LogEntry {
+    return {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      ...(data === undefined ? {} : { data: this.safeSerialize(data) }),
+    };
+  }
 
-	private safeSerialize(data: unknown): unknown {
-		if (data instanceof Error) {
-			return { name: data.name, message: data.message, stack: data.stack };
-		}
-		// Handle pdfjs-style exceptions and other non-standard error objects
-		if (data !== null && typeof data === "object") {
-			const obj = data as Record<string, unknown>;
-			if (typeof obj.message === "string" || typeof obj.name === "string") {
-				return { name: obj.name, message: obj.message, code: obj.code };
-			}
-		}
-		try {
-			return JSON.parse(JSON.stringify(data));
-		} catch {
-			return String(data);
-		}
-	}
+  private safeSerialize(data: unknown): unknown {
+    if (data instanceof Error) {
+      return { name: data.name, message: data.message, stack: data.stack };
+    }
+    // Handle pdfjs-style exceptions and other non-standard error objects
+    if (data !== null && typeof data === 'object') {
+      const obj = data as Record<string, unknown>;
+      if (typeof obj.message === 'string' || typeof obj.name === 'string') {
+        return { name: obj.name, message: obj.message, code: obj.code };
+      }
+    }
+    try {
+      return JSON.parse(JSON.stringify(data));
+    } catch {
+      return String(data);
+    }
+  }
 
-	private persist(entry: LogEntry) {
-		this.logs.push(entry);
-		if (this.logs.length > this.maxEntries) this.logs.shift();
-		this.scheduleFlush();
-	}
+  private persist(entry: LogEntry) {
+    this.logs.push(entry);
+    if (this.logs.length > this.maxEntries) this.logs.shift();
+    this.scheduleFlush();
+  }
 
-	private scheduleFlush() {
-		if (this.flushTimer) return;
-		this.flushTimer = setTimeout(() => {
-			this.flushTimer = null;
-			this.flushToStorage();
-		}, this.flushDebounceMs);
-	}
+  private scheduleFlush() {
+    if (this.flushTimer) return;
+    this.flushTimer = setTimeout(() => {
+      this.flushTimer = null;
+      this.flushToStorage();
+    }, this.flushDebounceMs);
+  }
 
-	private flushToStorage() {
-		try {
-			localStorage.setItem(this.storageKey, JSON.stringify(this.logs));
-		} catch {
-			// Storage full or unavailable
-		}
-	}
+  private flushToStorage() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.logs));
+    } catch {
+      // Storage full or unavailable
+    }
+  }
 
-	private loadFromStorage() {
-		try {
-			const stored = localStorage.getItem(this.storageKey);
-			if (!stored) return;
-			const parsed: unknown[] = JSON.parse(stored);
-			// Strip legacy per-entry userAgent/url/sessionId; drop info noise
-			this.logs = parsed
-				.map((raw) => {
-					const { timestamp, level, message, data } = raw as Record<
-						string,
-						unknown
-					>;
-					return {
-						timestamp,
-						level,
-						message,
-						...(data === undefined ? {} : { data }),
-					} as LogEntry;
-				})
-				.filter((e) => e.level !== LogLevel.INFO);
-		} catch {
-			// Corrupted — start fresh
-		}
-	}
+  private loadFromStorage() {
+    try {
+      const stored = localStorage.getItem(this.storageKey);
+      if (!stored) return;
+      const parsed: unknown[] = JSON.parse(stored);
+      // Strip legacy per-entry userAgent/url/sessionId; drop info noise
+      this.logs = parsed
+        .map((raw) => {
+          const { timestamp, level, message, data } = raw as Record<
+            string,
+            unknown
+          >;
+          return {
+            timestamp,
+            level,
+            message,
+            ...(data === undefined ? {} : { data }),
+          } as LogEntry;
+        })
+        .filter((e) => e.level !== LogLevel.INFO);
+    } catch {
+      // Corrupted — start fresh
+    }
+  }
 }
 
 export { MAX_LOG_ENTRIES, LOG_FLUSH_DEBOUNCE_MS, DEFAULT_LOG_STORAGE_KEY };

@@ -2,151 +2,151 @@
  * Sharing service interfaces and implementations following SOLID principles
  */
 
-import { logger } from "./logger";
+import { logger } from './logger';
 
 /** Resultado de operaciones de compartir */
 export interface ShareResult {
-	success: boolean;
-	method: ShareMethod;
-	error?: string;
+  success: boolean;
+  method: ShareMethod;
+  error?: string;
 }
 
 /** Método de compartir usado */
-export type ShareMethod = "file" | "url" | "clipboard" | "none";
+export type ShareMethod = 'file' | 'url' | 'clipboard' | 'none';
 
 /** Datos para compartir archivos */
 export interface ShareFileData {
-	files: File[];
-	title?: string;
-	text?: string;
-	url?: string;
+  files: File[];
+  title?: string;
+  text?: string;
+  url?: string;
 }
 
 /** Datos para compartir URL */
 export interface ShareUrlData {
-	title?: string;
-	text?: string;
-	url: string;
+  title?: string;
+  text?: string;
+  url: string;
 }
 
 /** Interfaz segregada para compartir archivos */
 export interface IFileShareService {
-	shareFile(data: ShareFileData): Promise<ShareResult>;
-	canShareFile?: (data: ShareFileData) => boolean;
+  shareFile(data: ShareFileData): Promise<ShareResult>;
+  canShareFile?: (data: ShareFileData) => boolean;
 }
 
 /** Interfaz segregada para compartir URLs */
 export interface IUrlShareService {
-	shareUrl(data: ShareUrlData): Promise<ShareResult>;
-	canShareUrl?: (data: ShareUrlData) => boolean;
+  shareUrl(data: ShareUrlData): Promise<ShareResult>;
+  canShareUrl?: (data: ShareUrlData) => boolean;
 }
 
 /** Servicio de compartir compuesto que puede manejar ambos tipos */
 export interface IUniversalShareService
-	extends IFileShareService,
-		IUrlShareService {
-	// Combined interface
+  extends IFileShareService,
+    IUrlShareService {
+  // Combined interface
 }
 
 /**
  * Fallback share service that only supports clipboard
  */
 export class ClipboardShareService implements IUrlShareService {
-	async shareUrl(data: ShareUrlData): Promise<ShareResult> {
-		try {
-			await navigator.clipboard.writeText(data.url);
-			return {
-				success: true,
-				method: "clipboard",
-				error: "Se copió la URL al portapapeles. Comparta manualmente.",
-			};
-		} catch (error) {
-			logger.error("Error copying URL to clipboard", error);
-			return {
-				success: false,
-				method: "clipboard",
-				error: "No se pudo copiar la URL al portapapeles.",
-			};
-		}
-	}
+  async shareUrl(data: ShareUrlData): Promise<ShareResult> {
+    try {
+      await navigator.clipboard.writeText(data.url);
+      return {
+        success: true,
+        method: 'clipboard',
+        error: 'Se copió la URL al portapapeles. Comparta manualmente.',
+      };
+    } catch (error) {
+      logger.error('Error copying URL to clipboard', error);
+      return {
+        success: false,
+        method: 'clipboard',
+        error: 'No se pudo copiar la URL al portapapeles.',
+      };
+    }
+  }
 
-	canShareUrl?(_data: ShareUrlData): boolean {
-		return !!navigator.clipboard;
-	}
+  canShareUrl?(_data: ShareUrlData): boolean {
+    return !!navigator.clipboard;
+  }
 }
 
 /**
  * Web Share API Level 2 service for modern browsers
  */
 export class WebShareAPIService implements IUniversalShareService {
-	constructor(
-		private readonly clipboardFallback: IUrlShareService = new ClipboardShareService(),
-	) {}
+  constructor(
+    private readonly clipboardFallback: IUrlShareService = new ClipboardShareService(),
+  ) {}
 
-	async shareFile(data: ShareFileData): Promise<ShareResult> {
-		if (!navigator.share) {
-			return {
-				success: false,
-				method: "none",
-				error: "Web Share API no está disponible.",
-			};
-		}
+  async shareFile(data: ShareFileData): Promise<ShareResult> {
+    if (!navigator.share) {
+      return {
+        success: false,
+        method: 'none',
+        error: 'Web Share API no está disponible.',
+      };
+    }
 
-		try {
-			await navigator.share(data);
-			return { success: true, method: "file" };
-		} catch (error) {
-			logger.error("Error sharing files with Web Share API", error);
-			return {
-				success: false,
-				method: "none",
-				error:
-					error instanceof Error
-						? error.message
-						: "Error al compartir archivo.",
-			};
-		}
-	}
+    try {
+      await navigator.share(data);
+      return { success: true, method: 'file' };
+    } catch (error) {
+      logger.error('Error sharing files with Web Share API', error);
+      return {
+        success: false,
+        method: 'none',
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Error al compartir archivo.',
+      };
+    }
+  }
 
-	async shareUrl(data: ShareUrlData): Promise<ShareResult> {
-		if (!navigator.share) {
-			// Fallback to clipboard
-			return this.clipboardFallback.shareUrl(data);
-		}
+  async shareUrl(data: ShareUrlData): Promise<ShareResult> {
+    if (!navigator.share) {
+      // Fallback to clipboard
+      return this.clipboardFallback.shareUrl(data);
+    }
 
-		try {
-			await navigator.share(data);
-			return { success: true, method: "url" };
-		} catch (error) {
-			logger.error("Error sharing URL with Web Share API", error);
-			// Fallback to clipboard
-			return this.clipboardFallback.shareUrl(data);
-		}
-	}
+    try {
+      await navigator.share(data);
+      return { success: true, method: 'url' };
+    } catch (error) {
+      logger.error('Error sharing URL with Web Share API', error);
+      // Fallback to clipboard
+      return this.clipboardFallback.shareUrl(data);
+    }
+  }
 
-	canShareFile?(data: ShareFileData): boolean {
-		return this.canShareWithApi(data);
-	}
+  canShareFile?(data: ShareFileData): boolean {
+    return this.canShareWithApi(data);
+  }
 
-	canShareUrl?(data: ShareUrlData): boolean {
-		return this.canShareWithApi(data);
-	}
+  canShareUrl?(data: ShareUrlData): boolean {
+    return this.canShareWithApi(data);
+  }
 
-	private readonly canShareWithApi = (
-		data: ShareFileData | ShareUrlData,
-	): boolean => {
-		return (
-			!!navigator.share &&
-			"canShare" in navigator.share &&
-			// biome-ignore lint/suspicious/noExplicitAny: Check if canShare exists
-			(navigator.share as any).canShare(data)
-		);
-	};
+  private readonly canShareWithApi = (
+    data: ShareFileData | ShareUrlData,
+  ): boolean => {
+    return (
+      !!navigator.share &&
+      'canShare' in navigator.share &&
+      // biome-ignore lint/suspicious/noExplicitAny: Check if canShare exists
+      (navigator.share as any).canShare(data)
+    );
+  };
 }
 
 /**
  * Factory function to create the best available share service
  */
 export function createBestShareService(): IUniversalShareService {
-	return new WebShareAPIService();
+  return new WebShareAPIService();
 }
