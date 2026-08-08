@@ -8,6 +8,26 @@ import {
   APP_SHORT_NAME,
 } from './src/config/app.config.js';
 
+// Rewrite the mupdf-wasm.js asset URL at build time so the WASM is fetched
+// from public/wasm/ (stable base-relative path) instead of dist/assets/
+// (absolute path that breaks GitHub Pages sub-directory deployments).
+// The WASM file is pre-copied to public/wasm/ by postinstall.
+function mupdfWasmPublicPlugin(base) {
+  const wasmUrl = `${base}wasm/mupdf-wasm.wasm`.replace('//', '/');
+  return {
+    name: 'mupdf-wasm-public',
+    enforce: 'pre',
+    transform(code, id) {
+      if (id.includes('mupdf-wasm.js') && code.includes('mupdf-wasm.wasm')) {
+        return code.replace(
+          /new URL\(["']mupdf-wasm\.wasm["'],\s*import\.meta\.url\)(?:\.href)?/g,
+          JSON.stringify(wasmUrl),
+        );
+      }
+    },
+  };
+}
+
 function htmlAppMetaPlugin() {
   return {
     name: 'html-app-meta',
@@ -52,6 +72,9 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(version),
   },
   plugins: [
+    mupdfWasmPublicPlugin(
+      process.env.GITHUB_PAGES ? '/image-to-pdf-client-public/' : '/',
+    ),
     htmlAppMetaPlugin(),
     react(),
     VitePWA({
@@ -165,6 +188,9 @@ export default defineConfig({
     alias: {
       '@': '/src',
     },
+  },
+  optimizeDeps: {
+    exclude: ['mupdf'],
   },
   server: {
     allowedHosts: true,
