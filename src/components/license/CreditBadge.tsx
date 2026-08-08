@@ -1,7 +1,8 @@
 import { Zap } from "lucide-react";
-import type { UseLicense } from "@/hooks/useLicense";
+import { useLicenseContext } from "@/context/LicenseContext";
 
-export function CreditBadge({ license }: { readonly license: UseLicense }) {
+export function CreditBadge() {
+	const license = useLicenseContext();
 	const { type, credits } = license.info;
 
 	if (type === "unlimited") {

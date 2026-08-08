@@ -33,8 +33,10 @@ export function UploadArea({
 
 	const isBlocked = isProcessing || disabled;
 	let stateClass = `${baseClass} border-border hover:border-muted-foreground/50 hover:bg-muted/30 cursor-pointer`;
-	if (isBlocked) stateClass = `${baseClass} border-border bg-muted/20 cursor-default opacity-60`;
-	else if (isDragOver) stateClass = `${baseClass} border-foreground bg-muted/60 scale-[1.01] cursor-pointer`;
+	if (isBlocked)
+		stateClass = `${baseClass} border-border bg-muted/20 cursor-default opacity-60`;
+	else if (isDragOver)
+		stateClass = `${baseClass} border-foreground bg-muted/60 scale-[1.01] cursor-pointer`;
 
 	let dropLabel = "Arrastra imágenes aquí";
 	if (isProcessing) dropLabel = "Procesando archivos…";

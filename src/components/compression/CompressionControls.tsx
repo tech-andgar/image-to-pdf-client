@@ -50,14 +50,16 @@ function PresetGrid({
 						<button
 							key={preset}
 							type="button"
-							onClick={() => locked ? onUpgrade() : onPresetChange(preset)}
+							onClick={() => (locked ? onUpgrade() : onPresetChange(preset))}
 							disabled={isCompressing && !locked}
 							className={`${active ? ACTIVE_BTN : INACTIVE_BTN} relative`}
 						>
 							{locked && (
 								<Lock className="absolute top-1 right-1 h-2.5 w-2.5 text-muted-foreground opacity-60" />
 							)}
-							<span className={`font-medium leading-tight ${locked ? "opacity-50" : ""}`}>
+							<span
+								className={`font-medium leading-tight ${locked ? "opacity-50" : ""}`}
+							>
 								{PRESET_LABELS[preset].label}
 							</span>
 							<span

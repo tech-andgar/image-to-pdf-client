@@ -4,19 +4,22 @@ import {
 	type LicenseInfo,
 } from "../services/license/licenseService";
 
-export interface UseLicense {
+export interface LicenseDomain {
 	info: LicenseInfo;
-	paywallOpen: boolean;
-	activateKey: (key: string) => { success: boolean; message: string };
-	openPaywall: () => void;
-	closePaywall: () => void;
 	consumeCredit: () => boolean;
+	refundCredit: () => void;
+	activateKey: (key: string) => { success: boolean; message: string };
 	refresh: () => void;
 }
 
-export function useLicense(): UseLicense {
+export interface UseLicense extends LicenseDomain {
+	paywallOpen: boolean;
+	openPaywall: () => void;
+	closePaywall: () => void;
+}
+
+function useLicenseDomain(): LicenseDomain {
 	const [info, setInfo] = useState<LicenseInfo>(() => licenseService.getInfo());
-	const [paywallOpen, setPaywallOpen] = useState(false);
 
 	const refresh = useCallback(() => {
 		setInfo(licenseService.getInfo());
@@ -25,8 +28,12 @@ export function useLicense(): UseLicense {
 	const consumeCredit = useCallback((): boolean => {
 		const ok = licenseService.consumeCredit();
 		refresh();
-		if (!ok) setPaywallOpen(true);
 		return ok;
+	}, [refresh]);
+
+	const refundCredit = useCallback((): void => {
+		licenseService.refundCredit();
+		refresh();
 	}, [refresh]);
 
 	const activateKey = useCallback(
@@ -38,13 +45,24 @@ export function useLicense(): UseLicense {
 		[refresh],
 	);
 
+	return { info, consumeCredit, refundCredit, activateKey, refresh };
+}
+
+export function useLicense(): UseLicense {
+	const domain = useLicenseDomain();
+	const [paywallOpen, setPaywallOpen] = useState(false);
+
+	const consumeCredit = useCallback((): boolean => {
+		const ok = domain.consumeCredit();
+		if (!ok) setPaywallOpen(true);
+		return ok;
+	}, [domain]);
+
 	return {
-		info,
+		...domain,
+		consumeCredit,
 		paywallOpen,
-		activateKey,
 		openPaywall: () => setPaywallOpen(true),
 		closePaywall: () => setPaywallOpen(false),
-		consumeCredit,
-		refresh,
 	};
 }

@@ -65,22 +65,27 @@ export function ExportSection() {
 		setFilename,
 		previewFilename,
 		lastPdfSize,
-		exportToPDF: _exportToPDF,
-		shareToPDF: _shareToPDF,
+		exportToPDF,
+		shareToPDF,
 	} = exp;
 
-	function onExport() {
+	async function onExport() {
 		if (!license.consumeCredit()) return;
-		_exportToPDF();
+		try {
+			await exportToPDF();
+		} catch {
+			license.refundCredit();
+		}
 	}
 
 	async function onShare() {
-		if (!license.info.canExport) {
-			license.openPaywall();
-			return;
+		if (!license.consumeCredit()) return;
+		try {
+			const result = await shareToPDF(license.info.isPremium);
+			if (!result?.success) license.refundCredit();
+		} catch {
+			license.refundCredit();
 		}
-		const result = await _shareToPDF(license.info.isPremium);
-		if (result?.success) license.consumeCredit();
 	}
 
 	return (

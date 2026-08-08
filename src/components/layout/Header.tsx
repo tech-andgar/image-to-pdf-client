@@ -1,10 +1,8 @@
 import { FileImage } from "lucide-react";
 import { APP_NAME } from "../../config/app";
 import { CreditBadge } from "../license/CreditBadge";
-import { useLicenseContext } from "../../context/LicenseContext";
 
 export function Header() {
-	const license = useLicenseContext();
 	return (
 		<header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30">
 			<div className="max-w-2xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
@@ -14,7 +12,7 @@ export function Header() {
 						{APP_NAME}
 					</h1>
 				</div>
-				<CreditBadge license={license} />
+				<CreditBadge />
 			</div>
 		</header>
 	);

@@ -75,7 +75,11 @@ export function usePdfExport() {
 	);
 
 	const shareToPDF = useCallback(
-		async (images: ImageFile[], preset?: CompressionPreset, isPremium = false) => {
+		async (
+			images: ImageFile[],
+			preset?: CompressionPreset,
+			isPremium = false,
+		) => {
 			if (images.length === 0) {
 				setShareResult({
 					success: false,

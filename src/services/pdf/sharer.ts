@@ -13,7 +13,11 @@ export class PdfSharer {
 		this.shareService = createBestShareService();
 	}
 
-	async share(pdfBytes: Uint8Array, filename: string, isPremium = false): Promise<ShareResult> {
+	async share(
+		pdfBytes: Uint8Array,
+		filename: string,
+		isPremium = false,
+	): Promise<ShareResult> {
 		try {
 			if (!pdfBytes || pdfBytes.length === 0)
 				throw new Error("No hay datos de PDF para compartir");

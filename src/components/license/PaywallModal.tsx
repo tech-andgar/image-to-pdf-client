@@ -8,20 +8,11 @@ import {
 	DialogTitle,
 	DialogDescription,
 } from "@/components/ui/dialog";
-import type { UseLicense } from "@/hooks/useLicense";
+import { useLicenseContext } from "@/context/LicenseContext";
+import { PACKS, FREE_MONTHLY_CREDITS } from "@/services/license/license.config";
 
-const PACKS = [
-	{ key: "PACK-50", label: "50 créditos", price: "$3", desc: "50 exports" },
-	{ key: "PACK-200", label: "200 créditos", price: "$8", desc: "200 exports" },
-	{
-		key: "PREMIUM-UNLIMITED",
-		label: "Ilimitado",
-		price: "$15/mes",
-		desc: "Sin límites",
-	},
-];
-
-export function PaywallModal({ license }: { readonly license: UseLicense }) {
+export function PaywallModal() {
+	const license = useLicenseContext();
 	const [keyInput, setKeyInput] = useState("");
 	const [keyMsg, setKeyMsg] = useState<{
 		success: boolean;
@@ -57,7 +48,8 @@ export function PaywallModal({ license }: { readonly license: UseLicense }) {
 						</button>
 					</div>
 					<DialogDescription className="text-sm text-muted-foreground mt-1">
-						Usaste tus {5} exports gratuitos este mes. Obtén más créditos.
+						Usaste tus {FREE_MONTHLY_CREDITS} exports gratuitos este mes. Obtén
+						más créditos.
 					</DialogDescription>
 				</DialogHeader>
 
