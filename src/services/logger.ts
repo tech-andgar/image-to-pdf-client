@@ -1,8 +1,6 @@
 import { STORAGE_KEYS } from '../config/limits';
 import { analytics } from '../core/analytics';
-import { type LogEntry, LoggerService, LogLevel } from '../core/logger';
-
-export { type LogEntry, LogLevel };
+import { LoggerService } from '../core/logger';
 
 declare global {
   interface Window {
@@ -57,3 +55,5 @@ class AppLoggerService extends LoggerService {
 }
 
 export const logger = new AppLoggerService();
+
+export { type LogEntry, LogLevel } from '../core/logger';

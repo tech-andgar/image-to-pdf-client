@@ -46,15 +46,15 @@ export class SignedStorage implements ILicenseStorage {
 
   private hmacSync(payload: string): string {
     let hash = 0x811c9dc5;
-    const combined = this.secret + ':' + payload;
+    const combined = `${this.secret}:${payload}`;
     for (let i = 0; i < combined.length; i++) {
-      hash ^= combined.codePointAt(i)!;
+      hash ^= combined.codePointAt(i) ?? 0;
       hash = Math.imul(hash, 0x01000193);
     }
     let hash2 = 0x1f351f35;
-    const reversed = payload + ':' + this.secret;
+    const reversed = `${payload}:${this.secret}`;
     for (let i = 0; i < reversed.length; i++) {
-      hash2 ^= reversed.codePointAt(i)!;
+      hash2 ^= reversed.codePointAt(i) ?? 0;
       hash2 = Math.imul(hash2, 0x01000193);
     }
     return (hash >>> 0).toString(36) + (hash2 >>> 0).toString(36);
