@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import {
+  APP_DESCRIPTION,
   APP_NAME,
   APP_SHORT_NAME,
-  APP_DESCRIPTION,
 } from './src/config/app.config.js';
 
 function htmlAppMetaPlugin() {

@@ -1,13 +1,13 @@
 import {
   DndContext,
+  type DragEndEvent,
   PointerSensor,
+  rectIntersection,
   TouchSensor,
   useSensor,
   useSensors,
-  rectIntersection,
-  type DragEndEvent,
 } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
+import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import type { ImageFile } from '../../types/image';
 import { SortableImageItem } from './SortableImageItem';
 

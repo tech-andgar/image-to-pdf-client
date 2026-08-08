@@ -1,8 +1,8 @@
-import { FileDown, AlertCircle, Share2, Loader2 } from 'lucide-react';
+import { AlertCircle, FileDown, Loader2, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { FilenameInput } from './FilenameInput';
-import { formatFileSize } from '../../lib/image/compression';
 import { useWorkflow } from '@/context/WorkflowContext';
+import { formatFileSize } from '../../lib/image/compression';
+import { FilenameInput } from './FilenameInput';
 
 interface ShareResult {
   success: boolean;

@@ -1,9 +1,9 @@
-export { GoogleAnalyticsProvider } from './ga';
-export { DatadogProvider } from './datadog';
-export { SentryProvider } from './sentry';
-export { FullStoryProvider } from './fullstory';
-export { MixpanelProvider } from './mixpanel';
-export { HotjarProvider } from './hotjar';
-export { PostHogProvider } from './posthog';
 export { AmplitudeProvider } from './amplitude';
+export { DatadogProvider } from './datadog';
 export { FirebaseProvider } from './firebase';
+export { FullStoryProvider } from './fullstory';
+export { GoogleAnalyticsProvider } from './ga';
+export { HotjarProvider } from './hotjar';
+export { MixpanelProvider } from './mixpanel';
+export { PostHogProvider } from './posthog';
+export { SentryProvider } from './sentry';

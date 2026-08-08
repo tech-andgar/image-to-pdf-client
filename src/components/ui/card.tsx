@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils';
-import { forwardRef } from 'react';
 import type { HTMLAttributes } from 'react';
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
 const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
@@ -70,9 +70,9 @@ CardFooter.displayName = 'CardFooter';
 
 export {
   Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
   CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 };

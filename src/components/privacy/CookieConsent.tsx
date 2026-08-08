@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Shield } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { consentService } from '../../services/privacy/consent';
 
 export function CookieConsent() {

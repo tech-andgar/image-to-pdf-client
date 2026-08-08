@@ -1,18 +1,18 @@
-import { useState, useCallback } from 'react';
-import type {
-  ImageFile,
-  CompressionResult,
-  CompressionStats,
-  CompressionPreset,
-} from '../../types/image';
-import { COMPRESSION_PRESETS } from '../../types/image';
+import { useCallback, useState } from 'react';
+import { analytics } from '../../core/analytics';
 import {
-  compressImagesBatch,
   calculateCompressionStats,
+  compressImagesBatch,
 } from '../../lib/image/compression';
 import { terminateCompressionWorker } from '../../lib/image/compression-worker-pool';
 import { userMetrics } from '../../services/privacy/userMetrics';
-import { analytics } from '../../core/analytics';
+import type {
+  CompressionPreset,
+  CompressionResult,
+  CompressionStats,
+  ImageFile,
+} from '../../types/image';
+import { COMPRESSION_PRESETS } from '../../types/image';
 import { useCompressionCache } from './useCompressionCache';
 import { useCompressionStats } from './useCompressionStats';
 

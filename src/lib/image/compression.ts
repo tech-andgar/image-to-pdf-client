@@ -1,9 +1,9 @@
+import { MAX_IMAGE_PIXELS } from '../../config/limits';
 import type {
   CompressionOptions,
   CompressionResult,
   CompressionStats,
 } from '../../types/image';
-import { MAX_IMAGE_PIXELS } from '../../config/limits';
 import { loadImageFromUrl } from './canvas-utils';
 import { compressInWorker } from './compression-worker-pool';
 

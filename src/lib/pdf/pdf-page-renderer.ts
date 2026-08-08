@@ -1,11 +1,11 @@
 import type * as PdfjsLib from 'pdfjs-dist';
-import type { ImageFile } from '../../types/image';
 import {
-  MAX_CANVAS_PIXELS,
   DEFAULT_JPEG_QUALITY,
+  MAX_CANVAS_PIXELS,
   PDF_RENDER_SCALE,
 } from '../../config/limits';
-import { blobToUint8Array, bitmapToBlob } from '../image/canvas-utils';
+import type { ImageFile } from '../../types/image';
+import { bitmapToBlob, blobToUint8Array } from '../image/canvas-utils';
 
 export async function renderPageToBlob(
   page: PdfjsLib.PDFPageProxy,

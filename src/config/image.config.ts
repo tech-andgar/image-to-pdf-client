@@ -1,7 +1,7 @@
 export {
+  clampDimensions,
   MAX_CANVAS_PIXELS,
   MAX_IMAGE_PIXELS,
-  clampDimensions,
 } from '../core/image/canvas';
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB

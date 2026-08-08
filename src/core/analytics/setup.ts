@@ -1,13 +1,13 @@
 import { analytics } from './index';
-import { GoogleAnalyticsProvider } from './providers/ga';
-import { DatadogProvider } from './providers/datadog';
-import { SentryProvider } from './providers/sentry';
-import { FullStoryProvider } from './providers/fullstory';
-import { MixpanelProvider } from './providers/mixpanel';
-import { HotjarProvider } from './providers/hotjar';
-import { PostHogProvider } from './providers/posthog';
 import { AmplitudeProvider } from './providers/amplitude';
+import { DatadogProvider } from './providers/datadog';
 import { FirebaseProvider } from './providers/firebase';
+import { FullStoryProvider } from './providers/fullstory';
+import { GoogleAnalyticsProvider } from './providers/ga';
+import { HotjarProvider } from './providers/hotjar';
+import { MixpanelProvider } from './providers/mixpanel';
+import { PostHogProvider } from './providers/posthog';
+import { SentryProvider } from './providers/sentry';
 
 analytics.registerFactory(
   'google-analytics',

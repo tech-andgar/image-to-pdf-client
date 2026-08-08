@@ -1,5 +1,5 @@
-import type { AnalyticsEvent, UserProperties } from '../types';
 import { BaseProvider } from '../base-provider';
+import type { AnalyticsEvent, UserProperties } from '../types';
 
 declare global {
   interface Window {

@@ -1,11 +1,11 @@
-import { useCallback, useState, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { ImageFile } from '../../types/image';
+import { useCallback, useEffect, useState } from 'react';
+import { analytics } from '../../core/analytics';
 import { reevaluateDuplicates } from '../../lib/image/file-processing';
 import { logger } from '../../services/logger';
-import { storageService } from '../../services/storage/storageService';
 import { userMetrics } from '../../services/privacy/userMetrics';
-import { analytics } from '../../core/analytics';
+import { storageService } from '../../services/storage/storageService';
+import type { ImageFile } from '../../types/image';
 import { useFileProcessor } from './useFileProcessor';
 
 function cleanupImage(image: ImageFile) {

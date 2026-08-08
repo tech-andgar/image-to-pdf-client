@@ -1,10 +1,10 @@
 import type { PDFDocument, PDFRef } from 'pdf-lib';
+import { logger } from '../../services/logger';
 import type { CompressOptions } from './types';
 import { loadPdfDoc } from './types';
-import { buildPdfXObjectFromStream } from './xobject-extractor';
 import { compressXObject } from './xobject-compressor';
+import { buildPdfXObjectFromStream } from './xobject-extractor';
 import { writeCompressedXObject } from './xobject-writer';
-import { logger } from '../../services/logger';
 
 type PdfLib = typeof import('pdf-lib');
 

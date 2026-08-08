@@ -1,6 +1,6 @@
+import { MAX_IMAGE_PIXELS } from '../../config/limits';
 import type { CompressionOptions, CompressionResult } from '../../types/image';
 import { compressImageFile } from './compression';
-import { MAX_IMAGE_PIXELS } from '../../config/limits';
 
 interface WorkerResponse {
   id: number;

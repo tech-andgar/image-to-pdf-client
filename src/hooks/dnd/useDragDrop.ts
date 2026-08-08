@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
 import {
+  type DragEndEvent,
   PointerSensor,
+  rectIntersection,
   useSensor,
   useSensors,
-  rectIntersection,
-  type DragEndEvent,
 } from '@dnd-kit/core';
+import { useCallback } from 'react';
 import { DRAG_ACTIVATION_DISTANCE } from '../../config/limits';
 
 export interface UseDragDropOptions {

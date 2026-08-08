@@ -1,10 +1,10 @@
-import { Zap, AlertCircle, ChevronDown } from 'lucide-react';
+import { AlertCircle, ChevronDown, Zap } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import type { CompressionPreset } from '@/types/image';
 import { useWorkflow } from '@/context/WorkflowContext';
+import type { CompressionPreset } from '@/types/image';
 
 const PRESET_LABELS: Record<
   CompressionPreset,

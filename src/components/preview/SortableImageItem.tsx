@@ -1,7 +1,7 @@
-import { AlertCircle, Grip, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { AlertCircle, Grip, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { ImageFile } from '../../types/image';
 
 interface SortableImageItemProps {

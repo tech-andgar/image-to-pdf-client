@@ -1,8 +1,8 @@
 import { useTheme } from '../../hooks/theme/useTheme';
-import { Header } from './Header';
-import { Footer } from './Footer';
-import { PwaRenameBanner } from './PwaRenameBanner';
 import { CookieConsent } from '../privacy/CookieConsent';
+import { Footer } from './Footer';
+import { Header } from './Header';
+import { PwaRenameBanner } from './PwaRenameBanner';
 
 interface MainLayoutProps {
   children: React.ReactNode;

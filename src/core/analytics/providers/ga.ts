@@ -1,5 +1,5 @@
-import type { AnalyticsEvent, UserProperties } from '../types';
 import { BaseProvider } from '../base-provider';
+import type { AnalyticsEvent, UserProperties } from '../types';
 
 export class GoogleAnalyticsProvider extends BaseProvider {
   readonly name = 'google-analytics';

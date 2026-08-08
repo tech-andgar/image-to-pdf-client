@@ -1,32 +1,30 @@
 export {
-  LoggerService,
-  LogLevel,
-  type LogEntry,
-  type LoggerConfig,
-  MAX_LOG_ENTRIES,
-  LOG_FLUSH_DEBOUNCE_MS,
-} from './logger';
-
-export { MAX_CANVAS_PIXELS, MAX_IMAGE_PIXELS, clampDimensions } from './image';
-
-export {
-  IMAGE_SIGNATURES,
-  PDF_MAGIC,
-  hasValidSignature,
-  hasPdfMagicBytes,
-  type MagicSignature,
-} from './validation';
-
-export { type StorageAdapter, localStorageAdapter } from './storage';
-
-export {
-  analytics,
-  detectUserProperties,
-  ESSENTIAL_CATEGORIES,
+  type AnalyticsConfig,
   type AnalyticsEvent,
   type AnalyticsProvider,
-  type AnalyticsConfig,
+  analytics,
+  type ConsentLevel,
+  detectUserProperties,
+  ESSENTIAL_CATEGORIES,
   type ProviderFactory,
   type UserProperties,
-  type ConsentLevel,
 } from './analytics';
+
+export { clampDimensions, MAX_CANVAS_PIXELS, MAX_IMAGE_PIXELS } from './image';
+export {
+  LOG_FLUSH_DEBOUNCE_MS,
+  type LogEntry,
+  type LoggerConfig,
+  LoggerService,
+  LogLevel,
+  MAX_LOG_ENTRIES,
+} from './logger';
+
+export { localStorageAdapter, type StorageAdapter } from './storage';
+export {
+  hasPdfMagicBytes,
+  hasValidSignature,
+  IMAGE_SIGNATURES,
+  type MagicSignature,
+  PDF_MAGIC,
+} from './validation';

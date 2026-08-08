@@ -1,11 +1,11 @@
-import type { ImageFile } from '../types/image';
-import { MAX_PDF_PAGES } from '../config/limits';
 import type * as PdfjsLib from 'pdfjs-dist';
+import { MAX_PDF_PAGES } from '../config/limits';
+import { buildImageFile } from '../lib/pdf/pdf-page-renderer';
 import {
   isPasswordError,
   promptPassword,
 } from '../lib/pdf/pdf-password-handler';
-import { buildImageFile } from '../lib/pdf/pdf-page-renderer';
+import type { ImageFile } from '../types/image';
 
 async function loadPdfjs(): Promise<typeof PdfjsLib> {
   // Safari's native ReadableStream lacks async iteration pdfjs v6 requires.

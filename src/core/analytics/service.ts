@@ -1,6 +1,6 @@
 import type {
-  AnalyticsEvent,
   AnalyticsConfig,
+  AnalyticsEvent,
   AnalyticsProvider,
   ProviderFactory,
   UserProperties,

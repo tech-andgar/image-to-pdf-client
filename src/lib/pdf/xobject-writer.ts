@@ -1,4 +1,4 @@
-import type { PDFRawStream, PDFDocument, PDFRef } from 'pdf-lib';
+import type { PDFDocument, PDFRawStream, PDFRef } from 'pdf-lib';
 import type { CompressedXObject } from './types';
 
 type PdfLib = typeof import('pdf-lib');

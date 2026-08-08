@@ -1,15 +1,15 @@
+import { hasPdfMagicBytes, hasValidSignature } from '../../core/validation';
 import {
-  ALLOWED_IMAGE_TYPES,
   ALLOWED_EXTENSIONS,
+  ALLOWED_IMAGE_TYPES,
   ALLOWED_PDF_TYPE,
-  MAX_FILE_SIZE,
-  type FileValidationResult,
-  type FileSignature,
   type AllowedImageTypes,
-  createFileSignature,
   areFilesIdentical,
+  createFileSignature,
+  type FileSignature,
+  type FileValidationResult,
+  MAX_FILE_SIZE,
 } from '../../types/image';
-import { hasValidSignature, hasPdfMagicBytes } from '../../core/validation';
 
 export function isPdf(file: File): boolean {
   return file.type === ALLOWED_PDF_TYPE;

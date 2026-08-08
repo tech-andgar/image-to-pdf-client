@@ -1,10 +1,10 @@
 import { AlertCircle, CheckSquare, Square, Trash2, X } from 'lucide-react';
 import { useWorkflow, WorkflowProvider } from '../context/WorkflowContext';
-import { UploadArea } from './upload/UploadArea';
-import { ImagePreviewGrid } from './preview/ImagePreviewGrid';
-import { ImagePreviewModal } from './preview/ImagePreviewModal';
 import { CompressionControls } from './compression/CompressionControls';
 import { ExportSection } from './export/ExportSection';
+import { ImagePreviewGrid } from './preview/ImagePreviewGrid';
+import { ImagePreviewModal } from './preview/ImagePreviewModal';
+import { UploadArea } from './upload/UploadArea';
 
 function UploadErrorBanner() {
   const { upload } = useWorkflow();

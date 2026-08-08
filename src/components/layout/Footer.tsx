@@ -1,5 +1,5 @@
+import { Cookie, ExternalLink, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
-import { ExternalLink, ShieldCheck, Cookie } from 'lucide-react';
 import { PrivacyModal } from '../privacy/PrivacyModal';
 
 export function Footer() {

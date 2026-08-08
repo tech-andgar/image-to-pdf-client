@@ -1,6 +1,6 @@
-import type { ImageFile, CompressionPreset } from '../../types/image';
-import { PdfGenerator } from './generator';
+import type { CompressionPreset, ImageFile } from '../../types/image';
 import { PdfDownloader } from './downloader';
+import { PdfGenerator } from './generator';
 import { PdfSharer } from './sharer';
 
 const generator = new PdfGenerator();

@@ -1,13 +1,13 @@
+import { BarChart3, Bug, Lock, Shield } from 'lucide-react';
 import { useState } from 'react';
-import { Bug, Shield, BarChart3, Lock } from 'lucide-react';
-import { consentService } from '../../services/privacy/consent';
 import { logger } from '../../services/logger';
+import { consentService } from '../../services/privacy/consent';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '../ui/dialog';
 
 interface PrivacyModalProps {

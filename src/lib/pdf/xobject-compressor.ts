@@ -1,6 +1,6 @@
-import type { CompressedXObject, CompressOptions, PdfXObject } from './types';
-import { findDecoder } from './image-decoders';
 import { bitmapToBlob, blobToUint8Array } from '../image/canvas-utils';
+import { findDecoder } from './image-decoders';
+import type { CompressedXObject, CompressOptions, PdfXObject } from './types';
 
 export async function compressXObject(
   xobj: PdfXObject,

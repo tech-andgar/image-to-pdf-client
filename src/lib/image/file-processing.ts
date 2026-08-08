@@ -1,13 +1,13 @@
-import type { ImageFile } from '../../types/image';
-import { createFileSignature } from '../../types/image';
 import {
-  processFilesWithDuplicateCheck,
-  getFileSignaturesFromImages,
-  revokeImagePreview,
   createImagePreview,
+  getFileSignaturesFromImages,
+  processFilesWithDuplicateCheck,
+  revokeImagePreview,
 } from '../../services/file/fileService';
 import { logger } from '../../services/logger';
 import { storageService } from '../../services/storage/storageService';
+import type { ImageFile } from '../../types/image';
+import { createFileSignature } from '../../types/image';
 
 export function generateImageId(): string {
   return `image-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;

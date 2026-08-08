@@ -1,19 +1,17 @@
-export type {
-  BaseCategory,
-  EventCategory,
-  EventAction,
-  AnalyticsEvent,
-  UserProperties,
-  AnalyticsProvider,
-  ProviderFactory,
-  AnalyticsConfig,
-  ConsentLevel,
-} from './types';
-
-export { ESSENTIAL_CATEGORIES } from './types';
-
 export { detectUserProperties } from './detect';
 export { AnalyticsService } from './service';
+export type {
+  AnalyticsConfig,
+  AnalyticsEvent,
+  AnalyticsProvider,
+  BaseCategory,
+  ConsentLevel,
+  EventAction,
+  EventCategory,
+  ProviderFactory,
+  UserProperties,
+} from './types';
+export { ESSENTIAL_CATEGORIES } from './types';
 
 import { AnalyticsService } from './service';
 

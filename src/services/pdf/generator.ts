@@ -3,12 +3,12 @@ import type {
   PDFImage,
   PDFPage,
 } from 'pdf-lib';
-import type { ImageFile, CompressionPreset } from '../../types/image';
-import { COMPRESSION_PRESETS } from '../../types/image';
+import { MAX_PAGE_POINTS } from '../../config/limits';
 import { toEmbeddableImageBytes } from '../../lib/image/canvas-utils';
 import { compressAllPdfImages } from '../../lib/pdf/pdf-compressor';
 import { loadPdfDoc } from '../../lib/pdf/types';
-import { MAX_PAGE_POINTS } from '../../config/limits';
+import type { CompressionPreset, ImageFile } from '../../types/image';
+import { COMPRESSION_PRESETS } from '../../types/image';
 import { logger } from '../logger';
 import { storageService } from '../storage/storageService';
 

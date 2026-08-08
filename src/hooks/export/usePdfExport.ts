@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
-import type { ImageFile, CompressionPreset } from '../../types/image';
-import { generatePDF, downloadPDF, sharePDF } from '../../services/pdf/index';
-import { logger } from '../../services/logger';
-import { userMetrics } from '../../services/privacy/userMetrics';
+import { useCallback, useState } from 'react';
 import { analytics } from '../../core/analytics';
+import { logger } from '../../services/logger';
+import { downloadPDF, generatePDF, sharePDF } from '../../services/pdf/index';
+import { userMetrics } from '../../services/privacy/userMetrics';
+import type { CompressionPreset, ImageFile } from '../../types/image';
 import { useFilename } from './useFilename';
 
 export interface ShareResult {

@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import type { ImageFile } from '../../types/image';
-import { isPdf } from '../../services/file/fileService';
 import { buildImageFiles } from '../../lib/image/file-processing';
+import { isPdf } from '../../services/file/fileService';
 import { logger } from '../../services/logger';
+import type { ImageFile } from '../../types/image';
 
 export function useFileProcessor(allowDuplicates: boolean) {
   const processFiles = useCallback(

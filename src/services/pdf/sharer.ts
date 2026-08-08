@@ -1,10 +1,10 @@
 import {
-  sanitizeFilename,
   generateFallbackFilename,
+  sanitizeFilename,
 } from '../file/fileSanitizer';
+import { logger } from '../logger';
 import type { IUniversalShareService, ShareResult } from '../shareService';
 import { createBestShareService } from '../shareService';
-import { logger } from '../logger';
 
 export class PdfSharer {
   private readonly shareService: IUniversalShareService;

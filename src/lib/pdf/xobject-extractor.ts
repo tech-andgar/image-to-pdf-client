@@ -1,4 +1,4 @@
-import type { PDFDict, PDFRawStream, PDFPage } from 'pdf-lib';
+import type { PDFDict, PDFPage, PDFRawStream } from 'pdf-lib';
 import type { PdfXObject } from './types';
 
 type PdfLib = typeof import('pdf-lib');

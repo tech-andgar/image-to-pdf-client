@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import {
   DATE_TOKENS,
-  formatDateToken,
   type DateTokenLabel,
+  formatDateToken,
 } from '@/services/file/dateTokens';
 
 interface DateTokenBadgesProps {

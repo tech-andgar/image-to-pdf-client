@@ -1,7 +1,7 @@
 import {
-  MAX_LOG_ENTRIES,
-  LOG_FLUSH_DEBOUNCE_MS,
   DEFAULT_LOG_STORAGE_KEY,
+  LOG_FLUSH_DEBOUNCE_MS,
+  MAX_LOG_ENTRIES,
 } from './config';
 
 export enum LogLevel {
@@ -180,4 +180,4 @@ export class LoggerService {
   }
 }
 
-export { MAX_LOG_ENTRIES, LOG_FLUSH_DEBOUNCE_MS, DEFAULT_LOG_STORAGE_KEY };
+export { DEFAULT_LOG_STORAGE_KEY, LOG_FLUSH_DEBOUNCE_MS, MAX_LOG_ENTRIES };
