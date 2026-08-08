@@ -1,6 +1,7 @@
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
+import { CopyButton } from '@/components/ui/CopyButton';
 
 interface Props {
   children: ReactNode;
@@ -42,7 +43,13 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      // Error UI
+      const errorText = [
+        this.state.error?.toString(),
+        this.state.errorInfo?.componentStack,
+      ]
+        .filter(Boolean)
+        .join('\n');
+
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
           <div className="max-w-md w-full text-center space-y-6">
@@ -62,13 +69,14 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
             </div>
 
-            {/* Error details */}
             {this.state.error && (
               <div className="bg-muted p-4 rounded-lg text-left">
-                <h3 className="font-semibold text-sm mb-2">Error Details:</h3>
-                <pre className="text-xs text-muted-foreground overflow-auto">
-                  {this.state.error.toString()}
-                  {this.state.errorInfo?.componentStack}
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-sm">Error Details:</h3>
+                  <CopyButton text={errorText} />
+                </div>
+                <pre className="text-xs text-muted-foreground overflow-auto max-h-40">
+                  {errorText}
                 </pre>
               </div>
             )}
