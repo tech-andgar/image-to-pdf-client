@@ -1,18 +1,3 @@
-// Temporal is available natively in Chrome 109+, Safari 16.4+, Firefox 139+
-// Declared here to satisfy TypeScript without adding a runtime polyfill
-declare namespace Temporal {
-  interface PlainDateTime {
-    readonly year: number;
-    readonly month: number;
-    readonly day: number;
-    readonly hour: number;
-    readonly minute: number;
-  }
-  namespace Now {
-    function plainDateTimeISO(): PlainDateTime;
-  }
-}
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DateParts {
@@ -50,14 +35,14 @@ export type DateTokenLabel = (typeof DATE_TOKENS)[number]['label'];
 // ─── Formatter ────────────────────────────────────────────────────────────────
 
 function buildDateParts(): DateParts {
-  const dt = Temporal.Now.plainDateTimeISO();
+  const now = new Date();
   return {
-    Y: String(dt.year),
-    M: pad(dt.month),
-    D: pad(dt.day),
-    H: pad(dt.hour),
-    min: pad(dt.minute),
-    jsDate: new Date(dt.year, dt.month - 1, dt.day),
+    Y: String(now.getFullYear()),
+    M: pad(now.getMonth() + 1),
+    D: pad(now.getDate()),
+    H: pad(now.getHours()),
+    min: pad(now.getMinutes()),
+    jsDate: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
   };
 }
 

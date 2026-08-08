@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-08-08
+
+### Fixed
+
+- `ReferenceError: Can't find variable: Temporal` crash on Safari: replaced `Temporal.Now.plainDateTimeISO()` with `new Date()` in `dateTokens.ts` — Temporal API is not yet available in Safari
+
 ## [0.5.1] - 2026-08-07
 
 ### Fixed
