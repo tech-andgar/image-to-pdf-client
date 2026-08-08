@@ -74,7 +74,7 @@ export function useImageWorkflow() {
 	);
 
 	const shareToPDF = useCallback(
-		() => export_.shareToPDF(selectedImages, compression.currentPreset),
+		(isPremium = false) => export_.shareToPDF(selectedImages, compression.currentPreset, isPremium),
 		[export_, selectedImages, compression.currentPreset],
 	);
 

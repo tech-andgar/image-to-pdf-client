@@ -13,7 +13,7 @@ export class PdfSharer {
 		this.shareService = createBestShareService();
 	}
 
-	async share(pdfBytes: Uint8Array, filename: string): Promise<ShareResult> {
+	async share(pdfBytes: Uint8Array, filename: string, isPremium = false): Promise<ShareResult> {
 		try {
 			if (!pdfBytes || pdfBytes.length === 0)
 				throw new Error("No hay datos de PDF para compartir");
@@ -39,7 +39,8 @@ export class PdfSharer {
 			return await this.shareService.shareFile({
 				files: [fileToShare],
 				title: filename,
-				text: "Creado con https://tech-andgar.github.io/image-to-pdf-client-public 🖼→📄",
+				// Free users get attribution text; premium share clean
+				...(isPremium ? {} : { text: "Creado con image-to-pdf.app 🖼→📄" }),
 				// Omit url — WhatsApp rejects file shares that include a url
 			});
 		} catch (error) {

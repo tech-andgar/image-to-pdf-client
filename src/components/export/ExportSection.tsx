@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FilenameInput } from "./FilenameInput";
 import { formatFileSize } from "../../lib/image/compression";
 import { useWorkflow } from "@/context/WorkflowContext";
+import { useLicenseContext } from "@/context/LicenseContext";
 
 interface ShareResult {
 	success: boolean;
@@ -51,6 +52,7 @@ function ShareResultBanner({
 
 export function ExportSection() {
 	const { export: exp } = useWorkflow();
+	const license = useLicenseContext();
 	const {
 		isGenerating,
 		isLoadingLibrary,
@@ -63,9 +65,23 @@ export function ExportSection() {
 		setFilename,
 		previewFilename,
 		lastPdfSize,
-		exportToPDF: onExport,
-		shareToPDF: onShare,
+		exportToPDF: _exportToPDF,
+		shareToPDF: _shareToPDF,
 	} = exp;
+
+	function onExport() {
+		if (!license.consumeCredit()) return;
+		_exportToPDF();
+	}
+
+	async function onShare() {
+		if (!license.info.canExport) {
+			license.openPaywall();
+			return;
+		}
+		const result = await _shareToPDF(license.info.isPremium);
+		if (result?.success) license.consumeCredit();
+	}
 
 	return (
 		<div className="rounded-xl border bg-card p-4 space-y-3">

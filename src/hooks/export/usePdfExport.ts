@@ -75,7 +75,7 @@ export function usePdfExport() {
 	);
 
 	const shareToPDF = useCallback(
-		async (images: ImageFile[], preset?: CompressionPreset) => {
+		async (images: ImageFile[], preset?: CompressionPreset, isPremium = false) => {
 			if (images.length === 0) {
 				setShareResult({
 					success: false,
@@ -85,16 +85,17 @@ export function usePdfExport() {
 				return;
 			}
 			setShareResult(null);
-			await withPdfGeneration(
+			return await withPdfGeneration(
 				images,
 				preset,
 				async (pdfBytes) => {
-					const result = await sharePDF(pdfBytes, previewFilename);
+					const result = await sharePDF(pdfBytes, previewFilename, isPremium);
 					setShareResult(result);
 					if (result.success) {
 						setExportError(null);
 						userMetrics.trackPdfShared(images.length);
 					}
+					return result;
 				},
 				(error) => {
 					setShareResult({

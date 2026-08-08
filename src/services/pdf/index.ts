@@ -24,8 +24,9 @@ export function downloadPDF(
 export async function sharePDF(
 	pdfBytes: Uint8Array,
 	filename = "images.pdf",
+	isPremium = false,
 ): Promise<{ success: boolean; method: string; error?: string }> {
-	const result = await sharer.share(pdfBytes, filename);
+	const result = await sharer.share(pdfBytes, filename, isPremium);
 	return {
 		success: result.success,
 		method: result.method,

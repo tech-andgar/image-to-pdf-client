@@ -1,10 +1,12 @@
-import { AlertCircle, CheckSquare, Square, Trash2, X } from "lucide-react";
+import { AlertCircle, CheckSquare, Lock, Square, Trash2, X } from "lucide-react";
 import { useWorkflow, WorkflowProvider } from "../context/WorkflowContext";
+import { useLicenseContext } from "../context/LicenseContext";
 import { UploadArea } from "./upload/UploadArea";
 import { ImagePreviewGrid } from "./preview/ImagePreviewGrid";
 import { ImagePreviewModal } from "./preview/ImagePreviewModal";
 import { CompressionControls } from "./compression/CompressionControls";
 import { ExportSection } from "./export/ExportSection";
+import { FREE_IMAGE_LIMIT } from "../services/license/licenseService";
 
 function UploadErrorBanner() {
 	const { upload } = useWorkflow();
@@ -44,6 +46,7 @@ function AllowDuplicatesToggle() {
 
 function ImageUploaderContent() {
 	const { upload, preview, selection } = useWorkflow();
+	const license = useLicenseContext();
 	const {
 		images,
 		isDragOver,
@@ -67,17 +70,35 @@ function ImageUploaderContent() {
 	const hasImages = images.length > 0;
 	const selectedCount = selectedIds.size;
 	const allSelected = selectedCount === images.length && images.length > 0;
+	const atLimit = !license.info.isPremium && images.length >= FREE_IMAGE_LIMIT;
 
 	return (
 		<div className="w-full space-y-4">
 			<UploadArea
 				isDragOver={isDragOver}
 				isProcessing={isProcessing}
-				onDragOver={() => handleDragOver()}
+				disabled={atLimit}
+				onDragOver={() => !atLimit && handleDragOver()}
 				onDragLeave={() => handleDragLeave()}
-				onDrop={(e) => handleDrop(e.dataTransfer.files)}
-				onFileSelect={(e) => handleFileSelect(e.target.files)}
+				onDrop={(e) => !atLimit && handleDrop(e.dataTransfer.files)}
+				onFileSelect={(e) => !atLimit && handleFileSelect(e.target.files)}
 			/>
+
+			{atLimit && (
+				<div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-700 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
+					<Lock className="h-4 w-4 shrink-0" />
+					<span className="flex-1">
+						Límite de {FREE_IMAGE_LIMIT} imágenes en plan gratuito.
+					</span>
+					<button
+						type="button"
+						onClick={license.openPaywall}
+						className="font-medium underline underline-offset-2 hover:opacity-80"
+					>
+						Obtener más
+					</button>
+				</div>
+			)}
 
 			<UploadErrorBanner />
 

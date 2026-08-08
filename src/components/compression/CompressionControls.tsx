@@ -1,10 +1,13 @@
-import { Zap, AlertCircle, ChevronDown } from "lucide-react";
+import { Zap, AlertCircle, ChevronDown, Lock } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import type { CompressionPreset } from "@/types/image";
 import { useWorkflow } from "@/context/WorkflowContext";
+import { useLicenseContext } from "@/context/LicenseContext";
+
+const FREE_PRESETS = new Set<CompressionPreset>(["medium"]);
 
 const PRESET_LABELS: Record<
 	CompressionPreset,
@@ -24,11 +27,15 @@ const INACTIVE_BTN =
 function PresetGrid({
 	currentPreset,
 	isCompressing,
+	isPremium,
 	onPresetChange,
+	onUpgrade,
 }: {
 	readonly currentPreset: CompressionPreset;
 	readonly isCompressing: boolean;
+	readonly isPremium: boolean;
 	readonly onPresetChange: (p: CompressionPreset) => void;
+	readonly onUpgrade: () => void;
 }) {
 	return (
 		<div className="space-y-2">
@@ -38,19 +45,29 @@ function PresetGrid({
 			<div className="grid grid-cols-4 gap-1.5">
 				{(Object.keys(PRESET_LABELS) as CompressionPreset[]).map((preset) => {
 					const active = currentPreset === preset;
+					const locked = !isPremium && !FREE_PRESETS.has(preset);
 					return (
 						<button
 							key={preset}
 							type="button"
-							onClick={() => onPresetChange(preset)}
-							disabled={isCompressing}
-							className={active ? ACTIVE_BTN : INACTIVE_BTN}
+							onClick={() => locked ? onUpgrade() : onPresetChange(preset)}
+							disabled={isCompressing && !locked}
+							className={`${active ? ACTIVE_BTN : INACTIVE_BTN} relative`}
 						>
-							<span className="font-medium leading-tight">
+							{locked && (
+								<Lock className="absolute top-1 right-1 h-2.5 w-2.5 text-muted-foreground opacity-60" />
+							)}
+							<span className={`font-medium leading-tight ${locked ? "opacity-50" : ""}`}>
 								{PRESET_LABELS[preset].label}
 							</span>
-							<span className="text-[10px] leading-tight mt-0.5 text-muted-foreground">
-								{PRESET_LABELS[preset].description}
+							<span
+								className={
+									active
+										? "text-[10px] leading-tight mt-0.5 text-zinc-400 dark:text-zinc-500"
+										: "text-[10px] leading-tight mt-0.5 text-zinc-500 dark:text-zinc-400"
+								}
+							>
+								{locked ? "Premium" : PRESET_LABELS[preset].description}
 							</span>
 						</button>
 					);
@@ -62,6 +79,7 @@ function PresetGrid({
 
 export function CompressionControls() {
 	const { compression } = useWorkflow();
+	const license = useLicenseContext();
 	const {
 		isCompressing,
 		error: compressionError,
@@ -77,11 +95,9 @@ export function CompressionControls() {
 	} = compression;
 	const [open, setOpen] = useState(false);
 
-	const compressButtonLabel = isCompressing
-		? "Comprimiendo…"
-		: isPresetCached
-			? "Aplicar preset"
-			: "Comprimir imágenes";
+	let compressButtonLabel = "Comprimir imágenes";
+	if (isCompressing) compressButtonLabel = "Comprimiendo…";
+	else if (isPresetCached) compressButtonLabel = "Aplicar preset";
 
 	return (
 		<div className="rounded-xl border bg-card overflow-hidden">
@@ -109,7 +125,9 @@ export function CompressionControls() {
 					<PresetGrid
 						currentPreset={currentPreset}
 						isCompressing={isCompressing}
+						isPremium={license.info.isPremium}
 						onPresetChange={onPresetChange}
+						onUpgrade={license.openPaywall}
 					/>
 
 					{allPdfSourced ? (
