@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-08-07
+
+### Fixed
+
+- `mupdf-wasm.wasm` 404 on GitHub Pages: WASM now copied to `public/wasm/` via postinstall and URL hardcoded at build time per deployment base path; Vite plugin prevents Rolldown from re-bundling it into `dist/assets/`
+- `RangeError: invalid language tag` crash when `navigator.language` is falsy: `formatDateToken` now falls back to `'en'`
+
 ## [0.5.0] - 2026-08-07
 
 ### Added
