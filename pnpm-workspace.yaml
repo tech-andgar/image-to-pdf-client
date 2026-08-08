@@ -4,3 +4,4 @@ allowBuilds:
   '2': '@biomejs/biome'
 blockExoticSubdeps: true
 strictDepBuilds: true
+minimumReleaseAge: 10080

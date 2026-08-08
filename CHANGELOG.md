@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 ### Security
 
 - Applied npm security best practices (lirantal/npm-security-best-practices)
-- Added `pnpm-workspace.yaml` with `blockExoticSubdeps: true` and `strictDepBuilds: true` to block transitive git/tarball URLs and unreviewed build scripts
+- Added `pnpm-workspace.yaml` with `blockExoticSubdeps: true`, `strictDepBuilds: true`, and `minimumReleaseAge: 10080` (7-day quarantine on newly published packages) to block transitive git/tarball URLs, unreviewed build scripts, and fresh supply chain attacks
 - CI: use `pnpm install --frozen-lockfile` to enforce exact lockfile adherence and prevent lockfile injection
 
 ### Changed
