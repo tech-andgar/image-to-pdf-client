@@ -98,8 +98,8 @@ jobs:
 
   e2e:
     name: Post-deploy E2E smoke tests
-    needs: build-and-deploy
-    if: github.ref == 'refs/heads/main'
+    needs: [check-changes, build-and-deploy]
+    if: github.ref == 'refs/heads/main' && needs.check-changes.outputs.source-changed == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository

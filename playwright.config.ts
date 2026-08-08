@@ -2,7 +2,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const BASE_URL =
-  process.env['PLAYWRIGHT_BASE_URL'] ??
+  process.env.PLAYWRIGHT_BASE_URL ??
   'https://tech-andgar.github.io/image-to-pdf-client-public/';
 
 export default defineConfig({
