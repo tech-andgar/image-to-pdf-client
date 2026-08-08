@@ -17,7 +17,7 @@ const PRESET_LABELS: Record<
 };
 
 const ACTIVE_BTN =
-	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-primary text-primary-foreground border-primary";
+	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-accent text-accent-foreground border-accent";
 const INACTIVE_BTN =
 	"flex flex-col items-center py-2 px-1 rounded-lg text-center transition-colors border text-xs bg-background text-foreground border-border hover:border-muted-foreground hover:bg-muted";
 
@@ -169,7 +169,7 @@ export function CompressionControls() {
 										<div key={label} className="text-center">
 											<p className="text-muted-foreground">{label}</p>
 											<p
-												className={`font-medium ${highlight ? "text-emerald-600" : ""}`}
+												className={`font-medium ${highlight ? "text-emerald-600 dark:text-emerald-400" : ""}`}
 											>
 												{value}
 											</p>

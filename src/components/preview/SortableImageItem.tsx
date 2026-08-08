@@ -44,13 +44,13 @@ export function SortableImageItem({
 			<div
 				className={
 					isDragging
-						? "absolute top-2 left-2 z-10 bg-black/90 scale-110 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation"
-						: "absolute top-2 left-2 z-10 bg-black/70 hover:bg-black/90 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation"
+						? "absolute top-2 left-2 z-10 bg-black/90 dark:bg-white/20 scale-110 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation"
+						: "absolute top-2 left-2 z-10 bg-black/70 hover:bg-black/90 dark:bg-white/15 dark:hover:bg-white/25 rounded-md p-1 md:p-1.5 transition-all duration-200 touch-manipulation"
 				}
 				title="Arrastrar para reordenar"
 				{...listeners}
 			>
-				<Grip className="h-4 w-4 md:h-3 md:w-3 text-white" />
+				<Grip className="h-4 w-4 md:h-3 md:w-3 text-white dark:text-foreground" />
 			</div>
 
 			<div className="absolute top-2 right-2 z-10">
@@ -83,7 +83,7 @@ export function SortableImageItem({
 				aria-label={isSelected ? "Deseleccionar" : "Seleccionar"}
 			>
 				<div
-					className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? "bg-primary border-primary" : "bg-black/40 border-white/60 hover:border-white"}`}
+					className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? "bg-primary border-primary" : "bg-black/40 border-white/60 hover:border-white dark:bg-white/20 dark:border-white/40"}`}
 				>
 					{isSelected && (
 						<svg

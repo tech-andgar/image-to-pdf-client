@@ -49,7 +49,7 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 
 				<div className="mt-1 space-y-4">
 					<div className="flex gap-3">
-						<Lock className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+						<Lock className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
 						<div>
 							<p className="text-sm font-medium">Tus archivos son privados</p>
 							<p className="text-xs text-muted-foreground">
@@ -59,7 +59,7 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 					</div>
 
 					<div className="flex gap-3">
-						<BarChart3 className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+						<BarChart3 className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
 						<div className="flex-1">
 							<div className="flex items-center justify-between">
 								<p className="text-sm font-medium">Cookies de analytics</p>
@@ -68,7 +68,7 @@ export function PrivacyModal({ open, onClose }: Readonly<PrivacyModalProps>) {
 									role="switch"
 									aria-checked={analytics}
 									onClick={() => setAnalytics(!analytics)}
-									className={`relative inline-flex h-6 w-10 shrink-0 cursor-pointer rounded-full transition-colors ${analytics ? "bg-green-500" : "bg-muted-foreground/30"}`}
+									className={`relative inline-flex h-6 w-10 shrink-0 cursor-pointer rounded-full transition-colors ${analytics ? "bg-green-500 dark:bg-green-600" : "bg-muted-foreground/30"}`}
 								>
 									<span
 										className={`inline-block h-5 w-5 translate-y-0.5 transform rounded-full bg-background shadow transition-transform ${analytics ? "translate-x-[18px]" : "translate-x-0.5"}`}
