@@ -1,18 +1,19 @@
-import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import {
   APP_DESCRIPTION,
   APP_NAME,
   APP_SHORT_NAME,
-} from './src/config/app.config.js';
+} from './src/config/app.config.ts';
 
 // Rewrite the mupdf-wasm.js asset URL at build time so the WASM is fetched
 // from public/wasm/ (stable base-relative path) instead of dist/assets/
 // (absolute path that breaks GitHub Pages sub-directory deployments).
 // The WASM file is pre-copied to public/wasm/ by postinstall.
-function mupdfWasmPublicPlugin(base) {
+function mupdfWasmPublicPlugin(base: string): Plugin {
   const wasmUrl = `${base}wasm/mupdf-wasm.wasm`.replace('//', '/');
   return {
     name: 'mupdf-wasm-public',
@@ -28,7 +29,7 @@ function mupdfWasmPublicPlugin(base) {
   };
 }
 
-function htmlAppMetaPlugin() {
+function htmlAppMetaPlugin(): Plugin {
   return {
     name: 'html-app-meta',
     transformIndexHtml(html) {
@@ -55,16 +56,16 @@ function htmlAppMetaPlugin() {
     </script>`
         : '<!-- GA disabled (no VITE_GA_ID) -->';
       return html
-        .replaceAll(/__APP_NAME__/g, APP_NAME)
-        .replaceAll(/__APP_DESCRIPTION__/g, APP_DESCRIPTION)
-        .replaceAll(/__GA_BLOCK__/g, gaBlock);
+        .replaceAll('__APP_NAME__', APP_NAME)
+        .replaceAll('__APP_DESCRIPTION__', APP_DESCRIPTION)
+        .replaceAll('__GA_BLOCK__', gaBlock);
     },
   };
 }
 
-// https://vite.dev/config/
-const require = createRequire(import.meta.url);
-const { version } = require('./package.json');
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
+  version: string;
+};
 
 export default defineConfig({
   base: process.env.GITHUB_PAGES ? '/image-to-pdf-client-public/' : '/',

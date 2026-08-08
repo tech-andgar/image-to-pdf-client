@@ -4,8 +4,8 @@
   "version": "0.5.3",
   "type": "module",
   "scripts": {
-    "copy-pdfjs": "node scripts/copy-pdfjs-assets.js",
-    "postinstall": "node scripts/copy-pdfjs-assets.js",
+    "copy-pdfjs": "node --experimental-strip-types scripts/copy-pdfjs-assets.ts",
+    "postinstall": "node --experimental-strip-types scripts/copy-pdfjs-assets.ts",
     "dev": "vite",
     "build": "vite build",
     "lint": "biome check .",

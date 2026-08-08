@@ -3,11 +3,12 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 const require = createRequire(import.meta.url);
-const pdfjsDir = require
-  .resolve('pdfjs-dist/package.json')
-  .replace('/package.json', '');
+const pdfjsDir = (require.resolve('pdfjs-dist/package.json') as string).replace(
+  '/package.json',
+  '',
+);
 
-const assets = ['cmaps', 'standard_fonts', 'wasm', 'iccs'];
+const assets = ['cmaps', 'standard_fonts', 'wasm', 'iccs'] as const;
 
 for (const dir of assets) {
   const src = join(pdfjsDir, dir);
