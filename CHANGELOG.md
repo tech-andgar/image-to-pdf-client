@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] - 2026-08-08
+
+### Changed
+
+- Migrated all config and tooling files from JavaScript to TypeScript: `vite.config.js` → `vite.config.ts`, `src/config/app.config.js` → `app.config.ts`, `scripts/copy-pdfjs-assets.js` → `copy-pdfjs-assets.ts`
+- Build script now runs via Node 24's native `--experimental-strip-types` — no `tsx` dependency needed
+- Pinned all `package.json` dependencies to exact versions (removed `^` ranges)
+- Removed unused `public/~partytown/` directory
+- `tsconfig.json`: enabled `allowImportingTsExtensions`, removed deprecated `baseUrl`, added `vite.config.ts` and `scripts/` to includes
+- `pnpm-workspace.yaml`: added `terser` to `minimumReleaseAgeExclude`
+
+### Fixed
+
+- `UserProperties` interface extended `Record<string, unknown>` to satisfy analytics provider signatures (datadog, fullstory, mixpanel, posthog, sentry)
+- `decrypt.ts`: added null guard after `doc.asPDF()` (mupdf types declare nullable return)
+- `downloader.ts`: cast `Uint8Array.buffer` to `ArrayBuffer` to satisfy `BlobPart` constraint under TS 7 strict lib types
+- `sharer.ts`: typed `timeoutId` as `ReturnType<typeof globalThis.setTimeout>` instead of `number`
+
 ## [0.5.3] - 2026-08-08
 
 ### Added
