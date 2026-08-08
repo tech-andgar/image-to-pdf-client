@@ -1,29 +1,29 @@
-import { useMemo } from "react";
-import type { CompressionStats } from "../../types/image";
-import { formatFileSize } from "../../lib/image/compression";
-import { SIGNIFICANT_SAVINGS_THRESHOLD } from "../../config/limits";
+import { useMemo } from 'react';
+import { SIGNIFICANT_SAVINGS_THRESHOLD } from '../../config/limits';
+import { formatFileSize } from '../../lib/image/compression';
+import type { CompressionStats } from '../../types/image';
 
 export function useCompressionStats(compressionStats: CompressionStats | null) {
-	const formattedStats = useMemo(() => {
-		if (!compressionStats) return null;
-		return {
-			originalSize: formatFileSize(compressionStats.originalSize),
-			compressedSize: formatFileSize(compressionStats.compressedSize),
-			savingsPercentage: (
-				(1 - compressionStats.compressionRatio) *
-				100
-			).toFixed(1),
-			timeElapsed: `${compressionStats.time_elapsed}ms`,
-		};
-	}, [compressionStats]);
+  const formattedStats = useMemo(() => {
+    if (!compressionStats) return null;
+    return {
+      originalSize: formatFileSize(compressionStats.originalSize),
+      compressedSize: formatFileSize(compressionStats.compressedSize),
+      savingsPercentage: (
+        (1 - compressionStats.compressionRatio) *
+        100
+      ).toFixed(1),
+      timeElapsed: `${compressionStats.time_elapsed}ms`,
+    };
+  }, [compressionStats]);
 
-	const hasSignificantSavings = useMemo(
-		() =>
-			compressionStats
-				? compressionStats.compressionRatio < SIGNIFICANT_SAVINGS_THRESHOLD
-				: false,
-		[compressionStats],
-	);
+  const hasSignificantSavings = useMemo(
+    () =>
+      compressionStats
+        ? compressionStats.compressionRatio < SIGNIFICANT_SAVINGS_THRESHOLD
+        : false,
+    [compressionStats],
+  );
 
-	return { formattedStats, hasSignificantSavings };
+  return { formattedStats, hasSignificantSavings };
 }

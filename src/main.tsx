@@ -1,19 +1,19 @@
 if (import.meta.env.DEV) {
-	import("react-grab");
+  import('react-grab');
 }
 
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import { ErrorBoundary } from "./components/layout/ErrorBoundary";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { ErrorBoundary } from './components/layout/ErrorBoundary';
 
-const rootElement = document.getElementById("root");
-if (!rootElement) throw new Error("Root element not found");
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Root element not found');
 createRoot(rootElement).render(
-	<StrictMode>
-		<ErrorBoundary>
-			<App />
-		</ErrorBoundary>
-	</StrictMode>,
+  <StrictMode>
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  </StrictMode>,
 );

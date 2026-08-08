@@ -1,191 +1,191 @@
 import type {
-	PDFDocument as PDFDocumentType,
-	PDFImage,
-	PDFPage,
-} from "pdf-lib";
-import type { ImageFile, CompressionPreset } from "../../types/image";
-import { COMPRESSION_PRESETS } from "../../types/image";
-import { toEmbeddableImageBytes } from "../../lib/image/canvas-utils";
-import { compressAllPdfImages } from "../../lib/pdf/pdf-compressor";
-import { loadPdfDoc } from "../../lib/pdf/types";
-import { MAX_PAGE_POINTS } from "../../config/limits";
-import { logger } from "../logger";
-import { storageService } from "../storage/storageService";
+  PDFDocument as PDFDocumentType,
+  PDFImage,
+  PDFPage,
+} from 'pdf-lib';
+import { MAX_PAGE_POINTS } from '../../config/limits';
+import { toEmbeddableImageBytes } from '../../lib/image/canvas-utils';
+import { compressAllPdfImages } from '../../lib/pdf/pdf-compressor';
+import { loadPdfDoc } from '../../lib/pdf/types';
+import type { CompressionPreset, ImageFile } from '../../types/image';
+import { COMPRESSION_PRESETS } from '../../types/image';
+import { logger } from '../logger';
+import { storageService } from '../storage/storageService';
 
-type PdfLib = typeof import("pdf-lib");
+type PdfLib = typeof import('pdf-lib');
 
 export class PdfGenerator {
-	private pdfLib: PdfLib | null = null;
-	// WeakMap<originalBytes, Map<preset, compressedBytes>>
-	private readonly compressCache = new WeakMap<
-		Uint8Array,
-		Map<string, Uint8Array>
-	>();
+  private pdfLib: PdfLib | null = null;
+  // WeakMap<originalBytes, Map<preset, compressedBytes>>
+  private readonly compressCache = new WeakMap<
+    Uint8Array,
+    Map<string, Uint8Array>
+  >();
 
-	private async getPdfLib(): Promise<PdfLib> {
-		this.pdfLib ??= await import("pdf-lib");
-		return this.pdfLib;
-	}
+  private async getPdfLib(): Promise<PdfLib> {
+    this.pdfLib ??= await import('pdf-lib');
+    return this.pdfLib;
+  }
 
-	async generate(
-		images: ImageFile[],
-		preset?: CompressionPreset,
-	): Promise<Uint8Array> {
-		if (images.length === 0)
-			throw new Error("No images provided for PDF generation");
+  async generate(
+    images: ImageFile[],
+    preset?: CompressionPreset,
+  ): Promise<Uint8Array> {
+    if (images.length === 0)
+      throw new Error('No images provided for PDF generation');
 
-		try {
-			const pdfLib = await this.getPdfLib();
-			const pdfDoc = await pdfLib.PDFDocument.create();
-			const validImages = images.filter((img) => !img.error);
+    try {
+      const pdfLib = await this.getPdfLib();
+      const pdfDoc = await pdfLib.PDFDocument.create();
+      const validImages = images.filter((img) => !img.error);
 
-			const copiedPageCache = await this.preparePdfSources(
-				pdfLib,
-				pdfDoc,
-				validImages,
-				preset,
-			);
+      const copiedPageCache = await this.preparePdfSources(
+        pdfLib,
+        pdfDoc,
+        validImages,
+        preset,
+      );
 
-			for (const image of validImages) {
-				if (image.pdfSource) {
-					this.addCopiedPage(pdfDoc, image, copiedPageCache);
-					continue;
-				}
-				await this.addImagePage(pdfDoc, image);
-			}
+      for (const image of validImages) {
+        if (image.pdfSource) {
+          this.addCopiedPage(pdfDoc, image, copiedPageCache);
+          continue;
+        }
+        await this.addImagePage(pdfDoc, image);
+      }
 
-			if (pdfDoc.getPageCount() === 0)
-				throw new Error("No valid images to include in PDF");
-			return await pdfDoc.save();
-		} catch (error) {
-			logger.error("Error generating PDF", error);
-			throw new Error(
-				error instanceof Error ? error.message : "Failed to generate PDF",
-			);
-		}
-	}
+      if (pdfDoc.getPageCount() === 0)
+        throw new Error('No valid images to include in PDF');
+      return await pdfDoc.save();
+    } catch (error) {
+      logger.error('Error generating PDF', error);
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to generate PDF',
+      );
+    }
+  }
 
-	private collectSourceIndices(
-		images: ImageFile[],
-	): Map<Uint8Array, Set<number>> {
-		const map = new Map<Uint8Array, Set<number>>();
-		for (const image of images) {
-			if (!image.pdfSource) continue;
-			const { pdfBytes, pageIndex } = image.pdfSource;
-			if (!map.has(pdfBytes)) map.set(pdfBytes, new Set());
-			map.get(pdfBytes)?.add(pageIndex);
-		}
-		return map;
-	}
+  private collectSourceIndices(
+    images: ImageFile[],
+  ): Map<Uint8Array, Set<number>> {
+    const map = new Map<Uint8Array, Set<number>>();
+    for (const image of images) {
+      if (!image.pdfSource) continue;
+      const { pdfBytes, pageIndex } = image.pdfSource;
+      if (!map.has(pdfBytes)) map.set(pdfBytes, new Set());
+      map.get(pdfBytes)?.add(pageIndex);
+    }
+    return map;
+  }
 
-	private async resolveSourceBytes(
-		pdfLib: PdfLib,
-		pdfBytes: Uint8Array,
-		preset?: CompressionPreset,
-	): Promise<Uint8Array> {
-		if (!preset) return pdfBytes;
-		let presetCache = this.compressCache.get(pdfBytes);
-		if (!presetCache) {
-			presetCache = new Map();
-			this.compressCache.set(pdfBytes, presetCache);
-		}
-		let compressed = presetCache.get(preset);
-		if (!compressed) {
-			compressed = await compressAllPdfImages(pdfLib, pdfBytes, {
-				quality: COMPRESSION_PRESETS[preset].quality,
-				mimeType: "image/jpeg",
-			});
-			presetCache.set(preset, compressed);
-		}
-		return compressed;
-	}
+  private async resolveSourceBytes(
+    pdfLib: PdfLib,
+    pdfBytes: Uint8Array,
+    preset?: CompressionPreset,
+  ): Promise<Uint8Array> {
+    if (!preset) return pdfBytes;
+    let presetCache = this.compressCache.get(pdfBytes);
+    if (!presetCache) {
+      presetCache = new Map();
+      this.compressCache.set(pdfBytes, presetCache);
+    }
+    let compressed = presetCache.get(preset);
+    if (!compressed) {
+      compressed = await compressAllPdfImages(pdfLib, pdfBytes, {
+        quality: COMPRESSION_PRESETS[preset].quality,
+        mimeType: 'image/jpeg',
+      });
+      presetCache.set(preset, compressed);
+    }
+    return compressed;
+  }
 
-	private async preparePdfSources(
-		pdfLib: PdfLib,
-		pdfDoc: PDFDocumentType,
-		images: ImageFile[],
-		preset?: CompressionPreset,
-	): Promise<Map<Uint8Array, Map<number, PDFPage>>> {
-		const copiedPageCache = new Map<Uint8Array, Map<number, PDFPage>>();
-		const sourcePageIndices = this.collectSourceIndices(images);
+  private async preparePdfSources(
+    pdfLib: PdfLib,
+    pdfDoc: PDFDocumentType,
+    images: ImageFile[],
+    preset?: CompressionPreset,
+  ): Promise<Map<Uint8Array, Map<number, PDFPage>>> {
+    const copiedPageCache = new Map<Uint8Array, Map<number, PDFPage>>();
+    const sourcePageIndices = this.collectSourceIndices(images);
 
-		for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
-			const bytesToLoad = await this.resolveSourceBytes(
-				pdfLib,
-				pdfBytes,
-				preset,
-			);
-			const srcDoc = await loadPdfDoc(pdfLib, bytesToLoad);
-			const indices = Array.from(pageIndices);
-			const copiedPages = await pdfDoc.copyPages(srcDoc, indices);
+    for (const [pdfBytes, pageIndices] of sourcePageIndices.entries()) {
+      const bytesToLoad = await this.resolveSourceBytes(
+        pdfLib,
+        pdfBytes,
+        preset,
+      );
+      const srcDoc = await loadPdfDoc(pdfLib, bytesToLoad);
+      const indices = Array.from(pageIndices);
+      const copiedPages = await pdfDoc.copyPages(srcDoc, indices);
 
-			const pageMap = new Map<number, PDFPage>();
-			for (let i = 0; i < indices.length; i++)
-				pageMap.set(indices[i], copiedPages[i]);
-			copiedPageCache.set(pdfBytes, pageMap);
+      const pageMap = new Map<number, PDFPage>();
+      for (let i = 0; i < indices.length; i++)
+        pageMap.set(indices[i], copiedPages[i]);
+      copiedPageCache.set(pdfBytes, pageMap);
 
-			logger.info(
-				`[pdf-generator] batch-copied ${indices.length} pages, preset=${preset ?? "none"}`,
-			);
-		}
+      logger.info(
+        `[pdf-generator] batch-copied ${indices.length} pages, preset=${preset ?? 'none'}`,
+      );
+    }
 
-		return copiedPageCache;
-	}
+    return copiedPageCache;
+  }
 
-	private addCopiedPage(
-		pdfDoc: PDFDocumentType,
-		image: ImageFile,
-		cache: Map<Uint8Array, Map<number, PDFPage>>,
-	): void {
-		if (!image.pdfSource) return;
-		const { pdfBytes, pageIndex } = image.pdfSource;
-		const page = cache.get(pdfBytes)?.get(pageIndex);
-		if (page) pdfDoc.addPage(page);
-	}
+  private addCopiedPage(
+    pdfDoc: PDFDocumentType,
+    image: ImageFile,
+    cache: Map<Uint8Array, Map<number, PDFPage>>,
+  ): void {
+    if (!image.pdfSource) return;
+    const { pdfBytes, pageIndex } = image.pdfSource;
+    const page = cache.get(pdfBytes)?.get(pageIndex);
+    if (page) pdfDoc.addPage(page);
+  }
 
-	private async addImagePage(
-		pdfDoc: PDFDocumentType,
-		image: ImageFile,
-	): Promise<void> {
-		const rawBytes = await this.resolveImageBytes(image);
-		const { bytes: embedBytes, type: embedType } = await toEmbeddableImageBytes(
-			rawBytes,
-			image.file.type,
-		);
+  private async addImagePage(
+    pdfDoc: PDFDocumentType,
+    image: ImageFile,
+  ): Promise<void> {
+    const rawBytes = await this.resolveImageBytes(image);
+    const { bytes: embedBytes, type: embedType } = await toEmbeddableImageBytes(
+      rawBytes,
+      image.file.type,
+    );
 
-		const embeddedImage: PDFImage =
-			embedType === "image/jpeg"
-				? await pdfDoc.embedJpg(embedBytes)
-				: await pdfDoc.embedPng(embedBytes);
+    const embeddedImage: PDFImage =
+      embedType === 'image/jpeg'
+        ? await pdfDoc.embedJpg(embedBytes)
+        : await pdfDoc.embedPng(embedBytes);
 
-		const { width: imgW, height: imgH } = embeddedImage;
-		// Scale pixel dimensions to PDF points capped at MAX_PAGE_POINTS
-		const scale = Math.min(1, MAX_PAGE_POINTS / Math.max(imgW, imgH));
-		const width = Math.round(imgW * scale);
-		const height = Math.round(imgH * scale);
-		const page = pdfDoc.addPage([width, height]);
-		page.drawImage(embeddedImage, { x: 0, y: 0, width, height });
-	}
+    const { width: imgW, height: imgH } = embeddedImage;
+    // Scale pixel dimensions to PDF points capped at MAX_PAGE_POINTS
+    const scale = Math.min(1, MAX_PAGE_POINTS / Math.max(imgW, imgH));
+    const width = Math.round(imgW * scale);
+    const height = Math.round(imgH * scale);
+    const page = pdfDoc.addPage([width, height]);
+    page.drawImage(embeddedImage, { x: 0, y: 0, width, height });
+  }
 
-	private async resolveImageBytes(image: ImageFile): Promise<Uint8Array> {
-		if (image.storageId) {
-			try {
-				const blob = await storageService.getImage(image.storageId);
-				if (blob) return new Uint8Array(await blob.arrayBuffer());
-				logger.warn(
-					`Image not found in storage: ${image.storageId}, falling back to File`,
-				);
-			} catch (err) {
-				logger.warn("Error reading from storage", err);
-			}
-		}
+  private async resolveImageBytes(image: ImageFile): Promise<Uint8Array> {
+    if (image.storageId) {
+      try {
+        const blob = await storageService.getImage(image.storageId);
+        if (blob) return new Uint8Array(await blob.arrayBuffer());
+        logger.warn(
+          `Image not found in storage: ${image.storageId}, falling back to File`,
+        );
+      } catch (err) {
+        logger.warn('Error reading from storage', err);
+      }
+    }
 
-		if (image.file.size === 0) {
-			throw new Error(
-				`Archivo "${image.file.name}" inválido. Reinicie la aplicación y cargue las imágenes nuevamente.`,
-			);
-		}
+    if (image.file.size === 0) {
+      throw new Error(
+        `Archivo "${image.file.name}" inválido. Reinicie la aplicación y cargue las imágenes nuevamente.`,
+      );
+    }
 
-		return new Uint8Array(await image.file.arrayBuffer());
-	}
+    return new Uint8Array(await image.file.arrayBuffer());
+  }
 }

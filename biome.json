@@ -1,65 +1,65 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
-	"files": {
-		"includes": [
-			"src/**",
-			"public/**",
-			"scripts/**",
-			"astro.config.ts",
-			"package.json",
-			"tsconfig.json",
-			".vscode/**",
-			"docs/**",
-			"README.md",
-			"*.config.*",
-			"env.d.ts",
-			"!public/~partytown",
-			"!public/cmaps",
-			"!public/standard_fonts",
-			"!public/wasm",
-			"!public/iccs"
-		]
-	},
-	"vcs": {
-		"enabled": false,
-		"clientKind": "git",
-		"useIgnoreFile": false
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"preset": "recommended",
-			"suspicious": {
-				"noUnknownAtRules": "off"
-			},
-			"a11y": {
-				"useSemanticElements": "off",
-				"noStaticElementInteractions": "off"
-			}
-		}
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab"
-	},
-	"css": {
-		"parser": {
-			"cssModules": false,
-			"allowWrongLineComments": false,
-			"tailwindDirectives": true
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
-		}
-	},
-	"assist": {
-		"enabled": true,
-		"actions": {
-			"source": {
-				"organizeImports": "off"
-			}
-		}
-	}
+  "$schema": "https://biomejs.dev/schemas/2.5.7/schema.json",
+  "files": {
+    "includes": [
+      "src/**",
+      "public/**",
+      "scripts/**",
+      "astro.config.ts",
+      "package.json",
+      "tsconfig.json",
+      ".vscode/**",
+      "docs/**",
+      "README.md",
+      "*.config.*",
+      "env.d.ts",
+      "!public/~partytown",
+      "!public/cmaps",
+      "!public/standard_fonts",
+      "!public/wasm",
+      "!public/iccs"
+    ]
+  },
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noUnknownAtRules": "off"
+      },
+      "a11y": {
+        "useSemanticElements": "off",
+        "noStaticElementInteractions": "off"
+      }
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "css": {
+    "parser": {
+      "cssModules": false,
+      "allowWrongLineComments": false,
+      "tailwindDirectives": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  }
 }
