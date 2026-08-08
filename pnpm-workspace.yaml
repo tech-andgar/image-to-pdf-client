@@ -12,3 +12,5 @@ minimumReleaseAgeExclude:
   - '@biomejs/*'
   - '@rolldown/*'
   - terser
+  - postcss
+  - globals
