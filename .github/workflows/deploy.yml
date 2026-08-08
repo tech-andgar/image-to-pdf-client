@@ -126,7 +126,7 @@ jobs:
       run: |
         echo "Waiting 60s for image-to-pdf-client-public to finish deploying..."
         sleep 60
-        for i in $(seq 1 12); do
+        for i in $(seq 1 6); do
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://tech-andgar.github.io/image-to-pdf-client-public/")
           if [ "$STATUS" = "200" ]; then echo "Pages ready (attempt $i)"; break; fi
           echo "Attempt $i: status $STATUS, waiting 10s..."
